@@ -22,8 +22,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,"/api/v1/members")
-                        .permitAll()
+                        .requestMatchers("/css/**", "/js/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/v1/members").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }
