@@ -1,6 +1,5 @@
 package com.equip.equiprental.domain.member;
 
-import com.equip.equiprental.dto.member.SignUpResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,16 +48,5 @@ public class Member {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public SignUpResponseDto toSignUpResponseDto() {
-        return SignUpResponseDto.builder()
-                .memberId(String.valueOf(this.memberId)) // DTO는 String이니까 변환
-                .username(this.username)
-                .name(this.name)
-                .department(this.department)
-                .email(this.email)
-                .createdAt(this.createdAt)
-                .build();
     }
 }

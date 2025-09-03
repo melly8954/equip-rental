@@ -45,6 +45,13 @@ public class MemberServiceImpl implements MemberService {
                 .build();
         memberRepository.save(member);
 
-        return member.toSignUpResponseDto();
+        return SignUpResponseDto.builder()
+                .memberId(member.getMemberId())
+                .username(member.getUsername())
+                .name(member.getName())
+                .department(member.getDepartment())
+                .email(member.getEmail())
+                .createdAt(member.getCreatedAt())
+                .build();
     }
 }
