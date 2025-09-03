@@ -1,5 +1,7 @@
 package com.equip.equiprental.config;
 
+import com.equip.equiprental.common.exception.CustomAccessDeniedHandler;
+import com.equip.equiprental.common.exception.CustomAuthenticationEntryPoint;
 import com.equip.equiprental.common.auth.CustomAuthenticationProvider;
 import com.equip.equiprental.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +22,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,7 +38,11 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/", "/signup").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/v1/members", "/api/v1/auth/login").permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                );
         return http.build();
     }
 
