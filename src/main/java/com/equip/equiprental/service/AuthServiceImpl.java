@@ -6,7 +6,9 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.domain.member.Member;
 import com.equip.equiprental.dto.auth.LoginRequestDto;
 import com.equip.equiprental.dto.auth.LoginResponseDto;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,6 +69,31 @@ public class AuthServiceImpl implements AuthService {
             }
         } catch (AuthenticationException e) {
             throw new CustomException(ErrorType.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        // SecurityContextHolder 초기화
+        SecurityContextHolder.clearContext();
+
+        // 세션 무효화
+        HttpSession session = httpRequest.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        // 쿠키 삭제
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("JSESSIONID".equals(cookie.getName())) {
+                    cookie.setValue(null);
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    httpResponse.addCookie(cookie);
+                }
+            }
         }
     }
 }

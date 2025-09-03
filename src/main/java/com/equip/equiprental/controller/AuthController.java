@@ -7,6 +7,7 @@ import com.equip.equiprental.dto.auth.LoginResponseDto;
 import com.equip.equiprental.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,4 +35,12 @@ public class AuthController implements ResponseController {
         return makeResponseEntity(traceId, HttpStatus.OK, null, "로그인 성공", result);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseDto<Void>> logout(HttpServletRequest request, HttpServletResponse response) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[로그아웃 요청 API] TraceId={}", traceId);
+
+        authService.logout(request, response);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "로그아웃 성공", null);
+    }
 }
