@@ -4,7 +4,7 @@ import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.dto.auth.LoginRequestDto;
 import com.equip.equiprental.dto.auth.LoginResponseDto;
-import com.equip.equiprental.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

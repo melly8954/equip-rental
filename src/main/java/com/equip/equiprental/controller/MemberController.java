@@ -4,7 +4,7 @@ import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.dto.member.SignUpRequestDto;
 import com.equip.equiprental.dto.member.SignUpResponseDto;
-import com.equip.equiprental.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

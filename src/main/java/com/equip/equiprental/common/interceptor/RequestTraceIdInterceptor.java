@@ -1,4 +1,4 @@
-package com.equip.equiprental.interceptor;
+package com.equip.equiprental.common.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

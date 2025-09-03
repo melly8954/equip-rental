@@ -1,6 +1,6 @@
 package com.equip.equiprental.config;
 
-import com.equip.equiprental.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
