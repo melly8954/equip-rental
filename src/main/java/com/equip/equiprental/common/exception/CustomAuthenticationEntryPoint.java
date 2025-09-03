@@ -1,7 +1,7 @@
 package com.equip.equiprental.common.exception;
 
 import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.common.filter.RequestTraceIdFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +18,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String traceId = RequestTraceIdInterceptor.getTraceId();
+        String traceId = RequestTraceIdFilter.getTraceId();
 
         ResponseDto<?> dto = new ResponseDto<>(
                 traceId,

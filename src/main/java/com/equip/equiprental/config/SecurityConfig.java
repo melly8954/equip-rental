@@ -4,6 +4,7 @@ import com.equip.equiprental.common.exception.CustomAccessDeniedHandler;
 import com.equip.equiprental.common.exception.CustomAuthenticationEntryPoint;
 import com.equip.equiprental.common.auth.CustomAuthenticationProvider;
 import com.equip.equiprental.domain.member.MemberRepository;
+import com.equip.equiprental.common.filter.RequestTraceIdFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +28,7 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final RequestTraceIdFilter requestTraceIdFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,8 +44,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
-                        .accessDeniedHandler(customAccessDeniedHandler)
-                );
+                        .accessDeniedHandler(customAccessDeniedHandler))
+                .addFilterBefore(requestTraceIdFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
