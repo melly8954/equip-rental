@@ -25,13 +25,11 @@ function signUp(){
             department: department,
             email: email
         })
-    })
-        .done(function(response) {
-            console.log(response);
-            alert(response.message);
-            window.location.href = "/";
-        })
-        .fail(function(jqXHR) {
-            handleServerError(jqXHR);
-        });
+    }).done(function(response) {
+        console.log(response);
+        alert(response.message);
+        window.location.href = "/";
+    }).fail(function(jqXHR) {
+        handleServerError(jqXHR);
+    });
 }

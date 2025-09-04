@@ -15,13 +15,11 @@ function login(){
             username: username,
             password: password,
         })
-    })
-        .done(function(response) {
-            console.log(response);
-            alert(response.message);
-            window.location.href = "/equipment";
-        })
-        .fail(function(jqXHR) {
-            handleServerError(jqXHR);
-        });
+    }).done(function(response) {
+        console.log(response);
+        alert(response.message);
+        window.location.href = "/home";
+    }).fail(function(jqXHR) {
+        handleServerError(jqXHR);
+    });
 }
