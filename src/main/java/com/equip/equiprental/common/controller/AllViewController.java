@@ -18,8 +18,8 @@ public class AllViewController {
         return "member/signup";
     }
 
-    @GetMapping("/equipment")
-    public String equipment() {
+    @GetMapping("/home")
+    public String home() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getAuthorities() != null) {
@@ -28,10 +28,10 @@ public class AllViewController {
                     .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ROLE_MANAGER"));
 
             if (isAdminOrManager ) {
-                return "equipment/adminEquipment";  // 관리자용 페이지
+                return "adminHome";  // 관리자용 페이지
             }
         }
 
-        return "equipment/userEquipment";  // 일반 사용자 페이지
+        return "userHome";  // 일반 사용자 페이지
     }
 }
