@@ -2,11 +2,12 @@ package com.equip.equiprental.service;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.domain.member.Member;
-import com.equip.equiprental.domain.member.MemberRepository;
-import com.equip.equiprental.domain.member.MemberRole;
-import com.equip.equiprental.domain.member.MemberStatus;
-import com.equip.equiprental.dto.member.SignUpRequestDto;
+import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.member.domain.MemberRole;
+import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.member.dto.SignUpRequestDto;
+import com.equip.equiprental.member.service.MemberServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +30,8 @@ public class MemberServiceImplTest {
     @Mock MemberRepository memberRepository;
     @Mock PasswordEncoder passwordEncoder;
 
-    @InjectMocks MemberServiceImpl memberService;
+    @InjectMocks
+    MemberServiceImpl memberService;
 
     @Nested
     @DisplayName("signUp() 메서드 테스트")
