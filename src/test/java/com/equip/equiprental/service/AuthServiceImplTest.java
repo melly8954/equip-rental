@@ -1,13 +1,14 @@
 package com.equip.equiprental.service;
 
-import com.equip.equiprental.common.auth.PrincipalDetails;
+import com.equip.equiprental.auth.service.AuthServiceImpl;
+import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.domain.member.Member;
-import com.equip.equiprental.domain.member.MemberRole;
-import com.equip.equiprental.domain.member.MemberStatus;
-import com.equip.equiprental.dto.auth.LoginRequestDto;
-import com.equip.equiprental.dto.auth.LoginResponseDto;
+import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.domain.MemberRole;
+import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.auth.dto.LoginRequestDto;
+import com.equip.equiprental.auth.dto.LoginResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
