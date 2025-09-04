@@ -1,12 +1,97 @@
 body, html {
     height: 100%;
-    margin: 0;
-    font-family: 'Helvetica', 'Arial', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+}
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+}
+main.content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
 }
 
-body {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+/* Sidebar 메뉴 전체 */
+nav.sidebar {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    width: 260px;
+    height: 100%;
+    background-color: #2b2e44;
+    border-right: 1px solid #3a3f57;
+}
+
+/* 메뉴 리스트 */
+nav.sidebar ul.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* li 사이 간격 추가 */
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* 각 메뉴 버튼 */
+nav.sidebar .nav-link {
+    display: block;
+    padding: 12px 20px; /* 버튼 넓이 / 높이 조절 */
+    border-radius: 1rem;
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+nav.sidebar .nav-link:hover {
+    background-color: #3a3f57;
+    color: #fff;
+}
+
+nav.sidebar .nav-link.active {
+    background-color: #4a5a78;
+    color: #fff;
+}
+
+/* 로고 */
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #fff;
+    text-decoration: none; /* a 태그 기본 밑줄 제거 */
+    display: block; /* 블록으로 만들어 사이드바 안에서 공간 확보 */
+}
+
+/* 로그아웃 버튼 하단 고정 스타일 */
+.logout-wrapper {
+    margin-top: auto; /* 메뉴 아래쪽으로 붙임 */
+    padding-top: 20px;
+}
+
+/* 버튼 스타일, 메뉴와 통일감 */
+.logout-btn {
+    width: 100%; /* 사이드바 전체 너비 */
+    padding: 12px 20px;
+    border-radius: 1rem;
+    border: none;
+    background-color: #e74c3c; /* 빨간 계열로 눈에 띄게 */
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
 }
