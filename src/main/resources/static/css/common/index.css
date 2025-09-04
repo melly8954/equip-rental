@@ -1,3 +1,16 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* 카드 스타일 */
 .card-container {
     background: #fff;
