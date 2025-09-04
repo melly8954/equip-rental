@@ -1,8 +1,5 @@
 package com.equip.equiprental.common.exception;
 
-import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.common.filter.RequestTraceIdFilter;
-import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,22 +12,9 @@ import java.io.IOException;
 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        String traceId = RequestTraceIdFilter.getTraceId();
-
-        ResponseDto<?> dto = new ResponseDto<>(
-                traceId,
-                HttpServletResponse.SC_FORBIDDEN,
-                ErrorType.FORBIDDEN.getErrorCode(),
-                ErrorType.FORBIDDEN.getMessage(),
-                null);
-
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(dto));
+        response.sendRedirect("/error/forbidden");
     }
 }
