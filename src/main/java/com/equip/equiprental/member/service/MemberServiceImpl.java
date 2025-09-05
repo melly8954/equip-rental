@@ -63,6 +63,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponseDto<MemberDto> searchMembers(SearchParamDto dto) {
         Pageable pageable = dto.getPageable();
 
