@@ -2,7 +2,10 @@ package com.equip.equiprental.service;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.common.response.PageResponseDto;
+import com.equip.equiprental.common.response.SearchParamDto;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.dto.MemberDto;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
@@ -16,8 +19,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,12 +36,14 @@ import static org.mockito.Mockito.when;
 public class MemberServiceImplTest {
     @Mock MemberRepository memberRepository;
     @Mock PasswordEncoder passwordEncoder;
+    @Mock Page<Member> mockPage;
+    @Mock Page<Member> emptyPage;
 
     @InjectMocks
     MemberServiceImpl memberService;
 
     @Nested
-    @DisplayName("signUp() 메서드 테스트")
+    @DisplayName("signUp 메서드 테스트")
     class SignUp {
         private SignUpRequestDto dto;
 
@@ -107,6 +116,170 @@ public class MemberServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.PASSWORD_MISMATCH);
+        }
+    }
+
+    @Nested
+    @DisplayName("searchMembers 메서드 테스트")
+    class searchMembers {
+        Member member;
+        SearchParamDto dto;
+
+        @BeforeEach
+        void setUp() {
+            dto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .build();
+
+            member = Member.builder()
+                    .status(MemberStatus.ACTIVE)
+                    .role(MemberRole.ADMIN)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("성공 - status와 role 모두 존재할 때 findByStatusAndRole 호출")
+        void whenStatusAndRoleNotNull_thenFindByStatusAndRoleCalled() {
+            // given
+            dto.setStatus("ACTIVE");
+            dto.setRole("ADMIN");
+
+            when(mockPage.getContent()).thenReturn(List.of(member));
+            when(memberRepository.findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable()))
+                    .thenReturn(mockPage);
+
+            // when
+            memberService.searchMembers(dto);
+
+            // then
+            verify(memberRepository).findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable());
+        }
+
+        @Test
+        @DisplayName("성공 - status만 존재할 때 findByStatus 호출")
+        void whenStatusNotNullAndRoleNull_thenFindByStatusCalled() {
+            // given
+            dto.setStatus("ACTIVE");
+
+            when(mockPage.getContent()).thenReturn(List.of(member));
+            when(memberRepository.findByStatus(MemberStatus.ACTIVE, dto.getPageable()))
+                    .thenReturn(mockPage);
+
+            // when
+            memberService.searchMembers(dto);
+
+            // then
+            verify(memberRepository).findByStatus(MemberStatus.ACTIVE, dto.getPageable());
+        }
+
+        @Test
+        @DisplayName("성공 - role만 존재할 때 findByRole 호출")
+        void whenStatusNullAndRoleNotNull_thenFindByRoleCalled() {
+            // given
+            dto.setRole("ADMIN");
+
+            when(mockPage.getContent()).thenReturn(List.of(member));
+            when(memberRepository.findByRole(MemberRole.ADMIN, dto.getPageable()))
+                    .thenReturn(mockPage);
+
+            // when
+            memberService.searchMembers(dto);
+
+            // then
+            verify(memberRepository).findByRole(MemberRole.ADMIN, dto.getPageable());
+        }
+
+        @Test
+        @DisplayName("성공 - status와 role 모두 null일 때 findAll 호출")
+        void whenStatusAndRoleNull_thenFindAllCalled() {
+            // given
+            when(mockPage.getContent()).thenReturn(List.of(member));
+            when(memberRepository.findAll(dto.getPageable()))
+                    .thenReturn(mockPage);
+
+            // when
+            memberService.searchMembers(dto);
+
+            // then
+            verify(memberRepository).findAll(dto.getPageable());
+        }
+
+        @Test
+        @DisplayName("성공 - 검색 결과가 빈 페이지일 때 empty=true")
+        void whenEmptyPageReturned_thenEmptyFlagTrue() {
+            // given
+            when(emptyPage.getContent()).thenReturn(List.of());
+            when(emptyPage.isEmpty()).thenReturn(true);
+            when(emptyPage.getTotalElements()).thenReturn(0L);
+            when(emptyPage.isFirst()).thenReturn(true);
+            when(emptyPage.isLast()).thenReturn(true);
+            when(memberRepository.findAll(dto.getPageable())).thenReturn(emptyPage);
+
+            // when
+            PageResponseDto<MemberDto> response = memberService.searchMembers(dto);
+
+            // then
+            assertThat(response.getContent()).isEmpty();
+            assertThat(response.isEmpty()).isTrue();
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.getTotalElements()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("검색 결과가 존재할 때 페이징 정보 정상 반환")
+        void whenPageHasContent_thenPagingInfoCorrect() {
+            // given
+            dto.setStatus("ACTIVE");
+            dto.setRole("ADMIN");
+
+            when(mockPage.getContent()).thenReturn(List.of(member));
+            when(mockPage.getNumber()).thenReturn(0);
+            when(mockPage.getSize()).thenReturn(10);
+            when(mockPage.getTotalElements()).thenReturn(1L);
+            when(mockPage.getTotalPages()).thenReturn(1);
+            when(mockPage.isFirst()).thenReturn(true);
+            when(mockPage.isLast()).thenReturn(true);
+            when(mockPage.isEmpty()).thenReturn(false);
+            when(memberRepository.findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable()))
+                    .thenReturn(mockPage);
+
+            // when
+            PageResponseDto<MemberDto> response = memberService.searchMembers(dto);
+
+            // then
+            assertThat(response.getContent()).hasSize(1);
+            assertThat(response.isEmpty()).isFalse();
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.getTotalElements()).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("예외 - 잘못된 status 입력 시 CustomException 발생")
+        void whenInvalidStatus_thenThrowCustomException() {
+            // given
+            dto.setStatus("INVALID");
+
+            // when & then
+            assertThatThrownBy(() -> memberService.searchMembers(dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.INVALID_STATUS_REQUEST);
+        }
+
+        @Test
+        @DisplayName("예외 - 잘못된 role 입력 시 CustomException 발생")
+        void whenInvalidRole_thenThrowCustomException() {
+            // given
+            dto.setRole("INVALID");
+
+            // when & then
+            assertThatThrownBy(() -> memberService.searchMembers(dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.INVALID_ROLE_REQUEST);
         }
     }
 }
