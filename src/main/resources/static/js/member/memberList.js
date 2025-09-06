@@ -1,3 +1,5 @@
+
+
 const filterConfig = {
     status: {
         label: "상태",
@@ -17,19 +19,20 @@ $(document).ready(function () {
     });
 
     loadMembers(); // 초기 로드
+    const $memberList = $("#member-list");
 
     // 상태 변경
-    $(".member-status").on("change", function() {
+    $memberList.on("change", ".member-status", function() {
         const memberId = $(this).data("id");
         const newStatus = $(this).val();
-        updateMember(memberId, "status", newStatus);
+        updateMember(memberId, "status", newStatus, getCurrentFilters());
     });
 
-// 역할 변경
-    $(".member-role").on("change", function() {
+    // 역할 변경
+    $memberList.on("change", ".member-role", function() {
         const memberId = $(this).data("id");
         const newRole = $(this).val();
-        updateMember(memberId, "role", newRole);
+        updateMember(memberId, "role", newRole, getCurrentFilters());
     });
 });
 
@@ -92,20 +95,34 @@ function renderMemberList(response, filters = {}) {
     });
 }
 
-function updateMember(memberId, type, value) {
+function updateMember(memberId, type, value, currentFilters = {}) {
     let url = `/api/v1/members/${memberId}/${type}`;
     let body = {};      // 빈 객체 생성
-    body[type] = value;     // type 을 문자열 key 로 사용해서 value 선언
+
+    if (type === "status") {
+        body.updateStatus = value; // 서버 필드명에 맞춤
+    } else if (type === "role") {
+        body.updateRole = value;   // 서버 필드명에 맞춤
+    }
 
     $.ajax({
         url: url,
-        type: "PUT",
+        type: "PATCH",
         contentType: "application/json",
         data: JSON.stringify(body),
     }).done(function(response) {
         console.log(response);
+        // 변경 후 목록 갱신
+        loadMembers(currentFilters);
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })
 
+}
+
+function getCurrentFilters() {
+    return {
+        status: $('input[name="status"]:checked').val(),
+        role: $('input[name="role"]:checked').val()
+    };
 }

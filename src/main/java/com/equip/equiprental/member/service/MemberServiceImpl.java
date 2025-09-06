@@ -5,12 +5,10 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.response.PageResponseDto;
 import com.equip.equiprental.common.response.SearchParamDto;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.member.dto.MemberDto;
+import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
-import com.equip.equiprental.member.dto.SignUpRequestDto;
-import com.equip.equiprental.member.dto.SignUpResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -97,6 +95,42 @@ public class MemberServiceImpl implements MemberService {
                 .first(page.isFirst())
                 .last(page.isLast())
                 .empty(page.isEmpty())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public MemberStatusDto updateMemberStatus(Long memberId, UpdateMemberRequestDto dto) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
+        // 상태 변경 전
+        String oldStatus = member.getStatus().name();
+
+        member.updateStatus(dto.getStatusEnum());
+
+        return MemberStatusDto.builder()
+                .memberId(member.getMemberId())
+                .oldStatus(oldStatus)
+                .newStatus(member.getStatus().name())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public MemberRoleDto updateMemberRole(Long memberId, UpdateMemberRequestDto dto) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
+        // 상태 변경 전
+        String oldRole = member.getRole().name();
+
+        member.updateRole(dto.getRoleEnum());
+
+        return MemberRoleDto.builder()
+                .memberId(member.getMemberId())
+                .oldRole(oldRole)
+                .newRole(member.getRole().name())
                 .build();
     }
 }

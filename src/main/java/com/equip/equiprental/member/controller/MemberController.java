@@ -4,9 +4,7 @@ import com.equip.equiprental.common.response.PageResponseDto;
 import com.equip.equiprental.common.response.ResponseController;
 import com.equip.equiprental.common.response.ResponseDto;
 import com.equip.equiprental.common.response.SearchParamDto;
-import com.equip.equiprental.member.dto.MemberDto;
-import com.equip.equiprental.member.dto.SignUpRequestDto;
-import com.equip.equiprental.member.dto.SignUpResponseDto;
+import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +38,23 @@ public class MemberController implements ResponseController {
 
         PageResponseDto<MemberDto> result = memberService.searchMembers(dto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 목록 조회 성공", result);
+    }
+
+    @PatchMapping("/{memberId}/status")
+    public ResponseEntity<ResponseDto<MemberStatusDto>> updateStatus(@PathVariable Long memberId, @RequestBody UpdateMemberRequestDto dto){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[사용자 상태 변경 요청 API] TraceId={}", traceId);
+
+        MemberStatusDto result = memberService.updateMemberStatus(memberId, dto);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 상태 변경 성공", result);
+    }
+
+    @PatchMapping("/{memberId}/role")
+    public ResponseEntity<ResponseDto<MemberRoleDto>> updateRole(@PathVariable Long memberId, @RequestBody UpdateMemberRequestDto dto){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[사용자 역할 변경 요청 API] TraceId={}", traceId);
+
+        MemberRoleDto result = memberService.updateMemberRole(memberId, dto);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 역할 변경 성공", result);
     }
 }

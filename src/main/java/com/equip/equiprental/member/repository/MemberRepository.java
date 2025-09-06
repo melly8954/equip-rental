@@ -13,10 +13,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
 
+    Optional<Member> findByMemberId(Long memberId);
     Optional<Member> findByUsername(String username);
 
     // 사용자 관리 API 조회
     Page<Member> findByStatusAndRole(MemberStatus status, MemberRole role, Pageable pageable);
     Page<Member> findByStatus(MemberStatus status, Pageable pageable);
     Page<Member> findByRole(MemberRole role, Pageable pageable);
+
+
 }
