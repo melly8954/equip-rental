@@ -17,20 +17,6 @@ $(document).ready(function () {
     });
 
     loadMembers(); // 초기 로드
-
-    // 상태 변경
-    $(".member-status").on("change", function() {
-        const memberId = $(this).data("id");
-        const newStatus = $(this).val();
-        updateMember(memberId, "status", newStatus);
-    });
-
-// 역할 변경
-    $(".member-role").on("change", function() {
-        const memberId = $(this).data("id");
-        const newRole = $(this).val();
-        updateMember(memberId, "role", newRole);
-    });
 });
 
 function loadMembers(filters = {}) {
@@ -89,25 +75,5 @@ function renderMemberList(response, filters = {}) {
         last: response.data.last
     }, (newPage) => {
         loadMembers({ ...filters, page: newPage });
-    });
-}
-
-// 상태, 역할 변경
-function updateMember(memberId, type, value) {
-    let url = `/api/members/${memberId}/${type}`;
-    let body = {};      // 빈 객체 생성
-    body[type] = value;     // type 을 문자열 key 로 사용해서 value 선언
-
-    $.ajax({
-        url: url,
-        type: "PATCH",
-        contentType: "application/json",
-        data: JSON.stringify(body),
-        success: function(response) {
-            alert(type.toUpperCase() + "가 변경되었습니다.");
-        },
-        error: function(xhr) {
-            alert(type.toUpperCase() + " 변경 실패: " + xhr.responseText);
-        }
     });
 }
