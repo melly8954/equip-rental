@@ -60,27 +60,48 @@ function renderMemberList(response, filters = {}) {
     }
 
     memberList.forEach(member => {
+        let statusSelect, roleSelect;
+
+        if (member.role === 'ADMIN') {
+            // admin 계정은 수정 불가 (조회만 가능)
+            statusSelect = `
+                <select class="form-select" disabled>
+                    <option value="ACTIVE" selected>ACTIVE</option>
+                </select>
+            `;
+            roleSelect = `
+                <select class="form-select" disabled>
+                    <option value="ADMIN" selected>ADMIN</option>
+                </select>
+            `;
+        } else {
+            // 일반 사용자/매니저 계정
+            statusSelect = `
+                <select class="form-select member-status" data-id="${member.memberId}">
+                    <option value="PENDING" ${member.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                    <option value="ACTIVE" ${member.status === 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
+                    <option value="DELETED" ${member.status === 'DELETED' ? 'selected' : ''}>DELETED</option>
+                </select>
+            `;
+            roleSelect = `
+                <select class="form-select member-role" data-id="${member.memberId}">
+                    <option value="USER" ${member.role === 'USER' ? 'selected' : ''}>USER</option>
+                    <option value="MANAGER" ${member.role === 'MANAGER' ? 'selected' : ''}>MANAGER</option>
+                </select>
+            `;
+        }
+
         const row = $(`
-                <div class="d-flex border-bottom py-2 text-center">
-                    <div class="col-1">${member.memberId}</div>
-                    <div class="col-2">${member.name}</div>
-                    <div class="col-2">${member.department}</div>
-                    <div class="col-3">${member.email}</div>
-                    <div class="col-2">
-                        <select class="form-select member-status" data-id="${member.memberId}">
-                            <option value="PENDING" ${member.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-                            <option value="ACTIVE" ${member.status === 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
-                            <option value="DELETED" ${member.status === 'DELETED' ? 'selected' : ''}>DELETED</option>
-                        </select>
-                    </div>
-                    <div class="col-2">
-                        <select class="form-select member-role" data-id="${member.memberId}">
-                            <option value="USER" ${member.role === 'USER' ? 'selected' : ''}>USER</option>
-                            <option value="MANAGER" ${member.role === 'MANAGER' ? 'selected' : ''}>MANAGER</option>
-                        </select>
-                    </div>
-                </div>
-            `);
+            <div class="d-flex border-bottom py-2 text-center">
+                <div class="col-1">${member.memberId}</div>
+                <div class="col-2">${member.name}</div>
+                <div class="col-2">${member.department}</div>
+                <div class="col-3">${member.email}</div>
+                <div class="col-2">${statusSelect}</div>
+                <div class="col-2">${roleSelect}</div>
+            </div>
+        `);
+
         $container.append(row);
     });
 
