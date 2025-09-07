@@ -5,11 +5,10 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.response.PageResponseDto;
 import com.equip.equiprental.common.response.SearchParamDto;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.member.dto.MemberDto;
+import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
-import com.equip.equiprental.member.dto.SignUpRequestDto;
 import com.equip.equiprental.member.service.MemberServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,12 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -277,6 +276,128 @@ public class MemberServiceImplTest {
 
             // when & then
             assertThatThrownBy(() -> memberService.searchMembers(dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.INVALID_ROLE_REQUEST);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateMemberStatus 메서드 테스트")
+    class updateMemberStatus {
+        Member member;
+
+        @BeforeEach
+        void setUp() {
+            member = Member.builder()
+                    .memberId(1L)
+                    .status(MemberStatus.PENDING)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("성공 - 사용자 상태 변경")
+        void updateStatus_success() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest("ACTIVE",null);
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
+
+            // when
+            UpdateMemberStatusResponse result = memberService.updateMemberStatus(1L, dto);
+
+            // then
+            assertThat(result.getMemberId()).isEqualTo(1L);
+            assertThat(result.getOldStatus()).isEqualTo("PENDING");
+            assertThat(result.getNewStatus()).isEqualTo("ACTIVE");
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 사용자")
+        void updateStatus_userNotFound() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest("ACTIVE",null);
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - 잘못된 상태 변경 요청")
+        void updateStatus_invalid_request() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest("INVALID",null);
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
+
+            // when & then
+            assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.INVALID_STATUS_REQUEST);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateMemberRole 메서드 테스트")
+    class updateMemberRole {
+        Member member;
+
+        @BeforeEach
+        void setUp() {
+            member = Member.builder()
+                    .memberId(1L)
+                    .role(MemberRole.USER)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("성공 - 사용자 역할 변경")
+        void updateRole_success() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest(null,"MANAGER");
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
+
+            // when
+            UpdateMemberRoleResponse result = memberService.updateMemberRole(1L, dto);
+
+            // then
+            assertThat(result.getMemberId()).isEqualTo(1L);
+            assertThat(result.getOldRole()).isEqualTo("USER");
+            assertThat(result.getNewRole()).isEqualTo("MANAGER");
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 사용자")
+        void updateRole_userNotFound() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest(null,"MANAGER");
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - 잘못된 역할 변경 요청")
+        void updateRole_invalid_request() {
+            // given
+            UpdateMemberRequest dto = new UpdateMemberRequest(null,"INVALID");
+
+            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
+
+            // when & then
+            assertThatThrownBy(() -> memberService.updateMemberRole(1L, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.INVALID_ROLE_REQUEST);
