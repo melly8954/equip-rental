@@ -15,7 +15,9 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor
 @Builder
 public class SearchParamDto {
+    @Builder.Default
     private int page = 1;
+    @Builder.Default
     private int size = 10;
     private String status;
     private String role;
