@@ -100,7 +100,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public MemberStatusDto updateMemberStatus(Long memberId, UpdateMemberRequestDto dto) {
+    public UpdateMemberStatusResponse updateMemberStatus(Long memberId, UpdateMemberRequest dto) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
 
@@ -109,7 +109,7 @@ public class MemberServiceImpl implements MemberService {
 
         member.updateStatus(dto.getStatusEnum());
 
-        return MemberStatusDto.builder()
+        return UpdateMemberStatusResponse.builder()
                 .memberId(member.getMemberId())
                 .oldStatus(oldStatus)
                 .newStatus(member.getStatus().name())
@@ -118,7 +118,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public MemberRoleDto updateMemberRole(Long memberId, UpdateMemberRequestDto dto) {
+    public UpdateMemberRoleResponse updateMemberRole(Long memberId, UpdateMemberRequest dto) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
 
@@ -127,7 +127,7 @@ public class MemberServiceImpl implements MemberService {
 
         member.updateRole(dto.getRoleEnum());
 
-        return MemberRoleDto.builder()
+        return UpdateMemberRoleResponse.builder()
                 .memberId(member.getMemberId())
                 .oldRole(oldRole)
                 .newRole(member.getRole().name())

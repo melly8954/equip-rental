@@ -4,10 +4,12 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-public class UpdateMemberRequestDto {
+@AllArgsConstructor
+public class UpdateMemberRequest {
     private String updateStatus;
     private String updateRole;
 

@@ -10,7 +10,7 @@ public interface MemberService {
     // 사용자 목록 조회
     PageResponseDto<MemberDto> searchMembers(SearchParamDto dto);
 
-    MemberStatusDto updateMemberStatus(Long memberId, UpdateMemberRequestDto dto);
-    MemberRoleDto updateMemberRole(Long memberId, UpdateMemberRequestDto dto);
+    UpdateMemberStatusResponse updateMemberStatus(Long memberId, UpdateMemberRequest dto);
+    UpdateMemberRoleResponse updateMemberRole(Long memberId, UpdateMemberRequest dto);
 
 }

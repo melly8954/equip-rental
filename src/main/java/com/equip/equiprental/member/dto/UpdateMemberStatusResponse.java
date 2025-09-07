@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder
-public class MemberStatusDto {
+public class UpdateMemberStatusResponse {
     private Long memberId;
     private String oldStatus;
     private String newStatus;

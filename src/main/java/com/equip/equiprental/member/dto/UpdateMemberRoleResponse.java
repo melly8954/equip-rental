@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder
-public class MemberRoleDto {
+public class UpdateMemberRoleResponse {
     private Long memberId;
     private String oldRole;
     private String newRole;

@@ -41,20 +41,20 @@ public class MemberController implements ResponseController {
     }
 
     @PatchMapping("/{memberId}/status")
-    public ResponseEntity<ResponseDto<MemberStatusDto>> updateStatus(@PathVariable Long memberId, @RequestBody UpdateMemberRequestDto dto){
+    public ResponseEntity<ResponseDto<UpdateMemberStatusResponse>> updateStatus(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 상태 변경 요청 API] TraceId={}", traceId);
 
-        MemberStatusDto result = memberService.updateMemberStatus(memberId, dto);
+        UpdateMemberStatusResponse result = memberService.updateMemberStatus(memberId, dto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 상태 변경 성공", result);
     }
 
     @PatchMapping("/{memberId}/role")
-    public ResponseEntity<ResponseDto<MemberRoleDto>> updateRole(@PathVariable Long memberId, @RequestBody UpdateMemberRequestDto dto){
+    public ResponseEntity<ResponseDto<UpdateMemberRoleResponse>> updateRole(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 역할 변경 요청 API] TraceId={}", traceId);
 
-        MemberRoleDto result = memberService.updateMemberRole(memberId, dto);
+        UpdateMemberRoleResponse result = memberService.updateMemberRole(memberId, dto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 역할 변경 성공", result);
     }
 }
