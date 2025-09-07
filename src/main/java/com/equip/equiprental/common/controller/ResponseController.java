@@ -1,5 +1,6 @@
-package com.equip.equiprental.common.response;
+package com.equip.equiprental.common.controller;
 
+import com.equip.equiprental.common.dto.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

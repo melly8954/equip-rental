@@ -1,6 +1,6 @@
 package com.equip.equiprental.common.exception;
 
-import com.equip.equiprental.common.response.ResponseDto;
+import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.filter.RequestTraceIdFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
 package com.equip.equiprental.common.exception;
 
-import com.equip.equiprental.common.response.ResponseController;
-import com.equip.equiprental.common.response.ResponseDto;
+import com.equip.equiprental.common.controller.ResponseController;
+import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

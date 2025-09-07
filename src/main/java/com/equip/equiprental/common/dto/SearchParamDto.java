@@ -1,4 +1,4 @@
-package com.equip.equiprental.common.response;
+package com.equip.equiprental.common.dto;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;

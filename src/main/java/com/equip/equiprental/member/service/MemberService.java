@@ -1,7 +1,7 @@
 package com.equip.equiprental.member.service;
 
-import com.equip.equiprental.common.response.PageResponseDto;
-import com.equip.equiprental.common.response.SearchParamDto;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.dto.*;
 
 public interface MemberService {

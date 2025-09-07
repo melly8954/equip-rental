@@ -2,8 +2,8 @@ package com.equip.equiprental.member.service;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.common.response.PageResponseDto;
-import com.equip.equiprental.common.response.SearchParamDto;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.member.repository.MemberRepository;
