@@ -23,8 +23,11 @@ public enum ErrorType {
     BAD_CREDENTIALS("bad_credentials", "비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
     USER_NOT_FOUND("user_not_found", "해당 정보로 등록된 사용자가 없습니다.", HttpStatus.NOT_FOUND),
     USER_PENDING("user_pending", "미승인 계정입니다.", HttpStatus.UNAUTHORIZED),
-    USER_DELETED("user_deleted", "탈퇴된 계정입니다.", HttpStatus.UNAUTHORIZED);
+    USER_DELETED("user_deleted", "탈퇴된 계정입니다.", HttpStatus.UNAUTHORIZED),
 
+    // 쿼리 파라미터 요청 값 에러
+    INVALID_STATUS_REQUEST("invalid_status_request", "잘못된 상태 요청입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST);
     private final String errorCode;
     private final String message;
     private final HttpStatus status;

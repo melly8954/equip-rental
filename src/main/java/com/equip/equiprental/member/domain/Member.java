@@ -49,4 +49,12 @@ public class Member {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateStatus(MemberStatus newStatus) {
+        this.status = newStatus;
+    }
+
+    public void updateRole(MemberRole newRole) {
+        this.role = newRole;
+    }
 }
