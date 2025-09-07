@@ -26,7 +26,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public SignUpResponseDto signUp(SignUpRequestDto dto) {
+    public SignUpResponse signUp(SignUpRequest dto) {
         if(memberRepository.existsByUsername(dto.getUsername())){
             throw new CustomException(ErrorType.DUPLICATE_USERNAME);
         }
@@ -50,7 +50,7 @@ public class MemberServiceImpl implements MemberService {
                 .build();
         memberRepository.save(member);
 
-        return SignUpResponseDto.builder()
+        return SignUpResponse.builder()
                 .memberId(member.getMemberId())
                 .username(member.getUsername())
                 .name(member.getName())

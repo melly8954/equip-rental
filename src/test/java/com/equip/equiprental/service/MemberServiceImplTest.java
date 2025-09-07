@@ -44,11 +44,11 @@ public class MemberServiceImplTest {
     @Nested
     @DisplayName("signUp 메서드 테스트")
     class SignUp {
-        private SignUpRequestDto dto;
+        private SignUpRequest dto;
 
         @BeforeEach
         void setUp() {
-            dto = SignUpRequestDto.builder()
+            dto = SignUpRequest.builder()
                     .username("testid")
                     .password("testpassword")
                     .confirmPassword("testpassword")

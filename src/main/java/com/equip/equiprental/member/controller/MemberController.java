@@ -22,11 +22,11 @@ public class MemberController implements ResponseController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<ResponseDto<SignUpResponseDto>> createMember(@RequestBody SignUpRequestDto dto) {
+    public ResponseEntity<ResponseDto<SignUpResponse>> createMember(@RequestBody SignUpRequest dto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[회원 가입 요청 API] TraceId={}", traceId);
 
-        SignUpResponseDto result = memberService.signUp(dto);
+        SignUpResponse result = memberService.signUp(dto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 가입 성공", result);
     }
 
