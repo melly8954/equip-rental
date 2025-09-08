@@ -11,4 +11,5 @@ public class EquipmentDto {
     private String subCategory;
     private String model;
     private Integer stock;
+    private String imageUrl;
 }
