@@ -1,3 +1,48 @@
+$(document).ready(function () {
+    // 파일 선택 시 미리보기 리스트 렌더링
+    $('#files').on('change', function() {
+        const files = Array.from(this.files);
+        const $previewArea = $('#filePreviewArea');
+        const $previewList = $('#filePreviewList');
+
+        $previewList.empty(); // 기존 리스트 초기화
+
+        if (files.length === 0) {
+            $previewArea.hide();
+            return;
+        }
+
+        files.forEach(file => {
+            const listItem = $('<li>')
+                .addClass('list-group-item d-flex justify-content-between align-items-center')
+                .text(file.name);
+
+            // 삭제 버튼
+            const removeBtn = $('<button>')
+                .addClass('btn btn-sm btn-danger')
+                .text('삭제')
+                .on('click', function() {
+                    // 선택된 파일 제거
+                    const dt = new DataTransfer();
+                    Array.from($('#files')[0].files)
+                        .filter(f => f.name !== file.name)
+                        .forEach(f => dt.items.add(f));
+                    $('#files')[0].files = dt.files;
+
+                    listItem.remove();
+                    if ($('#files')[0].files.length === 0) {
+                        $previewArea.hide();
+                    }
+                });
+
+            listItem.append(removeBtn);
+            $previewList.append(listItem);
+        });
+
+        $previewArea.show();
+    });
+});
+
 function registerEquipment() {
     const $category = $('#equipmentCategory');
     const $subCategory = $('#equipmentSubCategory');

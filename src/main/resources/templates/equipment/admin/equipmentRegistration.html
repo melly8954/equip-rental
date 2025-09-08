@@ -62,17 +62,12 @@
                         </div>
                     </div>
 
-                    <!-- 첨부 파일 리스트 -->
-                    <div class="mb-3 row" id="filePreviewArea" style="display: none;">
-                        <label class="form-label">첨부된 파일</label>
-                        <ul class="list-group" id="filePreviewList">
-                            <!-- 동적으로 삽입됨 -->
-                        </ul>
-                    </div>
+                    <div class="col-sm-8">
+                        <!-- 파일 미리보기 리스트 -->
+                        <ul id="filePreviewList" class="list-group mb-2" style="max-height: 150px; overflow-y: auto;"></ul>
 
-                    <!-- 등록 버튼 -->
-                    <div class="mb-3 row">
-                        <div class="col-sm-8 text-end">
+                        <!-- 등록 버튼 -->
+                        <div class="text-end">
                             <button class="btn btn-primary" onclick="registerEquipment()">등록</button>
                         </div>
                     </div>
