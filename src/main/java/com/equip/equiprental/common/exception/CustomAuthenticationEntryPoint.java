@@ -14,22 +14,9 @@ import java.io.IOException;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String traceId = RequestTraceIdFilter.getTraceId();
-
-        ResponseDto<?> dto = new ResponseDto<>(
-                traceId,
-                HttpServletResponse.SC_UNAUTHORIZED,
-                ErrorType.UNAUTHORIZED.getErrorCode(),
-                ErrorType.UNAUTHORIZED.getMessage(),
-                null);
-
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(dto));
+        response.sendRedirect("/error/unauthorized");
     }
 }
