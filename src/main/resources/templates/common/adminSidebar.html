@@ -7,9 +7,15 @@
             </a>
         </li>
         <li>
-            <a href="/equipment" class="nav-link active">
-                장비 조회
+            <a class="nav-link active" data-bs-toggle="collapse" href="#equipmentMenu" role="button">
+                장비 관리
             </a>
+            <div class="collapse" id="equipmentMenu">
+                <ul class="btn-toggle-nav list-styled fw-normal pb-1 small">
+                    <li><a href="/admin/equipment/list" class="nav-link active">장비 조회</a></li>
+                    <li><a href="/admin/equipment/registration" class="nav-link active">장비 등록</a></li>
+                </ul>
+            </div>
         </li>
         <li>
             <a href="/rental" class="nav-link active">
