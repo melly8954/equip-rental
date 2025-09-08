@@ -41,6 +41,7 @@ public class MemberController implements ResponseController {
     }
 
     @PatchMapping("/{memberId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<UpdateMemberStatusResponse>> updateStatus(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 상태 변경 요청 API] TraceId={}", traceId);
@@ -50,6 +51,7 @@ public class MemberController implements ResponseController {
     }
 
     @PatchMapping("/{memberId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<UpdateMemberRoleResponse>> updateRole(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 역할 변경 요청 API] TraceId={}", traceId);
