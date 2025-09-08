@@ -23,8 +23,8 @@ import java.util.List;
 public class EquipmentController implements ResponseController {
     private final EquipmentService equipmentService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<EquipmentRegisterResponse>> addEquipment(@RequestPart(value = "data") EquipmentRegisterRequest dto,
                                                                                @RequestPart(value = "files") List<MultipartFile> files) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
