@@ -26,5 +26,9 @@ public class Equipment extends BaseEntity {
     private String subCategory;
 
     private String model;
+
+    @Column(name="model_code")
+    private String modelCode;
+
     private Integer stock;
 }
