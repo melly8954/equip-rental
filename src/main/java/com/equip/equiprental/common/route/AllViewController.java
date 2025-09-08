@@ -42,6 +42,22 @@ public class AllViewController {
         return "member/memberList";
     }
 
+    @GetMapping("/admin/equipment/registration")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String equipmentRegistration() {
+        return "equipment/admin/equipmentRegistration";
+    }
+
+    @GetMapping("/admin/equipment/list")
+    public String equipmentList() {
+        return "equipment/admin/equipmentList";
+    }
+
+    @GetMapping("/error/unauthorized")
+    public String errorUnAuthorized() {
+        return "error/unauthorized";
+    }
+
     @GetMapping("/error/forbidden")
     public String errorForbidden() {
         return "error/forbidden";
