@@ -11,12 +11,26 @@ const filterConfig = {
             "TOOLS",
             "SAFETY_EQUIPMENT"
         ]
+    },
+
+    subCategory: {
+        label: "서브카테고리",
+        type: "radio",
+        options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
     }
+};
+
+const subCategoryMap = {
+    OFFICE_SUPPLIES: ["문서용품", "필기구", "사무기기"],
+    ELECTRONICS: ["컴퓨터", "마우스", "모바일/태블릿"],
+    FURNITURE: ["책상/의자", "수납", "회의용 가구"],
+    TOOLS: ["전동공구", "수공구", "측정기기"],
+    SAFETY_EQUIPMENT: ["보호구", "안전장치", "응급용품"]
 };
 
 $(document).ready(function() {
     // 필터 렌더링
-    renderFilter("equipment-filters", filterConfig, () => fetchEquipment(1));
+    renderFilter("equipment-filters", filterConfig, onFilterChange);
 
     // 검색 이벤트
     $("#equipment-search").on("input", function() {
@@ -27,6 +41,35 @@ $(document).ready(function() {
     fetchEquipment(1);
 });
 
+// 필터 변경 시 동작
+function onFilterChange(values) {
+    const selectedCategory = values.category;
+
+    // 서브카테고리 갱신
+    updateSubCategoryOptions(selectedCategory);
+
+    // 장비 리스트 새로 조회
+    fetchEquipment(1);
+}
+
+// 서브카테고리 업데이트
+function updateSubCategoryOptions(parentCategory) {
+    const options = subCategoryMap[parentCategory] || [];
+
+    // filterConfig도 동기화
+    filterConfig.subCategory.options = options;
+
+    // DOM 초기화 후 렌더링
+    const container = $("#sub-category-filters");
+    container.empty();
+    renderFilter("sub-category-filters", {
+        subCategory: {
+            type: "radio",
+            options: options
+        }
+    }, () => fetchEquipment(1));
+}
+
 // 장비 리스트 조회 함수
 function fetchEquipment(page = 1) {
     const filters = getFilterValues(filterConfig);
@@ -36,6 +79,7 @@ function fetchEquipment(page = 1) {
         page: page,
         size: 12,
         category: filters.category === "전체" ? null : filters.category,
+        subCategory: filters.subCategory,
         model: modelSearch
     };
 
