@@ -158,6 +158,9 @@ public class EquipmentServiceImplTest {
                     eq(pageable))
             ).thenReturn(mockPage);
 
+            when(fileRepository.findUrlsByEquipmentId(1L)).thenReturn(List.of("url1"));
+            when(fileRepository.findUrlsByEquipmentId(2L)).thenReturn(List.of("url2"));
+
             // when
             PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
 
@@ -171,10 +174,12 @@ public class EquipmentServiceImplTest {
             assertThat(dto1.getSubCategory()).isEqualTo("Laptop");
             assertThat(dto1.getModel()).isEqualTo("LG Gram");
             assertThat(dto1.getStock()).isEqualTo(5);
+            assertThat(dto1.getImageUrl()).isEqualTo("url1");
 
             EquipmentDto dto2 = result.getContent().get(1);
             assertThat(dto2.getEquipmentId()).isEqualTo(2L);
             assertThat(dto2.getModel()).isEqualTo("삼성 오디세이");
+            assertThat(dto2.getImageUrl()).isEqualTo("url2");
         }
 
         @Test
