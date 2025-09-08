@@ -31,6 +31,7 @@ public enum ErrorType {
 
     // 장비 등록 에러
     INVALID_EQUIP_CATEGORY_REQUEST("invalid_equipment_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST),
+    EXIST_EQUIPMENT_MODEL_CODE("exist_equipment_model_code", "해당 장비는 이미 등록된 장비입니다.", HttpStatus.BAD_REQUEST),
 
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
