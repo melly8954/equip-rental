@@ -141,13 +141,19 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
 
         List<EquipmentDto> content = page.getContent().stream()
-                .map(e -> EquipmentDto.builder()
-                        .equipmentId(e.getEquipmentId())
-                        .category(e.getCategory().name())
-                        .subCategory(e.getSubCategory())
-                        .model(e.getModel())
-                        .stock(e.getStock())
-                        .build())
+                .map(e -> {
+                    List<String> urls = fileRepository.findUrlsByEquipmentId(e.getEquipmentId());
+                    String imageUrl = urls.isEmpty() ? null : urls.get(0); // 첫 번째 이미지 사용
+
+                    return EquipmentDto.builder()
+                            .equipmentId(e.getEquipmentId())
+                            .category(e.getCategory().name())
+                            .subCategory(e.getSubCategory())
+                            .model(e.getModel())
+                            .stock(e.getStock())
+                            .imageUrl(imageUrl)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return PageResponseDto.<EquipmentDto>builder()
