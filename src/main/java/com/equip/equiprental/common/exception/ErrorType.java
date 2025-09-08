@@ -27,7 +27,11 @@ public enum ErrorType {
 
     // 쿼리 파라미터 요청 값 에러
     INVALID_STATUS_REQUEST("invalid_status_request", "잘못된 상태 요청입니다.", HttpStatus.BAD_REQUEST),
-    INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST);
+    INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST),
+
+    // 장비 등록 에러
+    INVALID_EQUIP_CATEGORY_REQUEST("invalid_equipment_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST);
+
     private final String errorCode;
     private final String message;
     private final HttpStatus status;
