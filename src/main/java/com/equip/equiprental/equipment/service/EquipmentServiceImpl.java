@@ -1,11 +1,15 @@
 package com.equip.equiprental.equipment.service;
 
 
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
+import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterRequest;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterResponse;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
@@ -15,6 +19,8 @@ import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.FileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,6 +125,41 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .images(lists)
                 .createdAt(equipment.getCreatedAt())
                 .updatedAt(equipment.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+        EquipmentCategory categoryEnum = paramDto.getCategoryEnum();
+
+        Page<Equipment> page = equipmentRepository.findByFilters(
+                categoryEnum,
+                paramDto.getSubCategory(),
+                paramDto.getModel(),
+                pageable
+        );
+
+        List<EquipmentDto> content = page.getContent().stream()
+                .map(e -> EquipmentDto.builder()
+                        .equipmentId(e.getEquipmentId())
+                        .category(e.getCategory().name())
+                        .subCategory(e.getSubCategory())
+                        .model(e.getModel())
+                        .stock(e.getStock())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageResponseDto.<EquipmentDto>builder()
+                .content(content)
+                .page(page.getNumber() + 1)
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .empty(page.isEmpty())
                 .build();
     }
 
