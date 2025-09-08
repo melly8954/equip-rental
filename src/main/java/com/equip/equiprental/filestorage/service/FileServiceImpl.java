@@ -31,9 +31,8 @@ public class FileServiceImpl implements FileService {
 
     private List<String> generateAccessUrl(List<String> savedFilenames, String typeKey) {
         String baseUrl = fileProperties.getAccessUrlBase().replaceAll("/+$", ""); // 끝의 슬래시 모두 제거
-        String dirSegment = typeKey + "_files";
         return savedFilenames.stream()
-                .map(name -> String.format("%s/%s/%s", baseUrl, dirSegment, name))
+                .map(name -> String.format("%s/%s/%s", baseUrl, typeKey, name))
                 .toList();
     }
 }
