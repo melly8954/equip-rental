@@ -128,62 +128,57 @@ public class EquipmentServiceImplTest {
             SearchParamDto paramDto = SearchParamDto.builder()
                     .page(1)
                     .size(10)
-                    .category("ELECTRONICS") // 문자열 -> Enum 변환
+                    .category("ELECTRONICS")
                     .build();
-
             Pageable pageable = paramDto.getPageable();
 
-            Equipment equipment1 = Equipment.builder()
+            EquipmentDto equipment1 = EquipmentDto.builder()
                     .equipmentId(1L)
-                    .category(EquipmentCategory.ELECTRONICS)
+                    .category("ELECTRONICS")
                     .subCategory("Laptop")
                     .model("LG Gram")
                     .stock(5)
+                    .imageUrl("url1")
                     .build();
 
-            Equipment equipment2 = Equipment.builder()
+            EquipmentDto equipment2 = EquipmentDto.builder()
                     .equipmentId(2L)
-                    .category(EquipmentCategory.ELECTRONICS)
+                    .category("ELECTRONICS")
                     .subCategory("Monitor")
                     .model("삼성 오디세이")
                     .stock(3)
+                    .imageUrl("url2")
                     .build();
 
-            Page<Equipment> mockPage = new PageImpl<>(List.of(equipment1, equipment2), pageable, 2);
+            Page<EquipmentDto> mockPage = new PageImpl<>(List.of(equipment1, equipment2), pageable, 2);
 
-            when(equipmentRepository.findByFilters(
-                    eq(EquipmentCategory.ELECTRONICS),
-                    isNull(),
-                    isNull(),
-                    eq(pageable))
-            ).thenReturn(mockPage);
-
-            when(fileRepository.findUrlsByEquipmentId(1L)).thenReturn(List.of("url1"));
-            when(fileRepository.findUrlsByEquipmentId(2L)).thenReturn(List.of("url2"));
+            when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(mockPage);
 
             // when
             PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
 
             // then
             assertThat(result).isNotNull();
+
             assertThat(result.getContent()).hasSize(2);
+            assertThat(result.getContent().get(0).getEquipmentId()).isEqualTo(1L);
+            assertThat(result.getContent().get(0).getImageUrl()).isEqualTo("url1");
+            assertThat(result.getContent().get(1).getEquipmentId()).isEqualTo(2L);
+            assertThat(result.getContent().get(1).getImageUrl()).isEqualTo("url2");
 
-            EquipmentDto dto1 = result.getContent().get(0);
-            assertThat(dto1.getEquipmentId()).isEqualTo(1L);
-            assertThat(dto1.getCategory()).isEqualTo("ELECTRONICS");
-            assertThat(dto1.getSubCategory()).isEqualTo("Laptop");
-            assertThat(dto1.getModel()).isEqualTo("LG Gram");
-            assertThat(dto1.getStock()).isEqualTo(5);
-            assertThat(dto1.getImageUrl()).isEqualTo("url1");
+            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
+            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getNumberOfElements()).isEqualTo(2);
 
-            EquipmentDto dto2 = result.getContent().get(1);
-            assertThat(dto2.getEquipmentId()).isEqualTo(2L);
-            assertThat(dto2.getModel()).isEqualTo("삼성 오디세이");
-            assertThat(dto2.getImageUrl()).isEqualTo("url2");
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
+            assertThat(result.isEmpty()).isFalse();
         }
 
         @Test
-        @DisplayName("성공 - 장비 조회 성공 (결과 없음,empty)")
+        @DisplayName("성공 - 장비 조회 결과 없음")
         void getEquipment_empty() {
             // given
             SearchParamDto paramDto = SearchParamDto.builder()
@@ -191,44 +186,28 @@ public class EquipmentServiceImplTest {
                     .size(10)
                     .category("ELECTRONICS")
                     .build();
-
             Pageable pageable = paramDto.getPageable();
-            Page<Equipment> emptyPage = Page.empty(pageable);
 
-            when(equipmentRepository.findByFilters(
-                    eq(EquipmentCategory.ELECTRONICS),
-                    isNull(),
-                    isNull(),
-                    eq(pageable))
-            ).thenReturn(emptyPage);
+            Page<EquipmentDto> emptyPage = Page.empty(pageable);
+            when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(emptyPage);
 
             // when
             PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
 
             // then
             assertThat(result).isNotNull();
+
             assertThat(result.getContent()).isEmpty();
             assertThat(result.isEmpty()).isTrue();
+
+            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
+            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
             assertThat(result.getTotalElements()).isEqualTo(0);
-        }
+            assertThat(result.getTotalPages()).isEqualTo(0);
+            assertThat(result.getNumberOfElements()).isEqualTo(0);
 
-        @Test
-        @DisplayName("예외 - 잘못된 카테고리 요청")
-        void getEquipment_invalidCategory_throwsException() {
-            // given
-            SearchParamDto paramDto = SearchParamDto.builder()
-                    .page(1)
-                    .size(10)
-                    .category("INVALID") // 존재하지 않는 카테고리
-                    .build();
-
-            // when & then
-            assertThatThrownBy(() -> equipmentService.getEquipment(paramDto))
-                    .isInstanceOf(CustomException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.INVALID_CATEGORY_REQUEST);
-
-            verifyNoInteractions(equipmentRepository); // Repository 호출 안 됨
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
         }
     }
 }
