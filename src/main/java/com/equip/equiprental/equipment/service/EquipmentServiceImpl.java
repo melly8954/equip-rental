@@ -145,12 +145,14 @@ public class EquipmentServiceImpl implements EquipmentService {
                     List<String> urls = fileRepository.findUrlsByEquipmentId(e.getEquipmentId());
                     String imageUrl = urls.isEmpty() ? null : urls.get(0); // 첫 번째 이미지 사용
 
+                    int availableStock = equipmentItemRepository.countByStatus(e.getEquipmentId(), EquipmentStatus.AVAILABLE);
+
                     return EquipmentDto.builder()
                             .equipmentId(e.getEquipmentId())
                             .category(e.getCategory().name())
                             .subCategory(e.getSubCategory())
                             .model(e.getModel())
-                            .stock(e.getStock())
+                            .stock(availableStock)
                             .imageUrl(imageUrl)
                             .build();
                 })
