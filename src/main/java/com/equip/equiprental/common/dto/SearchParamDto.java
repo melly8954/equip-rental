@@ -20,7 +20,7 @@ public class SearchParamDto {
     private int page = 1;
     @Builder.Default
     private int size = 10;
-    private String status;
+    private String memberStatus;
     private String role;
 
     private String category;
@@ -31,10 +31,10 @@ public class SearchParamDto {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
     }
 
-    public MemberStatus getStatusEnum() {
-        if (status == null || status.isBlank()) return null;
+    public MemberStatus getMemberStatusEnum() {
+        if (memberStatus == null || memberStatus.isBlank()) return null;
         try {
-            return MemberStatus.valueOf(status.toUpperCase());
+            return MemberStatus.valueOf(memberStatus.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
         }

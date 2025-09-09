@@ -65,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
     public PageResponseDto<MemberDto> searchMembers(SearchParamDto dto) {
         Pageable pageable = dto.getPageable();
 
-        MemberStatus status = dto.getStatusEnum();
+        MemberStatus status = dto.getMemberStatusEnum();
         MemberRole role = dto.getRoleEnum();
 
         Page<Member> page;

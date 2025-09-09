@@ -141,7 +141,7 @@ public class MemberServiceImplTest {
         @DisplayName("성공 - status와 role 모두 존재할 때 findByStatusAndRole 호출")
         void whenStatusAndRoleNotNull_thenFindByStatusAndRoleCalled() {
             // given
-            dto.setStatus("ACTIVE");
+            dto.setMemberStatus("ACTIVE");
             dto.setRole("ADMIN");
 
             when(mockPage.getContent()).thenReturn(List.of(member));
@@ -159,7 +159,7 @@ public class MemberServiceImplTest {
         @DisplayName("성공 - status만 존재할 때 findByStatus 호출")
         void whenStatusNotNullAndRoleNull_thenFindByStatusCalled() {
             // given
-            dto.setStatus("ACTIVE");
+            dto.setMemberStatus("ACTIVE");
 
             when(mockPage.getContent()).thenReturn(List.of(member));
             when(memberRepository.findByStatus(MemberStatus.ACTIVE, dto.getPageable()))
@@ -230,7 +230,7 @@ public class MemberServiceImplTest {
         @DisplayName("검색 결과가 존재할 때 페이징 정보 정상 반환")
         void whenPageHasContent_thenPagingInfoCorrect() {
             // given
-            dto.setStatus("ACTIVE");
+            dto.setMemberStatus("ACTIVE");
             dto.setRole("ADMIN");
 
             when(mockPage.getContent()).thenReturn(List.of(member));
@@ -259,7 +259,7 @@ public class MemberServiceImplTest {
         @DisplayName("예외 - 잘못된 status 입력 시 CustomException 발생")
         void whenInvalidStatus_thenThrowCustomException() {
             // given
-            dto.setStatus("INVALID");
+            dto.setMemberStatus("INVALID");
 
             // when & then
             assertThatThrownBy(() -> memberService.searchMembers(dto))
