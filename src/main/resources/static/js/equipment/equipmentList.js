@@ -122,11 +122,16 @@ function renderEquipmentList(list) {
     list.forEach(equip => {
         const card = $(`
             <div class="card mb-3">
-                <div class="row g-0">
-                    <div class="col-md-2">
-                        <img src="${equip.imageUrl}" class="img-fluid rounded-start" alt="대표 이미지">
+                <div class="row g-0 h-100">
+                    <!-- 이미지 영역 고정 -->
+                    <div class="col-md-2 d-flex align-items-center justify-content-center bg-light" style="height: 168px;">
+                        <img src="${equip.imageUrl}"  
+                             style="max-width: 100%; max-height: 100%; object-fit: contain;" 
+                             alt="대표 이미지">
                     </div>
-                    <div class="col-md-10">
+            
+                    <!-- 텍스트 영역 -->
+                    <div class="col-md-10 d-flex align-items-center">
                         <div class="card-body">
                             <h5 class="card-title">${equip.model}</h5>
                             <p class="card-text">카테고리: ${equip.category}</p>
