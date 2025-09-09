@@ -44,14 +44,6 @@ public class EquipmentQueryRepositoryImpl implements EquipmentQueryRepository{
             builder.and(e.model.containsIgnoreCase(paramDto.getModel()));
         }
 
-        // total count
-        Long total = queryFactory
-                .select(e.count())
-                .from(e)
-                .where(builder)
-                .fetchOne();
-        total = (total != null) ? total : 0L;
-
         // 페이지 조회
         List<EquipmentDto> content = queryFactory
                 .select(Projections.constructor(EquipmentDto.class,
@@ -84,6 +76,14 @@ public class EquipmentQueryRepositoryImpl implements EquipmentQueryRepository{
                                 .stream().findFirst().orElse(null))
                         .build())
                 .collect(Collectors.toList());
+
+        // total count
+        Long total = queryFactory
+                .select(e.count())
+                .from(e)
+                .where(builder)
+                .fetchOne();
+        total = (total != null) ? total : 0L;
 
         return new PageImpl<>(content, pageable, total);
     }
