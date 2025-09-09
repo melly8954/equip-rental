@@ -34,32 +34,30 @@ $(document).ready(function() {
 
     // 검색 이벤트
     $("#equipment-search").on("input", function() {
-        fetchEquipment(1);
+        fetchEquipment();
     });
 
+
     // 초기 장비 리스트 조회
-    fetchEquipment(1);
+    fetchEquipment();
 });
 
 // 필터 변경 시 동작
 function onFilterChange(values) {
-    const selectedCategory = values.category;
-
     // 서브카테고리 갱신
-    updateSubCategoryOptions(selectedCategory);
+    updateSubCategoryOptions(values.category);
 
-    // 장비 리스트 새로 조회
-    fetchEquipment(1);
+    // 필터 적용
+    fetchEquipment(values);
 }
+
 
 // 서브카테고리 업데이트
 function updateSubCategoryOptions(parentCategory) {
     const options = subCategoryMap[parentCategory] || [];
 
-    // filterConfig도 동기화
     filterConfig.subCategory.options = options;
 
-    // DOM 초기화 후 렌더링
     const container = $("#sub-category-filters");
     container.empty();
     renderFilter("sub-category-filters", {
@@ -67,21 +65,31 @@ function updateSubCategoryOptions(parentCategory) {
             type: "radio",
             options: options
         }
-    }, () => fetchEquipment(1));
+    }, (values) => {
+        // category 필터도 함께 포함
+        const combinedFilters = {
+            category: getFilterValues(filterConfig).category,
+            subCategory: values.subCategory
+        };
+        fetchEquipment(combinedFilters);
+    });
 }
 
 // 장비 리스트 조회 함수
-function fetchEquipment(page = 1) {
-    const filters = getFilterValues(filterConfig);
+function fetchEquipment(filters={}) {
+    // 필터 통합
+    const filterValues = filters || getFilterValues(filterConfig);
     const modelSearch = $("#equipment-search").val();
-
     const params = {
-        page: page,
-        size: 12,
-        category: filters.category === "전체" ? null : filters.category,
-        subCategory: filters.subCategory,
-        model: modelSearch
+        category: filterValues.category || null,
+        subCategory: filterValues.subCategory || null,
+        model: modelSearch || null
     };
+
+    // page가 있으면 추가
+    if (filterValues.page) {
+        params.page = filterValues.page;
+    }
 
     $.ajax({
         url: "/api/v1/equipments",
@@ -89,16 +97,17 @@ function fetchEquipment(page = 1) {
         data: params
     }).done(function(response) {
         renderEquipmentList(response.data.content);
-        renderPagination("pagination",{
+        renderPagination("pagination", {
             page: response.data.page,
             totalPages: response.data.totalPages,
             first: response.data.first,
             last: response.data.last
-        }, fetchEquipment);
-    }).fail(function(jqXHR) {
-        handleServerError(jqXHR)
-    })
+        }, (newPage) => {
+            fetchEquipment({...filterValues, page: newPage});
+        });
+    }).fail(handleServerError);
 }
+
 
 // 장비 리스트 렌더링
 function renderEquipmentList(list) {
