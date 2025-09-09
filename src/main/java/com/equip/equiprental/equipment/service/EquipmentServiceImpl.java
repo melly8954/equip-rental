@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,37 +128,13 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
-        EquipmentCategory categoryEnum = paramDto.getCategoryEnum();
-
-        Page<Equipment> page = equipmentRepository.findByFilters(
-                categoryEnum,
-                paramDto.getSubCategory(),
-                paramDto.getModel(),
-                pageable
-        );
-
-        List<EquipmentDto> content = page.getContent().stream()
-                .map(e -> {
-                    List<String> urls = fileRepository.findUrlsByEquipmentId(e.getEquipmentId());
-                    String imageUrl = urls.isEmpty() ? null : urls.get(0); // 첫 번째 이미지 사용
-
-                    int availableStock = equipmentItemRepository.countByStatus(e.getEquipmentId(), EquipmentStatus.AVAILABLE);
-
-                    return EquipmentDto.builder()
-                            .equipmentId(e.getEquipmentId())
-                            .category(e.getCategory().name())
-                            .subCategory(e.getSubCategory())
-                            .model(e.getModel())
-                            .stock(availableStock)
-                            .imageUrl(imageUrl)
-                            .build();
-                })
-                .collect(Collectors.toList());
+        Page<EquipmentDto> page = equipmentRepository.findByFilters(paramDto, pageable);
 
         return PageResponseDto.<EquipmentDto>builder()
-                .content(content)
+                .content(page.getContent())
                 .page(page.getNumber() + 1)
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
