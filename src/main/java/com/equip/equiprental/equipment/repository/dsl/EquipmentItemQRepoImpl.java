@@ -6,7 +6,6 @@ import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.equipment.dto.EquipmentItemDto;
 import com.equip.equiprental.equipment.dto.EquipmentItemListDto;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
-import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
