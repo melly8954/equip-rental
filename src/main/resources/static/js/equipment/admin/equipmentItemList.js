@@ -50,7 +50,8 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                             <h5 class="card-title">${equipmentSummary.model}</h5>
                             <p class="card-text mb-1"><strong>카테고리:</strong> ${equipmentSummary.category}</p>
                             ${equipmentSummary.subCategory ? `<p class="card-text mb-1"><strong>서브카테고리:</strong> ${equipmentSummary.subCategory}</p>` : ""}
-                            <p class="card-text"><strong>재고:</strong> ${equipmentSummary.stock}</p>
+                            <p class="card-text mb-1"><strong>사용 가능한 재고:</strong> ${equipmentSummary.availableStock}</p>
+                            <p class="card-text"><strong>총 재고:</strong> ${equipmentSummary.totalStock}</p>
                         </div>
                     </div>
                 </div>

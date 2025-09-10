@@ -136,7 +136,8 @@ function renderEquipmentList(list) {
                             <h5 class="card-title">${equip.model}</h5>
                             <p class="card-text">카테고리: ${equip.category}</p>
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
-                            <p class="card-text">재고: ${equip.stock}</p>
+                            <p class="card-text">사용 가능한 재고: ${equip.availableStock}</p>
+                            <p class="card-text">총 재고: ${equip.totalStock}</p>
                         </div>
                         <div class="d-flex align-items-stretch" style="height: 100%;">
                             <button class="btn btn-outline-primary btn-sm item-list-btn w-100 h-100"

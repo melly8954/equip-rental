@@ -52,6 +52,21 @@ public class EquipmentItemQRepoImpl implements EquipmentItemQRepo {
                 .fetchOne();
         total = (total != null) ? total : 0L;
 
+        // 전체 재고 (모든 상태)
+        Integer totalStock = queryFactory
+                .select(item.count().castToNum(Integer.class))
+                .from(item)
+                .where(item.equipment.equipmentId.eq(equipmentId))
+                .fetchOne();
+
+        // AVAILABLE 상태만 카운트
+        Integer availableStock = queryFactory
+                .select(item.count().castToNum(Integer.class))
+                .from(item)
+                .where(item.equipment.equipmentId.eq(equipmentId)
+                        .and(item.status.eq(EquipmentStatus.AVAILABLE)))
+                .fetchOne();
+
         List<EquipmentItemDto> content = itemList.stream()
                 .map(i -> EquipmentItemDto.builder()
                         .equipmentItemId(i.getEquipmentItemId())
@@ -70,7 +85,8 @@ public class EquipmentItemQRepoImpl implements EquipmentItemQRepo {
                 .category(e.getCategory().name())
                 .subCategory(e.getSubCategory())
                 .model(e.getModel())
-                .stock(e.getStock())
+                .availableStock(availableStock != null ? availableStock : 0)
+                .totalStock(totalStock != null ? totalStock : 0)
                 .imageUrl(fileRepository.findUrlsByEquipmentId(equipmentId)
                         .stream().findFirst().orElse(null))
                 .build();

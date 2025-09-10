@@ -51,10 +51,15 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
                         e.category.stringValue(),
                         e.subCategory,
                         e.model,
+                        // available 재고
                         JPAExpressions.select(i.count().castToNum(Integer.class))
                                 .from(i)
                                 .where(i.equipment.eq(e)
                                         .and(i.status.eq(EquipmentStatus.AVAILABLE))),
+                        // 전체 재고
+                        JPAExpressions.select(i.count().castToNum(Integer.class))
+                                .from(i)
+                                .where(i.equipment.eq(e)),
                         Expressions.asString("") // imageUrl는 나중에 처리
                 ))
                 .from(e)
@@ -71,7 +76,8 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
                         .category(dto.getCategory())
                         .subCategory(dto.getSubCategory())
                         .model(dto.getModel())
-                        .stock(dto.getStock())
+                        .availableStock(dto.getAvailableStock())
+                        .totalStock(dto.getTotalStock())
                         .imageUrl(fileRepository.findUrlsByEquipmentId(dto.getEquipmentId())
                                 .stream().findFirst().orElse(null))
                         .build())

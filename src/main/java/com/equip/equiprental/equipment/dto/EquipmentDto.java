@@ -12,6 +12,7 @@ public class EquipmentDto {
     private String category;
     private String subCategory;
     private String model;
-    private Integer stock;
+    private Integer availableStock; // 사용 가능한 재고
+    private Integer totalStock;     // 전체 재고
     private String imageUrl;
 }
