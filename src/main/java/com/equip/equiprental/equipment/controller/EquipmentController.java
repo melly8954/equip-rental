@@ -5,10 +5,7 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
-import com.equip.equiprental.equipment.dto.EquipmentDto;
-import com.equip.equiprental.equipment.dto.EquipmentItemDto;
-import com.equip.equiprental.equipment.dto.EquipmentRegisterRequest;
-import com.equip.equiprental.equipment.dto.EquipmentRegisterResponse;
+import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.service.EquipmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,12 +46,12 @@ public class EquipmentController implements ResponseController {
     }
 
     @GetMapping("/{equipmentId}/items")
-    public ResponseEntity<ResponseDto<PageResponseDto<EquipmentItemDto>>> getEquipmentItem(@PathVariable Long equipmentId,
-                                                                                           @ModelAttribute SearchParamDto paramDto){
+    public ResponseEntity<ResponseDto<EquipmentItemListDto>> getEquipmentItem(@PathVariable Long equipmentId,
+                                                                                               @ModelAttribute SearchParamDto paramDto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[장비 아이템 조회 요청 API] TraceId={}", traceId);
 
-        PageResponseDto<EquipmentItemDto> result = equipmentService.getEquipmentItem(equipmentId, paramDto);
+        EquipmentItemListDto result = equipmentService.getEquipmentItem(equipmentId, paramDto);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", result);
     }
