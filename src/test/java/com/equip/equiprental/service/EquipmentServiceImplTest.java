@@ -69,7 +69,6 @@ public class EquipmentServiceImplTest {
             List<MultipartFile> files = List.of(file);
             when(equipmentRepository.findByModel("MODEL_Y")).thenReturn(Optional.empty());
             when(modelCodeGenerator.generate()).thenReturn("MCODE456");
-            when(equipmentRepository.countByModel("MODEL_Y")).thenReturn(0L);
 
             when(equipmentRepository.save(any()))
                     .thenAnswer(invocation -> {
@@ -137,7 +136,8 @@ public class EquipmentServiceImplTest {
                     .category("ELECTRONICS")
                     .subCategory("Laptop")
                     .model("LG Gram")
-                    .stock(5)
+                    .availableStock(5)
+                    .totalStock(10)
                     .imageUrl("url1")
                     .build();
 
@@ -146,7 +146,8 @@ public class EquipmentServiceImplTest {
                     .category("ELECTRONICS")
                     .subCategory("Monitor")
                     .model("삼성 오디세이")
-                    .stock(3)
+                    .availableStock(6)
+                    .totalStock(11)
                     .imageUrl("url2")
                     .build();
 
