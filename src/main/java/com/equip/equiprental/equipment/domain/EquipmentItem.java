@@ -25,6 +25,7 @@ public class EquipmentItem extends BaseEntity {
 
     @Column(name="serial_number")
     private String serialNumber;
+    private Long sequence;
 
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
