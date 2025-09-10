@@ -10,6 +10,7 @@ import lombok.Getter;
 @Builder
 public class EquipmentItemDto {
     private Long equipmentItemId;
+    private EquipmentDto equipment;
     private String serialNumber;
     private EquipmentStatus status;
 }
