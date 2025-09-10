@@ -70,18 +70,18 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         // 열 제목
         container.append(`
             <div class="d-flex fw-bold border-bottom border-dark pb-2 mb-2">
-                <div class="col-2">ID</div>
-                <div class="col-6">Serial Number</div>
+                <div class="col-4">Serial Number</div>
                 <div class="col-4">Status</div>
+                <div class="col-4">Histroy</div>
             </div>
         `);
 
         items.forEach(item => {
             container.append(`
                 <div class="d-flex py-1 border-bottom">
-                    <div class="col-2">${item.equipmentItemId}</div>
-                    <div class="col-6">${item.serialNumber || '-'}</div>
+                    <div class="col-4">${item.serialNumber || '-'}</div>
                     <div class="col-4">${item.status}</div>
+                    <div class="col-4">보기</div>
                 </div>
             `);
         });
