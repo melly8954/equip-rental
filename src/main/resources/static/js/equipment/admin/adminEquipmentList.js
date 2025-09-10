@@ -136,12 +136,44 @@ function renderEquipmentList(list) {
                             <h5 class="card-title">${equip.model}</h5>
                             <p class="card-text">카테고리: ${equip.category}</p>
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
-                            <p class="card-text">재고: ${equip.availableStock}</p>
+                            <p class="card-text">사용 가능한 재고: ${equip.availableStock}</p>
+                            <p class="card-text">총 재고: ${equip.totalStock}</p>
+                        </div>
+                        <div class="d-flex align-items-stretch" style="height: 100%;">
+                            <button class="btn btn-outline-primary btn-sm item-list-btn w-100 h-100"
+                                    data-id="${equip.equipmentId}">
+                                <i class="bi bi-box-seam"></i> Item List
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         `);
         container.append(card);
+    });
+
+    // 버튼 클릭 이벤트 등록
+    $(".item-list-btn").on("click", function () {
+        const equipmentId = $(this).data("id");
+
+        // 권한 체크 API 호출
+        $.ajax({
+            url: `/api/v1/manager-scopes/${equipmentId}`,
+            method: "GET"
+        }).done(function(response) {
+            if (response.data) {
+                // 접근 가능 → 장비 상세 페이지로 이동
+                window.location.href = `/admin/equipment/${equipmentId}/item`;
+            } else {
+                // 접근 불가 → alert
+                alert("접근 권한이 없습니다.");
+            }
+        }).fail(function(xhr) {
+            if (xhr.status === 403) {
+                alert("접근 권한이 없습니다.");
+            } else {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
     });
 }
