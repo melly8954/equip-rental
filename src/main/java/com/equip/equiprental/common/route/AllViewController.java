@@ -42,7 +42,6 @@ public class AllViewController {
         return "equipment/equipmentList";
     }
 
-
     // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")
@@ -61,6 +60,12 @@ public class AllViewController {
         return "equipment/admin/adminEquipmentList";
     }
 
+    @GetMapping("/admin/equipment/{equipmentId}/item")
+    public String equipmentItemList() {
+        return "equipment/admin/equipmentItemList";
+    }
+
+    // 에러 페이지
     @GetMapping("/error/unauthorized")
     public String errorUnAuthorized() {
         return "error/unauthorized";
