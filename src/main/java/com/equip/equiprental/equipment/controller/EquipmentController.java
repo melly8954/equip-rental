@@ -85,24 +85,24 @@ public class EquipmentController implements ResponseController {
 
         equipmentService.increaseStock(equipmentId, dto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 재고 수량 증가 성공", null);
     }
 
-    @PatchMapping("/{equipmentId}/status")
+    @PatchMapping("/{equipmentId}/items/status")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<Void>> updateStatus(@PathVariable Long equipmentId,
                                                               @RequestBody UpdateItemStatusDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 재고 수 증가 요청 API] TraceId={}", traceId);
+        log.info("[장비 아이템 상태 변경 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
             throw new CustomException(ErrorType.FORBIDDEN);
         }
 
-        equipmentService.increaseStock(equipmentId, dto);
+        equipmentService.updateItemStatus(dto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 상태 변경 성공", null);
     }
 }

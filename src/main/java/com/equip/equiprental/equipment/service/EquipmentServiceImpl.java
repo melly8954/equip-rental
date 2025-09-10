@@ -182,6 +182,18 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipment.increaseStock(dto.getAmount());
     }
 
+    @Override
+    @Transactional
+    public void updateItemStatus(UpdateItemStatusDto dto) {
+        EquipmentItem item = equipmentItemRepository.findByIdWithEquipment(dto.getEquipmentItemId())
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
+
+        EquipmentStatus newStatus = dto.getEquipmentItemStatusEnum();
+
+        // 상태 변경
+        item.updateStatus(newStatus);
+    }
+
     private String generateSerialNumber(String modelCode, long sequence) {
         // 랜덤 4자리 숫자 생성
         int random4 = new Random().nextInt(10000); // 0~9999
