@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, EquipmentQRepo {
+    Optional<Equipment> findByEquipmentId(Long equipmentId);
     Optional<Equipment> findByModel(String model);
     long countByModel(String modelCode);
 
