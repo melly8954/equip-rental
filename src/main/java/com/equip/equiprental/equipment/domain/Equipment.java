@@ -31,4 +31,8 @@ public class Equipment extends BaseEntity {
     private String modelCode;
 
     private Integer stock;
+
+    public void increaseStock(int amount) {
+        this.stock += amount; // 기존 객체 직접 변경
+    }
 }
