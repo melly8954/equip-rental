@@ -138,10 +138,22 @@ function renderEquipmentList(list) {
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
                             <p class="card-text">재고: ${equip.stock}</p>
                         </div>
+                        <div class="d-flex align-items-stretch" style="height: 100%;">
+                            <button class="btn btn-outline-primary btn-sm item-list-btn w-100 h-100"
+                                    data-id="${equip.equipmentId}">
+                                <i class="bi bi-box-seam"></i> Item List
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `);
         container.append(card);
+    });
+
+    // 버튼 클릭 이벤트 등록
+    $(".item-list-btn").on("click", function () {
+        const equipmentId = $(this).data("id");
+        window.location.href = `/admin/equipment/${equipmentId}/item`;
     });
 }
