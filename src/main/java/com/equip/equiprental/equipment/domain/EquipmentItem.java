@@ -29,4 +29,8 @@ public class EquipmentItem extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
+
+    public void updateStatus(EquipmentStatus newStatus) {
+        this.status = newStatus;
+    }
 }
