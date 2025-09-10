@@ -137,7 +137,12 @@ function renderEquipmentList(list) {
                             <p class="card-text">카테고리: ${equip.category}</p>
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
                             <p class="card-text">사용 가능한 재고: ${equip.availableStock}</p>
-                            <p class="card-text">총 재고: ${equip.totalStock}</p>
+                            <p class="card-text">
+                                총 재고: ${equip.totalStock}
+                                <span class="text-success stock-increase-btn ms-2" style="cursor:pointer;" data-id="${equip.equipmentId}" title="재고 추가">
+                                재고 추가[➕]
+                                </span>
+                            </p>
                         </div>
                         <div class="d-flex align-items-stretch" style="height: 100%;">
                             <button class="btn btn-outline-primary btn-sm item-list-btn w-100 h-100"
@@ -151,29 +156,48 @@ function renderEquipmentList(list) {
         `);
         container.append(card);
     });
-
-    // 버튼 클릭 이벤트 등록
-    $(".item-list-btn").on("click", function () {
-        const equipmentId = $(this).data("id");
-
-        // 권한 체크 API 호출
-        $.ajax({
-            url: `/api/v1/manager-scopes/${equipmentId}`,
-            method: "GET"
-        }).done(function(response) {
-            if (response.data) {
-                // 접근 가능 → 장비 상세 페이지로 이동
-                window.location.href = `/admin/equipment/${equipmentId}/item`;
-            } else {
-                // 접근 불가 → alert
-                alert("접근 권한이 없습니다.");
-            }
-        }).fail(function(xhr) {
-            if (xhr.status === 403) {
-                alert("접근 권한이 없습니다.");
-            } else {
-                alert("서버 오류가 발생했습니다.");
-            }
-        });
-    });
 }
+
+// 부모 컨테이너에 이벤트 위임
+$(document).on("click", ".item-list-btn", function () {
+    const equipmentId = $(this).data("id");
+
+    $.ajax({
+        url: `/api/v1/manager-scopes/${equipmentId}`,
+        method: "GET"
+    }).done(function(response) {
+        if (response.data) {
+            window.location.href = `/admin/equipment/${equipmentId}/item`;
+        } else {
+            alert("접근 권한이 없습니다.");
+        }
+    }).fail(function(xhr) {
+        if (xhr.status === 403) {
+            alert("접근 권한이 없습니다.");
+        } else {
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+});
+
+// 버튼 클릭 시 모달 열기
+$(document).on("click", ".stock-increase-btn", function() {
+    currentEquipmentId = $(this).data("id");
+    $("#stockAmount").val(1);
+    $("#stockIncreaseModal").modal("show");
+});
+
+// 모달 확인 시 API 호출
+$("#confirmStockIncrease").on("click", function() {
+    const amount = parseInt($("#stockAmount").val(), 10);
+
+    $.ajax({
+        url: `/api/v1/equipments/${currentEquipmentId}/increase-stock`,
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ amount })
+    }).done(function() {
+        $("#stockIncreaseModal").modal("hide");
+        fetchEquipment(); // 리스트 새로고침
+    }).fail(handleServerError);
+});
