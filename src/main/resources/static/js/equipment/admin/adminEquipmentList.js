@@ -1,3 +1,5 @@
+let currentEquipmentId = null;
+
 // 필터 설정 예시
 const filterConfig = {
     category: {
@@ -183,8 +185,24 @@ $(document).on("click", ".item-list-btn", function () {
 // 버튼 클릭 시 모달 열기
 $(document).on("click", ".stock-increase-btn", function() {
     currentEquipmentId = $(this).data("id");
-    $("#stockAmount").val(1);
-    $("#stockIncreaseModal").modal("show");
+    // 권한 체크
+    $.ajax({
+        url: `/api/v1/manager-scopes/${currentEquipmentId}`,
+        method: "GET"
+    }).done(function(response) {
+        if (response.data) {
+            $("#stockAmount").val(1);
+            $("#stockIncreaseModal").modal("show");
+        } else {
+            alert("접근 권한이 없습니다.");
+        }
+    }).fail(function(xhr) {
+        if (xhr.status === 403) {
+            alert("접근 권한이 없습니다.");
+        } else {
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
 });
 
 // 모달 확인 시 API 호출
@@ -192,12 +210,17 @@ $("#confirmStockIncrease").on("click", function() {
     const amount = parseInt($("#stockAmount").val(), 10);
 
     $.ajax({
-        url: `/api/v1/equipments/${currentEquipmentId}/increase-stock`,
+        url: `/api/v1/equipments/${currentEquipmentId}/stock`,
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify({ amount })
     }).done(function() {
         $("#stockIncreaseModal").modal("hide");
-        fetchEquipment(); // 리스트 새로고침
-    }).fail(handleServerError);
+
+        // 현재 필터와 검색어 상태 가져오기
+        const currentFilters = getFilterValues(filterConfig);
+        fetchEquipment(currentFilters);
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    })
 });
