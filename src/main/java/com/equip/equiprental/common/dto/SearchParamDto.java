@@ -3,6 +3,7 @@ package com.equip.equiprental.common.dto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentCategory;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
 import lombok.*;
@@ -26,6 +27,8 @@ public class SearchParamDto {
     private String category;
     private String subCategory;
     private String model;
+
+    private String equipmentStatus;
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
@@ -55,6 +58,15 @@ public class SearchParamDto {
             return EquipmentCategory.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorType.INVALID_CATEGORY_REQUEST);
+        }
+    }
+
+    public EquipmentStatus getEquipmentStatusEnum() {
+        if (equipmentStatus == null || equipmentStatus.isBlank()) return null;
+        try {
+            return EquipmentStatus.valueOf(equipmentStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
         }
     }
 }
