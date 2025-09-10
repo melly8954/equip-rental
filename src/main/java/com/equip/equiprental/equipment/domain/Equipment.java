@@ -1,6 +1,8 @@
 package com.equip.equiprental.equipment.domain;
 
 import com.equip.equiprental.common.domain.BaseEntity;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +35,9 @@ public class Equipment extends BaseEntity {
     private Integer stock;
 
     public void increaseStock(int amount) {
+        if (amount < 0) {
+            throw new CustomException(ErrorType.AMOUNT_MUST_BE_POSITIVE);
+        }
         this.stock += amount; // 기존 객체 직접 변경
     }
 }
