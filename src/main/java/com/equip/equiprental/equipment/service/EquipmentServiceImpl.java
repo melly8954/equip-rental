@@ -6,10 +6,10 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
+import com.equip.equiprental.equipment.dto.EquipmentItemDto;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterRequest;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterResponse;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
@@ -136,6 +136,44 @@ public class EquipmentServiceImpl implements EquipmentService {
         return PageResponseDto.<EquipmentDto>builder()
                 .content(page.getContent())
                 .page(page.getNumber() + 1)
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .empty(page.isEmpty())
+                .build();
+    }
+
+    @Override
+    public PageResponseDto<EquipmentItemDto> getEquipmentItem(Long equipmentId, SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+        EquipmentStatus status = paramDto.getEquipmentStatusEnum();
+
+        Page<EquipmentItem> page;
+
+        if (status != null) {
+            // 상태 필터 적용
+            page = equipmentItemRepository.findByEquipment_EquipmentIdAndStatus(equipmentId, status, pageable);
+        } else {
+            // 상태 필터 없이 전체 조회
+            page = equipmentItemRepository.findByEquipment_EquipmentId(equipmentId, pageable);
+        }
+
+        // 엔티티 → DTO 변환
+        List<EquipmentItemDto> content = page.getContent().stream()
+                .map(item -> EquipmentItemDto.builder()
+                        .equipmentItemId(item.getEquipmentItemId())
+                        .serialNumber(item.getSerialNumber())
+                        .status(item.getStatus())
+                        .build())
+                .toList();
+
+        // PageResponseDto 빌드
+        return PageResponseDto.<EquipmentItemDto>builder()
+                .content(content)
+                .page(page.getNumber() + 1) // 0-based → 1-based
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())

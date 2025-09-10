@@ -1,22 +1,20 @@
 package com.equip.equiprental.equipment.controller;
 
-import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
+import com.equip.equiprental.equipment.dto.EquipmentItemDto;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterRequest;
 import com.equip.equiprental.equipment.dto.EquipmentRegisterResponse;
 import com.equip.equiprental.equipment.service.EquipmentService;
-import com.equip.equiprental.member.domain.MemberRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +45,18 @@ public class EquipmentController implements ResponseController {
 
         PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 목록 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 조회 성공", result);
     }
+
+    @GetMapping("/{equipmentId}/items")
+    public ResponseEntity<ResponseDto<PageResponseDto<EquipmentItemDto>>> getEquipmentItem(@PathVariable Long equipmentId,
+                                                                                           @ModelAttribute SearchParamDto paramDto){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[장비 아이템 조회 요청 API] TraceId={}", traceId);
+
+        PageResponseDto<EquipmentItemDto> result = equipmentService.getEquipmentItem(equipmentId, paramDto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", result);
+    }
+
 }
