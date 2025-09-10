@@ -154,6 +154,25 @@ function renderEquipmentList(list) {
     // 버튼 클릭 이벤트 등록
     $(".item-list-btn").on("click", function () {
         const equipmentId = $(this).data("id");
-        window.location.href = `/admin/equipment/${equipmentId}/item`;
+
+        // 권한 체크 API 호출
+        $.ajax({
+            url: `/api/v1/manager-scopes/${equipmentId}`,
+            method: "GET"
+        }).done(function(response) {
+            if (response.data) {
+                // 접근 가능 → 장비 상세 페이지로 이동
+                window.location.href = `/admin/equipment/${equipmentId}/item`;
+            } else {
+                // 접근 불가 → alert
+                alert("접근 권한이 없습니다.");
+            }
+        }).fail(function(xhr) {
+            if (xhr.status === 403) {
+                alert("접근 권한이 없습니다.");
+            } else {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
     });
 }
