@@ -13,5 +13,5 @@ public interface EquipmentService {
     PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto);
     EquipmentItemListDto getEquipmentItem(Long equipmentId, SearchParamDto paramDto);
 
-    void increaseStock(Long equipmentId, StockIncreaseRequestDto dto);
+    void increaseStock(Long equipmentId, IncreaseStockRequestDto dto);
 }

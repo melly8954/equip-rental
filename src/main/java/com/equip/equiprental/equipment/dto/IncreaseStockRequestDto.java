@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class StockIncreaseRequestDto {
+public class IncreaseStockRequestDto {
     private int amount;
 }

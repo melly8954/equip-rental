@@ -72,8 +72,26 @@ public class EquipmentController implements ResponseController {
 
     @PostMapping("/{equipmentId}/stock")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
-    public ResponseEntity<ResponseDto<Void>> getEquipmentItem(@PathVariable Long equipmentId,
-                                                              @RequestBody StockIncreaseRequestDto dto,
+    public ResponseEntity<ResponseDto<Void>> increaseStock(@PathVariable Long equipmentId,
+                                                              @RequestBody IncreaseStockRequestDto dto,
+                                                              @AuthenticationPrincipal PrincipalDetails principal){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[장비 재고 수 증가 요청 API] TraceId={}", traceId);
+
+        if (principal.getMember().getRole() == MemberRole.MANAGER &&
+                !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
+
+        equipmentService.increaseStock(equipmentId, dto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", null);
+    }
+
+    @PatchMapping("/{equipmentId}/status")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<Void>> updateStatus(@PathVariable Long equipmentId,
+                                                              @RequestBody UpdateItemStatusDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[장비 재고 수 증가 요청 API] TraceId={}", traceId);

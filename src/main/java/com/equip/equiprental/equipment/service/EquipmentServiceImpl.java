@@ -155,7 +155,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     @Transactional
-    public void increaseStock(Long equipmentId, StockIncreaseRequestDto dto) {
+    public void increaseStock(Long equipmentId, IncreaseStockRequestDto dto) {
         Equipment equipment = equipmentRepository.findByEquipmentId(equipmentId)
                 .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
 
