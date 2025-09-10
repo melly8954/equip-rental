@@ -82,9 +82,10 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
 
         // EquipmentItem 생성 (stock 수량만큼)
-        long baseSequence = equipmentRepository.countByModel(equipment.getModel())-1; // 방금 생성한 장비를 제외하고 기존 수량만 가져오기
-        List<EquipmentItem> items = new ArrayList<>();
+        long baseSequence = equipmentItemRepository.findMaxSequenceByModel(equipment.getModel())
+                .orElse(0L); // 기존 max sequence 가져오기
 
+        List<EquipmentItem> items = new ArrayList<>();
         for (int i = 0; i < equipment.getStock(); i++) {
             long sequence = baseSequence + i + 1; // 반복마다 시퀀스 증가
             String serialNumber = generateSerialNumber(equipment.getModelCode(), sequence);
@@ -92,6 +93,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             EquipmentItem item = EquipmentItem.builder()
                     .equipment(equipment)
                     .serialNumber(serialNumber)
+                    .sequence(sequence)
                     .status(EquipmentStatus.AVAILABLE) // 초기 상태
                     .build();
 
@@ -149,6 +151,35 @@ public class EquipmentServiceImpl implements EquipmentService {
         EquipmentStatus status = paramDto.getEquipmentStatusEnum();
 
         return equipmentItemRepository.findEquipmentItemByFilter(equipmentId, status, pageable);
+    }
+
+    @Override
+    @Transactional
+    public void increaseStock(Long equipmentId, StockIncreaseRequestDto dto) {
+        Equipment equipment = equipmentRepository.findByEquipmentId(equipmentId)
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+
+        // EquipmentItem 추가 (stock 수량만큼)
+        long baseSequence = equipmentItemRepository.findMaxSequenceByModel(equipment.getModel())
+                .orElse(0L);
+        List<EquipmentItem> items = new ArrayList<>();
+
+        for (int i = 0; i < dto.getAmount(); i++) {
+            long sequence = baseSequence + i + 1; // 반복마다 시퀀스 증가
+            String serialNumber = generateSerialNumber(equipment.getModelCode(), sequence);
+
+            EquipmentItem item = EquipmentItem.builder()
+                    .equipment(equipment)
+                    .serialNumber(serialNumber)
+                    .sequence(sequence)
+                    .status(EquipmentStatus.AVAILABLE) // 초기 상태
+                    .build();
+
+            items.add(item);
+        }
+        equipmentItemRepository.saveAll(items);
+
+        equipment.increaseStock(dto.getAmount());
     }
 
     private String generateSerialNumber(String modelCode, long sequence) {
