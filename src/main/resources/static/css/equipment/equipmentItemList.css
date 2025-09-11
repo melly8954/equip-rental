@@ -1,9 +1,0 @@
-/* 열 제목 */
-#equipment-items > .d-flex.fw-bold {
-    border-bottom: 2px solid #e74c3c; /* 중간 톤 회색 */
-}
-
-/* 각 아이템 */
-#equipment-items > .d-flex:not(.fw-bold) {
-    border-bottom: 1px solid #6c757d; /* 약간 얇은 선 */
-}
