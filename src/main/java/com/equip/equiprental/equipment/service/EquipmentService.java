@@ -16,4 +16,6 @@ public interface EquipmentService {
 
     void increaseStock(Long equipmentId, IncreaseStockRequestDto dto);
     void updateItemStatus(UpdateItemStatusDto dto, Member changer);
+
+    PageResponseDto<EquipmentItemHistoryDto> getItemHistory(Long equipmentItemId, SearchParamDto paramDto);
 }

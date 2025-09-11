@@ -105,4 +105,23 @@ public class EquipmentController implements ResponseController {
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 상태 변경 성공", null);
     }
+
+    @GetMapping("/{equipmentId}/items/{equipmentItemId}/history")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<PageResponseDto<EquipmentItemHistoryDto>>> getItemHistory(@PathVariable Long equipmentId,
+                                                                                   @PathVariable Long equipmentItemId,
+                                                                                   @ModelAttribute SearchParamDto paramDto,
+                                                                                   @AuthenticationPrincipal PrincipalDetails principal) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[장비 아이템 상태 변경 요청 API] TraceId={}", traceId);
+
+        if (principal.getMember().getRole() == MemberRole.MANAGER &&
+                !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
+
+        PageResponseDto<EquipmentItemHistoryDto> result = equipmentService.getItemHistory(equipmentItemId, paramDto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 히스토리 조회 성공", result);
+    }
 }
