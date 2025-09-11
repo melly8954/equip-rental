@@ -77,10 +77,18 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         `);
 
         items.forEach(item => {
+            const statusOptions = ["AVAILABLE", "RENTED", "REPAIRING", "OUT_OF_STOCK", "LOST", "DISCARDED"]
+                .map(opt => `<option value="${opt}" ${opt === item.status ? "selected" : ""}>${opt}</option>`)
+                .join("");
+
             container.append(`
                 <div class="d-flex py-1 border-bottom">
                     <div class="col-4">${item.serialNumber || '-'}</div>
-                    <div class="col-4">${item.status}</div>
+                    <div class="col-4">
+                        <select class="form-select form-select-sm item-status w-auto" data-id="${item.id}">
+                            ${statusOptions}
+                        </select>
+                    </div>
                     <div class="col-4">보기</div>
                 </div>
             `);
