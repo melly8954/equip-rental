@@ -185,10 +185,10 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     @Transactional
     public void updateItemStatus(UpdateItemStatusDto dto) {
-        EquipmentItem item = equipmentItemRepository.findByIdWithEquipment(dto.getEquipmentItemId())
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
-
         EquipmentStatus newStatus = dto.getEquipmentItemStatusEnum();
+
+        EquipmentItem item = equipmentItemRepository.findById(dto.getEquipmentItemId())
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
 
         // 상태 변경
         item.updateStatus(newStatus);
