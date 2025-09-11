@@ -101,3 +101,11 @@ function renderPagination(containerId, pageInfo, onPageChange) {
 
     container.append(pagination);
 }
+
+function getCurrentPage(containerId) {
+    const activeLink = $(`#${containerId} .page-item.active a`);
+    if (activeLink.length) {
+        return parseInt(activeLink.text(), 10);
+    }
+    return 1; // 기본 1페이지
+}
