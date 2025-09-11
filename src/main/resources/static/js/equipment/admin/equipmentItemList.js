@@ -1,3 +1,5 @@
+let equipmentId = null;
+
 const statusFilterConfig = {
     status: {
         label: "상태",
@@ -9,7 +11,7 @@ const statusFilterConfig = {
 $(document).ready(function () {
     // URL에서 equipmentId 추출
     const pathParts = window.location.pathname.split("/");
-    const equipmentId = pathParts[pathParts.indexOf("equipment") + 1];
+    equipmentId = pathParts[pathParts.indexOf("equipment") + 1];
 
     // 상태 필터 렌더링
     renderFilter("equipment-filter", statusFilterConfig, function(filters) {
@@ -85,7 +87,9 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                 <div class="d-flex py-1 border-bottom">
                     <div class="col-4">${item.serialNumber || '-'}</div>
                     <div class="col-4">
-                        <select class="form-select form-select-sm item-status w-auto" data-id="${item.id}">
+                        <select class="form-select form-select-sm item-status w-auto"
+                                data-id="${item.equipmentItemId}"
+                                data-original-status="${item.status}">">
                             ${statusOptions}
                         </select>
                     </div>
@@ -98,6 +102,34 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         renderPagination("equipment-pagination", pageInfo, (newPage) => {
             fetchEquipmentItems(equipmentId, filters, newPage);
         });
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    });
+}
+
+$(document).on("change", ".item-status", function() {
+    const itemId = Number($(this).data("id"));
+    const newStatus = $(this).val();
+
+    // 현재 필터와 페이지를 DOM에서 가져오기
+    const filters = getFilterValues(statusFilterConfig);
+    const page = getCurrentPage("equipment-pagination");
+
+    updateItemStatus(itemId, newStatus, filters, page);
+});
+
+function updateItemStatus(itemId, newStatus, filters, page) {
+    $.ajax({
+        url: `/api/v1/equipments/${equipmentId}/items/status`, // API 엔드포인트 예시
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            equipmentItemId: itemId,
+            newStatus: newStatus
+        })
+    }).done(function(response) {
+        alert(response.message);
+        fetchEquipmentItems(equipmentId, filters, page);
     }).fail(function(xhr) {
         handleServerError(xhr);
     });
