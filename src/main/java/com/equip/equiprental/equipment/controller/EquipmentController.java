@@ -101,7 +101,7 @@ public class EquipmentController implements ResponseController {
             throw new CustomException(ErrorType.FORBIDDEN);
         }
 
-        equipmentService.updateItemStatus(dto);
+        equipmentService.updateItemStatus(dto, principal.getMember());
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 상태 변경 성공", null);
     }
