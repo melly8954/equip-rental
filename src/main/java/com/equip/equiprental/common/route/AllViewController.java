@@ -65,6 +65,11 @@ public class AllViewController {
         return "equipment/admin/equipmentItemList";
     }
 
+    @GetMapping("/admin/equipment/{equipmentId}/item/{itemId}/history")
+    public String equipmentItemHistory() {
+        return "equipment/admin/equipmentItemHistory";
+    }
+
     // 에러 페이지
     @GetMapping("/error/unauthorized")
     public String errorUnAuthorized() {

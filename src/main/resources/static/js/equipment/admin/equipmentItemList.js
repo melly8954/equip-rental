@@ -93,7 +93,9 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                             ${statusOptions}
                         </select>
                     </div>
-                    <div class="col-4">보기</div>
+                    <div class="col-4">
+                        <button class="btn btn-sm btn-primary view-history" data-item-id="${item.equipmentItemId}">보기</button>
+                    </div>
                 </div>
             `);
         });
@@ -134,3 +136,9 @@ function updateItemStatus(itemId, newStatus, filters, page) {
         handleServerError(xhr);
     });
 }
+
+$(document).on("click", ".view-history", function() {
+    const equipmentItemId = $(this).data("item-id");
+    // 아이템 히스토리 페이지로 이동
+    window.location.href = `/admin/equipment/${equipmentId}/item/${equipmentItemId}/history`;
+});
