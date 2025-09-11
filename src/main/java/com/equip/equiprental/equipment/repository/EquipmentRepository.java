@@ -12,7 +12,6 @@ import java.util.Optional;
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, EquipmentQRepo {
     Optional<Equipment> findByEquipmentId(Long equipmentId);
     Optional<Equipment> findByModel(String model);
-    long countByModel(String modelCode);
 
     @Query("SELECT e.category FROM Equipment e WHERE e.equipmentId = :equipmentId")
     EquipmentCategory findCategoryByEquipmentId(@Param("equipmentId") Long equipmentId);
