@@ -29,8 +29,10 @@ public class EquipmentItemHistory extends BaseEntity {
     private Member changedBy;
 
     @Column(name="old_status")
+    @Enumerated(EnumType.STRING)
     private EquipmentStatus oldStatus;
 
     @Column(name="new_status")
+    @Enumerated(EnumType.STRING)
     private EquipmentStatus newStatus;
 }
