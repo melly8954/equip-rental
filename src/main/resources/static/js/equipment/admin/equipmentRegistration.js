@@ -1,4 +1,25 @@
+const subCategoryMap = {
+    OFFICE_SUPPLIES: ["문서용품", "필기구", "사무기기"],
+    ELECTRONICS: ["컴퓨터", "마우스", "모바일/태블릿"],
+    FURNITURE: ["책상/의자", "수납", "회의용 가구"],
+    TOOLS: ["전동공구", "수공구", "측정기기"],
+    SAFETY_EQUIPMENT: ["보호구", "안전장치", "응급용품"]
+};
+
 $(document).ready(function () {
+    // 카테고리 변경 시 서브카테고리 옵션 갱신
+    $('#equipmentCategory').on('change', function() {
+        const category = $(this).val();
+        const $subCategory = $('#equipmentSubCategory');
+        $subCategory.empty().append('<option value="">선택</option>');
+
+        if (category && subCategoryMap[category]) {
+            subCategoryMap[category].forEach(sub => {
+                $subCategory.append(`<option value="${sub}">${sub}</option>`);
+            });
+        }
+    });
+
     // 파일 선택 시 미리보기 리스트 렌더링
     $('#files').on('change', function() {
         const files = Array.from(this.files);
