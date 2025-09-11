@@ -214,7 +214,8 @@ $("#confirmStockIncrease").on("click", function() {
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify({ amount })
-    }).done(function() {
+    }).done(function(response) {
+        alert(response.message)
         $("#stockIncreaseModal").modal("hide");
 
         // 현재 필터와 검색어 상태 가져오기
