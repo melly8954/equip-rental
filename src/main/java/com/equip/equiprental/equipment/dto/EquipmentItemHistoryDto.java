@@ -11,10 +11,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EquipmentItemHistoryDto {
+    private Long historyId;
     private String oldStatus;
     private String newStatus;
     private String changedBy;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime changedAt;
 }
