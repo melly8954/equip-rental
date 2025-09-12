@@ -44,11 +44,15 @@ $(document).ready(function() {
 
 // 필터 변경 시 동작
 function onFilterChange(values) {
-    // 서브카테고리 갱신
-    updateSubCategoryOptions(values.category);
+    // 현재 선택된 카테고리 값
+    const category = getFilterValues(filterConfig).category;
 
-    // 필터 적용
-    fetchEquipment(values);
+    // 서브카테고리 갱신
+    updateSubCategoryOptions(category);
+
+    // 최신 filterConfig 값으로 fetch
+    const filters = getFilterValues(filterConfig);
+    fetchEquipment(filters);
 }
 
 
