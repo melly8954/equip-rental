@@ -29,6 +29,11 @@ function renderFilter(containerId, config, onChange) {
                 .attr("id", inputId)
                 .val(opt === "전체" ? "" : opt);
 
+            // "전체"는 항상 기본 checked
+            if (opt === "전체") {
+                input.prop("checked", true);
+            }
+
             const button = $("<label>")
                 .addClass("btn btn-outline-primary")
                 .attr("for", inputId)
@@ -47,11 +52,13 @@ function renderFilter(containerId, config, onChange) {
 }
 
 function getFilterValues(config) {
+    // values 라는 빈 객체 생성
     const values = {};
     $.each(config, function(key) {
         const selected = $(`input[name="${key}"]:checked`);
         values[key] = selected.length ? selected.val() : "";
     });
+    // 빈 객체에 config key/value 담아서 반환
     return values;
 }
 

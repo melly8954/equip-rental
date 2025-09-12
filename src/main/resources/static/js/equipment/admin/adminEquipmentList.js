@@ -1,4 +1,5 @@
 let currentEquipmentId = null;
+let currentFilters = null;
 
 // 필터 설정 예시
 const filterConfig = {
@@ -34,18 +35,31 @@ $(document).ready(function() {
     // 필터 렌더링
     renderFilter("equipment-filters", filterConfig, onFilterChange);
 
-    // 검색 이벤트
-    $("#equipment-search").on("input", function() {
-        fetchEquipment();
-    });
+    // 이전 필터 복원
+    const savedFilters = sessionStorage.getItem("equipmentFilters");
+    if (savedFilters) {
+        currentFilters = JSON.parse(savedFilters);
 
+        // UI 복원
+        Object.keys(currentFilters).forEach(key => {
+            const value = currentFilters[key];
+            if (value) {
+                $(`input[name="${key}"][value="${value}"]`).prop("checked", true);
+            }
+        });
 
-    // 초기 장비 리스트 조회
-    fetchEquipment();
+        // 서브카테고리 UI 복원
+        updateSubCategoryOptions(currentFilters.category, true); // 두 번째 인자 true: 이전 선택값 복원
+
+        fetchEquipment(currentFilters);
+    } else {
+        currentFilters = getFilterValues(filterConfig);
+        fetchEquipment(currentFilters);
+    }
 });
 
 // 필터 변경 시 동작
-function onFilterChange(values) {
+function onFilterChange() {
     // 현재 선택된 카테고리 값
     const category = getFilterValues(filterConfig).category;
 
@@ -53,33 +67,32 @@ function onFilterChange(values) {
     updateSubCategoryOptions(category);
 
     // 최신 filterConfig 값으로 fetch
-    const filters = getFilterValues(filterConfig);
-    fetchEquipment(filters);
+    currentFilters  = getFilterValues(filterConfig);
+    sessionStorage.setItem("equipmentFilters", JSON.stringify(currentFilters));
+    fetchEquipment(currentFilters);
 }
 
 
-// 서브카테고리 업데이트
-function updateSubCategoryOptions(parentCategory) {
-    const options = subCategoryMap[parentCategory] || [];
-
+function updateSubCategoryOptions(category, restorePrevious=false) {
+    const options = subCategoryMap[category] || [];
     filterConfig.subCategory.options = options;
 
     const container = $("#sub-category-filters");
     container.empty();
     renderFilter("sub-category-filters", {
-        subCategory: {
-            type: "radio",
-            options: options
-        }
+        subCategory: { type: "radio", options: options }
     }, (values) => {
-        // category 필터도 함께 포함
-        const combinedFilters = {
-            category: getFilterValues(filterConfig).category,
-            subCategory: values.subCategory
-        };
-        fetchEquipment(combinedFilters);
+        currentFilters.subCategory = values.subCategory;
+        sessionStorage.setItem("equipmentFilters", JSON.stringify(currentFilters));
+        fetchEquipment(currentFilters);
     });
+
+    if (restorePrevious && currentFilters.subCategory) {
+        // 이전 선택값 복원
+        $(`input[name="subCategory"][value="${currentFilters.subCategory}"]`).prop("checked", true);
+    }
 }
+
 
 // 장비 리스트 조회 함수
 function fetchEquipment(filters={}) {
