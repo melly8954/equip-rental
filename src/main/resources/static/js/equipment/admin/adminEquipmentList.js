@@ -242,8 +242,3 @@ $("#confirmStockIncrease").on("click", function() {
         handleServerError(xhr);
     })
 });
-
-// 메뉴 이동 시 필터 세션 삭제
-$(".nav-link").on("click", function() {
-    sessionStorage.removeItem("equipmentFilters");
-});
