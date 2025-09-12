@@ -8,18 +8,25 @@ const statusFilterConfig = {
     }
 };
 
+// pageshow 이벤트: 뒤로가기/앞으로가기 시 항상 초기화
+window.addEventListener("pageshow", function(event) {
+    // 상태 필터 전체로 초기화
+    $("input[name='status']").prop("checked", false);
+    $("input[name='status'][value='전체']").prop("checked", true);
+
+    // 필터 렌더링
+    renderFilter("equipment-filter", statusFilterConfig, function(filters) {
+        fetchEquipmentItems(equipmentId, filters, 1);
+    });
+
+    // 리스트 초기 조회
+    fetchEquipmentItems(equipmentId, {}, 1);
+});
+
 $(document).ready(function () {
     // URL에서 equipmentId 추출
     const pathParts = window.location.pathname.split("/");
     equipmentId = pathParts[pathParts.indexOf("equipment") + 1];
-
-    // 상태 필터 렌더링
-    renderFilter("equipment-filter", statusFilterConfig, function(filters) {
-        fetchEquipmentItems(equipmentId, filters, 1); // 필터 변경 시 1페이지로 호출
-    });
-
-    // 초기 조회
-    fetchEquipmentItems(equipmentId, {}, 1);
 });
 
 function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {

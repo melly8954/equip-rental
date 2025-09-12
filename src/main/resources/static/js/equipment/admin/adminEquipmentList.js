@@ -30,22 +30,35 @@ const subCategoryMap = {
     SAFETY_EQUIPMENT: ["보호구", "안전장치", "응급용품"]
 };
 
-$(document).ready(function() {
+// pageshow 이벤트 활용: 뒤로가기/앞으로가기 시에도 실행
+window.addEventListener("pageshow", function(event) {
+    // 필터 강제 초기화
+    $("input[name='category']").prop("checked", false);
+    $("input[name='category'][value='전체']").prop("checked", true);
+
+    $("input[name='subCategory']").prop("checked", false);
+    $("input[name='subCategory'][value='전체']").prop("checked", true);
+
+    // 검색어 초기화
+    $("#equipment-search").val("");
+
     // 필터 렌더링
     renderFilter("equipment-filters", filterConfig, onFilterChange);
-
-    // 검색 이벤트
-    $("#equipment-search").on("input", function() {
-        fetchEquipment();
-    });
-
 
     // 초기 장비 리스트 조회
     fetchEquipment();
 });
 
+// 검색 이벤트 등록
+$(document).ready(function() {
+    $("#equipment-search").on("input", function() {
+        fetchEquipment();
+    });
+});
+
+
 // 필터 변경 시 동작
-function onFilterChange(values) {
+function onFilterChange() {
     // 현재 선택된 카테고리 값
     const category = getFilterValues(filterConfig).category;
 
