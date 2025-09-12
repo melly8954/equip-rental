@@ -22,12 +22,51 @@ const filterConfig = {
     }
 };
 
+const categoryLabelMap = {
+    "전체": "전체",
+    "OFFICE_SUPPLIES": "사무용품",
+    "ELECTRONICS": "전자기기",
+    "FURNITURE": "가구",
+    "TOOLS": "공구",
+    "SAFETY_EQUIPMENT": "안전장비"
+};
+
 const subCategoryMap = {
-    OFFICE_SUPPLIES: ["문서용품", "필기구", "사무기기"],
-    ELECTRONICS: ["컴퓨터", "마우스", "모바일/태블릿"],
-    FURNITURE: ["책상/의자", "수납", "회의용 가구"],
-    TOOLS: ["전동공구", "수공구", "측정기기"],
-    SAFETY_EQUIPMENT: ["보호구", "안전장치", "응급용품"]
+    OFFICE_SUPPLIES: [
+        "문서 파쇄기",
+        "라벨프린터",
+        "프로젝트 보드"
+    ],
+    ELECTRONICS: [
+        "노트북",
+        "태블릿",
+        "프로젝터",
+        "모니터",
+        "프린터",
+        "카메라/캠코더",
+        "오디오장비(스피커/마이크)",
+        "외장저장장치(SSD/HDD)"
+    ],
+    FURNITURE: [
+        "사무용 의자",
+        "책상/테이블",
+        "서랍장/캐비닛",
+        "이동식 파티션",
+        "화이트보드"
+    ],
+    TOOLS: [
+        "전동공구(드릴, 그라인더)",
+        "수공구(망치, 드라이버)",
+        "측정도구(레이저측정기, 콤파스)",
+        "납땜장비"
+    ],
+    SAFETY_EQUIPMENT: [
+        "안전모",
+        "안전화",
+        "보호안경/귀마개",
+        "방진마스크",
+        "소화기/응급키트"
+    ]
 };
 
 // pageshow 이벤트 활용: 뒤로가기/앞으로가기 시에도 실행

@@ -34,10 +34,18 @@ function renderFilter(containerId, config, onChange) {
                 input.prop("checked", true);
             }
 
+            // UI에 표시할 label
+            let displayText = opt;
+            if (key === "category") {
+                displayText = categoryLabelMap[opt] || opt;
+            } else if (key === "status") {
+                displayText = statusLabelMap?.[opt] || opt;
+            }
+
             const button = $("<label>")
                 .addClass("btn btn-outline-primary")
                 .attr("for", inputId)
-                .text(opt);
+                .text(displayText );
 
             input.on("change", function() {
                 onChange(getFilterValues(config));

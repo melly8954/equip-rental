@@ -4,8 +4,17 @@ const statusFilterConfig = {
     status: {
         label: "상태",
         type: "radio",
-        options: ["전체", "AVAILABLE", "RENTED", "REPAIRING", "OUT_OF_STOCK", "LOST", "DISCARDED"]
+        options: ["전체", "AVAILABLE", "RENTED", "REPAIRING", "OUT_OF_STOCK", "LOST"]
     }
+};
+
+const statusLabelMap = {
+    "전체": "전체",
+    "AVAILABLE": "사용 가능",
+    "RENTED": "대여 중",
+    "REPAIRING": "수리 중",
+    "OUT_OF_STOCK": "폐기",
+    "LOST": "분실",
 };
 
 // pageshow 이벤트: 뒤로가기/앞으로가기 시 항상 초기화
@@ -86,8 +95,8 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         `);
 
         items.forEach(item => {
-            const statusOptions = ["AVAILABLE", "RENTED", "REPAIRING", "OUT_OF_STOCK", "LOST", "DISCARDED"]
-                .map(opt => `<option value="${opt}" ${opt === item.status ? "selected" : ""}>${opt}</option>`)
+            const statusOptions = ["AVAILABLE", "RENTED", "REPAIRING", "OUT_OF_STOCK", "LOST"]
+                .map(opt => `<option value="${opt}" ${opt === item.status ? "selected" : ""}>${statusLabelMap[opt]}</option>`)
                 .join("");
 
             container.append(`
