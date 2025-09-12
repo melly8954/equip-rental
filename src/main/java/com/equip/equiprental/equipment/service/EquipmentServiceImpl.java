@@ -220,7 +220,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         // DTO 변환
         List<EquipmentItemHistoryDto> content = page.getContent().stream()
                 .map(history -> EquipmentItemHistoryDto.builder()
-                        .historyId(history.getHistoryId())
                         .oldStatus(history.getOldStatus().name())
                         .newStatus(history.getNewStatus().name())
                         .changedBy(history.getChangedBy().getName()) // member 이름

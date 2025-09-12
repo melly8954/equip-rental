@@ -16,7 +16,7 @@ function fetchHistory(page = 1, size = 10) {
         url: `/api/v1/equipments/${equipmentId}/items/${equipmentItemId}/history?page=${page}&size=${size}`,
         method: 'GET',
     }).done(function (response) {
-        renderHistoryList(response.data.content, response.data.page, response.data.size);
+        renderHistoryList(response.data.content, response.data.page, response.data.size, response.data.totalElements);
         renderPagination("history-pagination",{
             page: response.data.page,       // 1-based
             totalPages: response.data.totalPages,
@@ -28,7 +28,7 @@ function fetchHistory(page = 1, size = 10) {
     })
 }
 
-function renderHistoryList(content, page, size) {
+function renderHistoryList(content, page, size, totalElements) {
     const listDiv = $('#history-list');
     listDiv.empty();
 
@@ -38,10 +38,13 @@ function renderHistoryList(content, page, size) {
     }
 
     content.forEach((item, index) => {
+        // 역순 시퀀스 계산
+        const sequence = totalElements - ((page - 1) * size + index);
+
         const card = `
             <div class="card mb-3">
                 <div class="card-body">
-                    <p><strong>순서:</strong> ${item.historyId}</p>
+                    <p><strong>순서:</strong> ${sequence}</p>
                     <p><strong>이전 상태:</strong> ${item.oldStatus}</p>
                     <p><strong>변경 상태:</strong> ${item.newStatus}</p>
                     <p><strong>변경자:</strong> ${item.changedBy}</p>

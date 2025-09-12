@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EquipmentItemHistoryDto {
-    private Long historyId;
     private String oldStatus;
     private String newStatus;
     private String changedBy;
