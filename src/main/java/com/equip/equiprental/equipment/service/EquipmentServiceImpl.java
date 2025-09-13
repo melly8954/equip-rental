@@ -247,31 +247,22 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponseDto<EquipmentItemHistoryDto> getItemHistory(Long equipmentItemId, SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<EquipmentItemHistory> page = equipmentItemHistoryRepository.findByEquipmentItemIdWithMember(equipmentItemId, pageable);
+        Page<EquipmentItemHistoryDto> historyDtosPage = equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable);
 
-        // DTO 변환
-        List<EquipmentItemHistoryDto> content = page.getContent().stream()
-                .map(history -> EquipmentItemHistoryDto.builder()
-                        .oldStatus(history.getOldStatus().name())
-                        .newStatus(history.getNewStatus().name())
-                        .changedBy(history.getChangedBy().getName()) // member 이름
-                        .changedAt(history.getCreatedAt())
-                        .build())
-                .toList();
-
-        // PageResponseDto 생성
         return PageResponseDto.<EquipmentItemHistoryDto>builder()
-                .content(content)
-                .page(page.getNumber() + 1)   // JPA Pageable 0-based → 1-based
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .empty(page.isEmpty())
+                .content(historyDtosPage.getContent())
+                .page(historyDtosPage.getNumber() + 1)
+                .size(historyDtosPage.getSize())
+                .totalElements(historyDtosPage.getTotalElements())
+                .totalPages(historyDtosPage.getTotalPages())
+                .numberOfElements(historyDtosPage.getNumberOfElements())
+                .first(historyDtosPage.isFirst())
+                .last(historyDtosPage.isLast())
+                .empty(historyDtosPage.isEmpty())
                 .build();
     }
 
