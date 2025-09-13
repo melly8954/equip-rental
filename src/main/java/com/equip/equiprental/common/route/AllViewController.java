@@ -36,10 +36,44 @@ public class AllViewController {
         return "userHome";  // 일반 사용자 페이지
     }
 
+    // 사용자 접근
+    @GetMapping("/equipment/list")
+    public String equipmentList() {
+        return "equipment/equipmentList";
+    }
+
+    // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")
     public String member() {
         return "member/memberList";
+    }
+
+    @GetMapping("/admin/equipment/registration")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String equipmentRegistration() {
+        return "equipment/admin/equipmentRegistration";
+    }
+
+    @GetMapping("/admin/equipment/list")
+    public String equipmentListInAdmin() {
+        return "equipment/admin/adminEquipmentList";
+    }
+
+    @GetMapping("/admin/equipment/{equipmentId}/item")
+    public String equipmentItemList() {
+        return "equipment/admin/equipmentItemList";
+    }
+
+    @GetMapping("/admin/equipment/{equipmentId}/item/{itemId}/history")
+    public String equipmentItemHistory() {
+        return "equipment/admin/equipmentItemHistory";
+    }
+
+    // 에러 페이지
+    @GetMapping("/error/unauthorized")
+    public String errorUnAuthorized() {
+        return "error/unauthorized";
     }
 
     @GetMapping("/error/forbidden")

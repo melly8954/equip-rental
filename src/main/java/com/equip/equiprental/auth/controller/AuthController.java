@@ -1,7 +1,7 @@
 package com.equip.equiprental.auth.controller;
 
-import com.equip.equiprental.common.response.ResponseController;
-import com.equip.equiprental.common.response.ResponseDto;
+import com.equip.equiprental.common.controller.ResponseController;
+import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.auth.dto.LoginRequestDto;
 import com.equip.equiprental.auth.dto.LoginResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;

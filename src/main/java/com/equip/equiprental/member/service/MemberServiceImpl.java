@@ -2,8 +2,8 @@ package com.equip.equiprental.member.service;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.common.response.PageResponseDto;
-import com.equip.equiprental.common.response.SearchParamDto;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.member.repository.MemberRepository;
@@ -26,7 +26,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public SignUpResponseDto signUp(SignUpRequestDto dto) {
+    public SignUpResponse signUp(SignUpRequest dto) {
         if(memberRepository.existsByUsername(dto.getUsername())){
             throw new CustomException(ErrorType.DUPLICATE_USERNAME);
         }
@@ -50,7 +50,7 @@ public class MemberServiceImpl implements MemberService {
                 .build();
         memberRepository.save(member);
 
-        return SignUpResponseDto.builder()
+        return SignUpResponse.builder()
                 .memberId(member.getMemberId())
                 .username(member.getUsername())
                 .name(member.getName())
@@ -65,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
     public PageResponseDto<MemberDto> searchMembers(SearchParamDto dto) {
         Pageable pageable = dto.getPageable();
 
-        MemberStatus status = dto.getStatusEnum();
+        MemberStatus status = dto.getMemberStatusEnum();
         MemberRole role = dto.getRoleEnum();
 
         Page<Member> page;

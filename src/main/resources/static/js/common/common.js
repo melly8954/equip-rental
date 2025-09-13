@@ -29,10 +29,23 @@ function renderFilter(containerId, config, onChange) {
                 .attr("id", inputId)
                 .val(opt === "전체" ? "" : opt);
 
+            // "전체"는 항상 기본 checked
+            if (opt === "전체") {
+                input.prop("checked", true);
+            }
+
+            // UI에 표시할 label
+            let displayText = opt;
+            if (key === "category") {
+                displayText = categoryLabelMap[opt] || opt;
+            } else if (key === "status") {
+                displayText = statusLabelMap?.[opt] || opt;
+            }
+
             const button = $("<label>")
                 .addClass("btn btn-outline-primary")
                 .attr("for", inputId)
-                .text(opt);
+                .text(displayText );
 
             input.on("change", function() {
                 onChange(getFilterValues(config));
@@ -47,11 +60,13 @@ function renderFilter(containerId, config, onChange) {
 }
 
 function getFilterValues(config) {
+    // values 라는 빈 객체 생성
     const values = {};
     $.each(config, function(key) {
         const selected = $(`input[name="${key}"]:checked`);
         values[key] = selected.length ? selected.val() : "";
     });
+    // 빈 객체에 config key/value 담아서 반환
     return values;
 }
 
@@ -100,4 +115,12 @@ function renderPagination(containerId, pageInfo, onPageChange) {
     pagination.append(nextLi);
 
     container.append(pagination);
+}
+
+function getCurrentPage(containerId) {
+    const activeLink = $(`#${containerId} .page-item.active a`);
+    if (activeLink.length) {
+        return parseInt(activeLink.text(), 10);
+    }
+    return 1; // 기본 1페이지
 }

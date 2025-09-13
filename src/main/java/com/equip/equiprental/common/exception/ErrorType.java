@@ -27,7 +27,26 @@ public enum ErrorType {
 
     // 쿼리 파라미터 요청 값 에러
     INVALID_STATUS_REQUEST("invalid_status_request", "잘못된 상태 요청입니다.", HttpStatus.BAD_REQUEST),
-    INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST);
+    INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_CATEGORY_REQUEST("invalid_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST),
+
+    // 장비 등록 에러
+    INVALID_EQUIP_CATEGORY_REQUEST("invalid_equipment_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST),
+    EXIST_EQUIPMENT_MODEL_CODE("exist_equipment_model_code", "해당 장비는 이미 등록된 장비입니다.", HttpStatus.BAD_REQUEST),
+
+    // 404 에러
+    EQUIPMENT_NOT_FOUND("equipment_not_found","해당 정보로 등록된 장비가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    EQUIPMENT_ITEM_NOT_FOUND("equipment_item_not_found","해당 정보로 등록된 장비 아이템이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+
+    // 장비 재고 수량 처리 에러
+    AMOUNT_MUST_BE_POSITIVE("amount_must_be_positive", "추가할 재고 수량은 반드시 양수여야합니다.", HttpStatus.BAD_REQUEST),
+
+    // 파일 관련
+    FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    FILE_REQUIRED("file_required", "파일을 추가하지 않았습니다.", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED("file_upload_failed", "파일 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_SIZE_EXCEEDED("file_size_exceeded", "파일 크기가 허용된 범위를 초과했습니다.", HttpStatus.PAYLOAD_TOO_LARGE);
+
     private final String errorCode;
     private final String message;
     private final HttpStatus status;

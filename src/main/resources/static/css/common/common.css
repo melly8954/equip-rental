@@ -95,3 +95,24 @@ nav.sidebar .nav-link.active {
 .logout-btn:hover {
     background-color: #c0392b;
 }
+
+/* 사용자 정보 영역 */
+nav.sidebar .user-info {
+    display: flex;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 1rem;
+    background-color: #3a3f57; /* 메뉴 hover 색상과 유사하게 */
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 사용자 이름 강조 */
+nav.sidebar .user-info span {
+    font-weight: bold;
+    color: #f1f3f6;
+}

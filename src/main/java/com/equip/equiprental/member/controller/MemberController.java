@@ -1,9 +1,9 @@
 package com.equip.equiprental.member.controller;
 
-import com.equip.equiprental.common.response.PageResponseDto;
-import com.equip.equiprental.common.response.ResponseController;
-import com.equip.equiprental.common.response.ResponseDto;
-import com.equip.equiprental.common.response.SearchParamDto;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.controller.ResponseController;
+import com.equip.equiprental.common.dto.ResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.service.MemberService;
@@ -22,11 +22,11 @@ public class MemberController implements ResponseController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<ResponseDto<SignUpResponseDto>> createMember(@RequestBody SignUpRequestDto dto) {
+    public ResponseEntity<ResponseDto<SignUpResponse>> createMember(@RequestBody SignUpRequest dto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[회원 가입 요청 API] TraceId={}", traceId);
 
-        SignUpResponseDto result = memberService.signUp(dto);
+        SignUpResponse result = memberService.signUp(dto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 가입 성공", result);
     }
 
@@ -41,6 +41,7 @@ public class MemberController implements ResponseController {
     }
 
     @PatchMapping("/{memberId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<UpdateMemberStatusResponse>> updateStatus(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 상태 변경 요청 API] TraceId={}", traceId);
@@ -50,6 +51,7 @@ public class MemberController implements ResponseController {
     }
 
     @PatchMapping("/{memberId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<UpdateMemberRoleResponse>> updateRole(@PathVariable Long memberId, @RequestBody UpdateMemberRequest dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 역할 변경 요청 API] TraceId={}", traceId);

@@ -1,5 +1,3 @@
-
-
 const filterConfig = {
     status: {
         label: "상태",

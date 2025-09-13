@@ -41,8 +41,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/", "/signup").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/signup", "/error/unauthorized").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/v1/members", "/api/v1/auth/login").permitAll()
+                        .requestMatchers("/member", "/admin/equipment/registration").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
