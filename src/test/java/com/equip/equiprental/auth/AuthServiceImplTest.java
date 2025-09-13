@@ -1,4 +1,4 @@
-package com.equip.equiprental.service;
+package com.equip.equiprental.auth;
 
 import com.equip.equiprental.auth.service.AuthServiceImpl;
 import com.equip.equiprental.auth.security.PrincipalDetails;

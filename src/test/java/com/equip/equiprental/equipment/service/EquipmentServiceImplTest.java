@@ -1,4 +1,4 @@
-package com.equip.equiprental.service;
+package com.equip.equiprental.equipment.service;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;

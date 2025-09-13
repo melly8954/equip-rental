@@ -1,4 +1,4 @@
-package com.equip.equiprental.service;
+package com.equip.equiprental.member;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
