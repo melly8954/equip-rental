@@ -7,17 +7,14 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
-import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.dto.*;
-import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.util.ModelCodeGenerator;
 import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.FileService;
-import com.equip.equiprental.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,7 +33,6 @@ import java.util.Random;
 public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentItemRepository equipmentItemRepository;
-    private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final ModelCodeGenerator modelCodeGenerator;
     private final FileRepository fileRepository;
     private final FileService fileService;
@@ -221,49 +217,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentItemRepository.saveAll(items);
 
         equipment.increaseStock(dto.getAmount());
-    }
-
-    @Override
-    @Transactional
-    public void updateItemStatus(UpdateItemStatusDto dto, Member changer) {
-        EquipmentStatus newStatus = dto.getEquipmentItemStatusEnum();
-
-        EquipmentItem item = equipmentItemRepository.findById(dto.getEquipmentItemId())
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
-
-        EquipmentStatus oldStatus = item.getStatus();
-
-        // 상태 변경
-        item.updateStatus(newStatus);
-
-        EquipmentItemHistory history = EquipmentItemHistory.builder()
-                .item(item)
-                .changedBy(changer)
-                .oldStatus(oldStatus)
-                .newStatus(newStatus)
-                .build();
-
-        equipmentItemHistoryRepository.save(history);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageResponseDto<EquipmentItemHistoryDto> getItemHistory(Long equipmentItemId, SearchParamDto paramDto) {
-        Pageable pageable = paramDto.getPageable();
-
-        Page<EquipmentItemHistoryDto> historyDtosPage = equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable);
-
-        return PageResponseDto.<EquipmentItemHistoryDto>builder()
-                .content(historyDtosPage.getContent())
-                .page(historyDtosPage.getNumber() + 1)
-                .size(historyDtosPage.getSize())
-                .totalElements(historyDtosPage.getTotalElements())
-                .totalPages(historyDtosPage.getTotalPages())
-                .numberOfElements(historyDtosPage.getNumberOfElements())
-                .first(historyDtosPage.isFirst())
-                .last(historyDtosPage.isLast())
-                .empty(historyDtosPage.isEmpty())
-                .build();
     }
 
     @Override

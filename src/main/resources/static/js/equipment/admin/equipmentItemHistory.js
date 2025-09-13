@@ -13,7 +13,7 @@ $(document).ready(function () {
 
 function fetchHistory(page = 1, size = 10) {
     $.ajax({
-        url: `/api/v1/equipments/${equipmentId}/items/${equipmentItemId}/history?page=${page}&size=${size}`,
+        url: `/api/v1/equipment-items/${equipmentItemId}/history?page=${page}&size=${size}`,
         method: 'GET',
     }).done(function (response) {
         renderHistoryList(response.data.content, response.data.page, response.data.size, response.data.totalElements);
