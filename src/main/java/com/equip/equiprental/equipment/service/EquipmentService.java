@@ -18,4 +18,6 @@ public interface EquipmentService {
     void updateItemStatus(UpdateItemStatusDto dto, Member changer);
 
     PageResponseDto<EquipmentItemHistoryDto> getItemHistory(Long equipmentItemId, SearchParamDto paramDto);
+
+    void updateEquipmentImage(Long equipmentId, List<MultipartFile> files);
 }

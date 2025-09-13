@@ -61,7 +61,11 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                 <div class="row g-0">
                     <div class="col-md-4">
                         <img src="${equipmentSummary.imageUrl}" 
-                             class="img-fluid rounded-start" alt="${equipmentSummary.model}">
+                             class="img-fluid rounded-start" alt="${equipmentSummary.model}" id="equipment-image">
+                        <div class="mt-2">
+                            <button id="change-image-btn" class="btn btn-sm btn-secondary">이미지 변경</button>
+                            <input type="file" id="image-input" accept="image/*" style="display:none">
+                        </div>
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
@@ -157,4 +161,29 @@ $(document).on("click", ".view-history", function() {
     const equipmentItemId = $(this).data("item-id");
     // 아이템 히스토리 페이지로 이동
     window.location.href = `/admin/equipment/${equipmentId}/item/${equipmentItemId}/history`;
+});
+
+$(document).on("click", "#change-image-btn", function() {
+    $("#image-input").click(); // 숨겨진 input 트리거
+});
+
+$(document).on("change", "#image-input", function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("files", file);
+
+    $.ajax({
+        url: `/api/v1/equipments/${equipmentId}/image`,
+        method: "POST",
+        data: formData,
+        processData: false,
+        contentType: false
+    }).done(function(response) {
+        alert(response.message);
+        fetchEquipmentItems(equipmentId, {}, 1); // 새로고침 없이 데이터 다시 불러오기
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    });
 });

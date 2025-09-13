@@ -266,6 +266,46 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .build();
     }
 
+    @Override
+    public void updateEquipmentImage(Long equipmentId, List<MultipartFile> files) {
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+
+        if(files != null && !files.isEmpty()) {
+            // 기존 이미지 조회
+            List<FileMeta> existingFiles = fileRepository.findByRelatedTypeAndRelatedId("equipment", equipmentId);
+
+            // 1. 기존이 있다면 삭제
+            if (!existingFiles.isEmpty()) {
+                fileRepository.deleteAll(existingFiles);
+                // (선택) 실제 파일 삭제: fileService.deleteFiles(existingFiles);
+            }
+
+            // 2. 새 이미지 저장
+            int fileOrder = 0;
+            List<String> fileUrls = fileService.saveFiles(files, "equipment");
+            List<FileMeta> savedFiles = new ArrayList<>();
+
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                String url = fileUrls.get(i);
+
+                FileMeta meta = FileMeta.builder()
+                        .relatedType("equipment")
+                        .relatedId(equipment.getEquipmentId())
+                        .originalName(file.getOriginalFilename())
+                        .uniqueName(url.substring(url.lastIndexOf("/") + 1))
+                        .fileOrder(fileOrder++)
+                        .fileType(file.getContentType())
+                        .filePath(url)
+                        .fileSize(file.getSize())
+                        .build();
+                savedFiles.add(meta);
+            }
+            fileRepository.saveAll(savedFiles);
+        }
+    }
+
     private String generateSerialNumber(String modelCode, long sequence) {
         // 랜덤 4자리 숫자 생성
         int random4 = new Random().nextInt(10000); // 0~9999

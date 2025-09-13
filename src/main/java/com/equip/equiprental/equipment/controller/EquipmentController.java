@@ -113,7 +113,7 @@ public class EquipmentController implements ResponseController {
                                                                                    @ModelAttribute SearchParamDto paramDto,
                                                                                    @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 아이템 상태 변경 요청 API] TraceId={}", traceId);
+        log.info("[장비 아이템 히스토리 조회 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
@@ -123,5 +123,22 @@ public class EquipmentController implements ResponseController {
         PageResponseDto<EquipmentItemHistoryDto> result = equipmentService.getItemHistory(equipmentItemId, paramDto);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 히스토리 조회 성공", result);
+    }
+
+    @PostMapping("/{equipmentId}/image")
+    public ResponseEntity<ResponseDto<Void>> uploadImage(@PathVariable Long equipmentId,
+                                                         @RequestPart List<MultipartFile> files,
+                                                         @AuthenticationPrincipal PrincipalDetails principal){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[장비 이미지 파일 등록 요청 API] TraceId={}", traceId);
+
+        if (principal.getMember().getRole() == MemberRole.MANAGER &&
+                !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
+
+        equipmentService.updateEquipmentImage(equipmentId, files);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 이미지 파일 등록 성공", null);
     }
 }

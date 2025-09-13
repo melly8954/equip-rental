@@ -13,4 +13,6 @@ public interface FileRepository extends JpaRepository<FileMeta, Long> {
             "ORDER BY f.createdAt ASC")
     // 파일 url 리스트 (ASC 조회로 가장 앞 대표 이미지 url 얻을 수 있음)
     List<String> findUrlsByEquipmentId(@Param("equipmentId") Long equipmentId);
+
+    List<FileMeta> findByRelatedTypeAndRelatedId(String equipment, Long equipmentId);
 }
