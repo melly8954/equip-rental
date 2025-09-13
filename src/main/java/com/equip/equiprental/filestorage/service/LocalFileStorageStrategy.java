@@ -1,6 +1,7 @@
 package com.equip.equiprental.filestorage.service;
 
 import com.equip.equiprental.common.config.FileProperties;
+import com.equip.equiprental.filestorage.domain.StoredFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,8 @@ public class LocalFileStorageStrategy implements FileStorageStrategy {
     private final FileProperties fileProperties;
 
     @Override
-    public List<String> store(List<MultipartFile> files, String typeKey) {
-        List<String> savedNames = new ArrayList<>();
+    public List<StoredFile> store(List<MultipartFile> files, String typeKey) {
+        List<StoredFile> savedFiles = new ArrayList<>();
 
         String directoryPath = fileProperties.getFullPath(typeKey);
 
@@ -31,23 +32,22 @@ public class LocalFileStorageStrategy implements FileStorageStrategy {
                 if (file.isEmpty()) continue;
 
                 String originalFilename = file.getOriginalFilename();
-                String extension = "";
-                int dotIndex = originalFilename != null ? originalFilename.lastIndexOf('.') : -1;
-                if (dotIndex > 0) extension = originalFilename.substring(dotIndex);
+                String uuid = UUID.randomUUID().toString();
 
-                String uniqueName = UUID.randomUUID().toString() + extension;
+                // 로컬 저장용 파일명: UUID_원본파일명
+                String localFileName = uuid + "_" + originalFilename;
 
-                Path targetPath = Paths.get(directoryPath, uniqueName);
+                Path targetPath = Paths.get(directoryPath, localFileName);
                 Files.createDirectories(targetPath.getParent());
                 Files.write(targetPath, file.getBytes());
 
-                savedNames.add(uniqueName);
+                savedFiles.add(new StoredFile(uuid, localFileName, originalFilename));
             } catch (IOException e) {
                 throw new RuntimeException("파일 저장 중 오류 발생", e);
             }
         }
 
-        return savedNames;
+        return savedFiles;
     }
 
     @Override
