@@ -26,6 +26,9 @@ public class EquipmentItemQRepoImpl implements EquipmentItemQRepo {
 
         // 동적 조건을 누적할 BooleanBuilder 생성
         BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(i.equipment.equipmentId.eq(equipmentId));
+        
         if (status != null){
             builder.and(i.status.eq(status));
         }
