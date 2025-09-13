@@ -152,11 +152,46 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EquipmentItemListDto getEquipmentItem(Long equipmentId, SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
         EquipmentStatus status = paramDto.getEquipmentStatusEnum();
 
-        return equipmentItemRepository.findEquipmentItemByFilter(equipmentId, status, pageable);
+        // 장비 요약 정보는 서비스에서 직접 조회
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new RuntimeException("장비가 존재하지 않습니다."));
+
+        Integer availableStock = equipmentItemRepository.countByEquipment_EquipmentIdAndStatus(equipmentId, EquipmentStatus.AVAILABLE);
+        Integer totalStock = equipmentItemRepository.countByEquipment_EquipmentId(equipmentId);
+
+        EquipmentDto equipmentSummary = EquipmentDto.builder()
+                .equipmentId(equipment.getEquipmentId())
+                .category(equipment.getCategory().name())
+                .subCategory(equipment.getSubCategory())
+                .model(equipment.getModel())
+                .availableStock(availableStock)
+                .totalStock(totalStock)
+                .imageUrl(fileRepository.findUrlsByEquipmentId(equipmentId).stream().findFirst().orElse(null))
+                .build();
+
+        Page<EquipmentItemDto> equipmentItemsDtosPage = equipmentItemRepository.findByStatus(equipmentId, status, pageable);
+
+        return EquipmentItemListDto.builder()
+                .equipmentSummary(equipmentSummary)
+                .equipmentItems(
+                        PageResponseDto.<EquipmentItemDto>builder()
+                            .content(equipmentItemsDtosPage.getContent())
+                            .page(equipmentItemsDtosPage.getNumber() + 1)
+                            .size(equipmentItemsDtosPage.getSize())
+                            .totalElements(equipmentItemsDtosPage.getTotalElements())
+                            .totalPages(equipmentItemsDtosPage.getTotalPages())
+                            .numberOfElements(equipmentItemsDtosPage.getNumberOfElements())
+                            .first(equipmentItemsDtosPage.isFirst())
+                            .last(equipmentItemsDtosPage.isLast())
+                            .empty(equipmentItemsDtosPage.isEmpty())
+                    .build()
+                )
+                .build();
     }
 
     @Override
