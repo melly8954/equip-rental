@@ -32,8 +32,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -475,6 +474,95 @@ public class EquipmentServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.EQUIPMENT_ITEM_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("getItemHistory 메서드 테스트")
+    class getItemHistory {
+        @Test
+        @DisplayName("성공 - 장비 아이템 히스토리 조회")
+        void getItemHistory_success() {
+            // given
+            Long equipmentItemId = 1L;
+            SearchParamDto paramDto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .build();
+            Pageable pageable = paramDto.getPageable();
+
+            EquipmentItemHistoryDto history1 = EquipmentItemHistoryDto.builder()
+                    .oldStatus("AVAILABLE")
+                    .newStatus("RENTED")
+                    .changedBy("Admin")
+                    .build();
+
+            EquipmentItemHistoryDto history2 = EquipmentItemHistoryDto.builder()
+                    .oldStatus("AVAILABLE")
+                    .newStatus("RENTED")
+                    .changedBy("Admin")
+                    .build();
+
+            // Page 생성
+            Page<EquipmentItemHistoryDto> mockPage = new PageImpl<>(List.of(history1, history2), pageable, 2);
+
+            // Mockito stub
+            when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
+                    .thenReturn(mockPage);
+
+            // when
+            PageResponseDto<EquipmentItemHistoryDto> result = equipmentService.getItemHistory(equipmentItemId, paramDto);
+
+            // then
+            assertThat(result.getContent()).hasSize(2)
+                    .extracting(EquipmentItemHistoryDto::getOldStatus, EquipmentItemHistoryDto::getNewStatus, EquipmentItemHistoryDto::getChangedBy)
+                    .containsExactly(
+                            tuple("AVAILABLE", "RENTED", "Admin"),
+                            tuple("AVAILABLE", "RENTED", "Admin")
+                    );
+
+            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
+            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getNumberOfElements()).isEqualTo(2);
+
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
+            assertThat(result.isEmpty()).isFalse();
+        }
+
+
+        @Test
+        @DisplayName("성공 - 히스토리 없음 (빈 페이지)")
+        void getItemHistory_empty() {
+            // given
+            Long equipmentItemId = 1L;
+            SearchParamDto paramDto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .build();
+            Pageable pageable = paramDto.getPageable();
+
+            Page<EquipmentItemHistoryDto> emptyPage = Page.empty(pageable);
+            when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
+                    .thenReturn(emptyPage);
+
+            // when
+            PageResponseDto<EquipmentItemHistoryDto> result = equipmentService.getItemHistory(equipmentItemId, paramDto);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.isEmpty()).isTrue();
+
+            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
+            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getTotalPages()).isEqualTo(0);
+            assertThat(result.getNumberOfElements()).isEqualTo(0);
+
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
         }
     }
 }
