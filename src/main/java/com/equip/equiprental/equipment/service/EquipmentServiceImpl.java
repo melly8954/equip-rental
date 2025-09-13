@@ -49,7 +49,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new CustomException(ErrorType.EXIST_EQUIPMENT_MODEL_CODE);
         }
         // 없으면 새 장비 생성
-        String modelCode = modelCodeGenerator.generate();
+        String modelCode = modelCodeGenerator.generate(dto.getCategory(), dto.getSubCategory());
 
         Equipment equipment = Equipment.builder()
                 .category(dto.getCategoryEnum())

@@ -10,19 +10,18 @@ public class ModelCodeGenerator {
         this.random = random;
     }
 
-    public String generate() {
-        StringBuilder sb = new StringBuilder();
+    public String generate(String category, String subCategory) {
+        String categoryCode = EquipmentCodeMap.categoryCodeMap.get(category);
+        String subCategoryCode = EquipmentCodeMap.subCategoryCodeMap.get(subCategory);
 
-        // 영문 3글자
-        for (int i = 0; i < 3; i++) {
-            sb.append(LETTERS.charAt(random.nextInt(LETTERS.length())));
+        if (categoryCode == null || subCategoryCode == null) {
+            throw new IllegalArgumentException("Invalid category or subCategory");
         }
 
-        // 숫자 2글자
-        for (int i = 0; i < 2; i++) {
-            sb.append(random.nextInt(10)); // 0~9
-        }
+        // 3자리 난수 생성
+        int number = random.nextInt(1000); // 0 ~ 999
+        String numberCode = String.format("%03d", number); // 3자리로 포맷
 
-        return sb.toString();
+        return categoryCode + "-" + subCategoryCode + "-" + numberCode;
     }
 }
