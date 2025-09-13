@@ -4,17 +4,16 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.equipment.domain.Equipment;
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
-import com.equip.equiprental.equipment.domain.EquipmentItem;
-import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.domain.*;
 import com.equip.equiprental.equipment.dto.*;
+import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.service.EquipmentServiceImpl;
 import com.equip.equiprental.equipment.util.ModelCodeGenerator;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.FileService;
+import com.equip.equiprental.member.domain.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +41,7 @@ import static org.mockito.Mockito.*;
 public class EquipmentServiceImplTest {
     @Mock private EquipmentRepository equipmentRepository;
     @Mock private EquipmentItemRepository equipmentItemRepository;
+    @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     @Mock private ModelCodeGenerator modelCodeGenerator;
     @Mock private FileRepository fileRepository;
     @Mock private FileService fileService;
@@ -417,6 +417,64 @@ public class EquipmentServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateItemStatus 메서드 테스트")
+    class updateItemStatus {
+        @Test
+        @DisplayName("성공 - 장비 아이템 상태 변경 및 히스토리 저장")
+        void updateItemStatus_success() {
+            // given
+            Member changer = Member.builder()
+                    .memberId(1L)
+                    .name("Admin")
+                    .build();
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("RENTED")
+                    .build();
+
+            EquipmentItem item = EquipmentItem.builder()
+                    .equipmentItemId(1L)
+                    .status(EquipmentStatus.AVAILABLE)
+                    .build();
+
+            when(equipmentItemRepository.findById(dto.getEquipmentItemId())).thenReturn(Optional.of(item));
+
+            // when
+            equipmentService.updateItemStatus(dto, changer);
+
+            // then
+            // 상태 변경 검증
+            assertThat(item.getStatus()).isEqualTo(EquipmentStatus.RENTED);
+
+            // 히스토리 저장 검증
+            ArgumentCaptor<EquipmentItemHistory> captor = ArgumentCaptor.forClass(EquipmentItemHistory.class);
+            verify(equipmentItemHistoryRepository).save(captor.capture());
+
+            EquipmentItemHistory savedHistory = captor.getValue();
+            assertThat(savedHistory.getItem()).isEqualTo(item);
+            assertThat(savedHistory.getOldStatus()).isEqualTo(EquipmentStatus.AVAILABLE);
+            assertThat(savedHistory.getNewStatus()).isEqualTo(EquipmentStatus.RENTED);
+            assertThat(savedHistory.getChangedBy()).isEqualTo(changer);
+        }
+
+        @Test
+        @DisplayName("예외 - 장비 아이템 존재하지 않음")
+        void updateItemStatus_itemNotFound() {
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("RENTED")
+                    .build();
+
+            when(equipmentItemRepository.findById(dto.getEquipmentItemId())).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> equipmentService.updateItemStatus(dto, null))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_ITEM_NOT_FOUND);
         }
     }
 }
