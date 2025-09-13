@@ -5,10 +5,9 @@ import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QEquipmentItem;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
-import com.equip.equiprental.filestorage.repository.FileRepository;
+import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +17,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class EquipmentQRepoImpl implements EquipmentQRepo {
 
     private final JPAQueryFactory queryFactory;
-    private final FileRepository fileRepository;
 
     @Override
     public Page<EquipmentDto> findByFilters(SearchParamDto paramDto, Pageable pageable) {
         QEquipment e = QEquipment.equipment;
         QEquipmentItem i = QEquipmentItem.equipmentItem;
+        QFileMeta f = QFileMeta.fileMeta;
 
         // 동적 조건을 누적할 BooleanBuilder 생성
         BooleanBuilder builder = new BooleanBuilder();
@@ -44,14 +42,16 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
             builder.and(e.model.containsIgnoreCase(paramDto.getModel()));
         }
 
-        // 페이지 조회
+        // 조회용 DTO(EquipmentDto) 응답 객체 반환, DTO Projection
         List<EquipmentDto> content = queryFactory
+                // 메인 쿼리, EquipmentDto 생성자의 파라미터 순서에 맞춰 값 세팅
                 .select(Projections.constructor(EquipmentDto.class,
                         e.equipmentId,
                         e.category.stringValue(),
                         e.subCategory,
                         e.model,
-                        // available 재고
+                        // available 재고, 서브 쿼리 (JPAExpressions.select)
+                        // .count()는 NumberExpression<Long> 반환 -> 타입 변환
                         JPAExpressions.select(i.count().castToNum(Integer.class))
                                 .from(i)
                                 .where(i.equipment.eq(e)
@@ -60,28 +60,15 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
                         JPAExpressions.select(i.count().castToNum(Integer.class))
                                 .from(i)
                                 .where(i.equipment.eq(e)),
-                        Expressions.asString("") // imageUrl는 나중에 처리
+                        f.filePath
                 ))
                 .from(e)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(e.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(e.equipmentId.desc())
                 .fetch();
-
-        // imageUrl 채우기
-        content = content.stream()
-                .map(dto -> EquipmentDto.builder()
-                        .equipmentId(dto.getEquipmentId())
-                        .category(dto.getCategory())
-                        .subCategory(dto.getSubCategory())
-                        .model(dto.getModel())
-                        .availableStock(dto.getAvailableStock())
-                        .totalStock(dto.getTotalStock())
-                        .imageUrl(fileRepository.findUrlsByEquipmentId(dto.getEquipmentId())
-                                .stream().findFirst().orElse(null))
-                        .build())
-                .collect(Collectors.toList());
 
         // total count
         Long total = queryFactory

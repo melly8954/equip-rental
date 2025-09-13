@@ -136,18 +136,18 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional(readOnly = true)
     public PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
-        Page<EquipmentDto> page = equipmentRepository.findByFilters(paramDto, pageable);
+        Page<EquipmentDto> equipmentDtosPage  = equipmentRepository.findByFilters(paramDto, pageable);
 
         return PageResponseDto.<EquipmentDto>builder()
-                .content(page.getContent())
-                .page(page.getNumber() + 1)
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .numberOfElements(page.getNumberOfElements())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .empty(page.isEmpty())
+                .content(equipmentDtosPage .getContent())
+                .page(equipmentDtosPage .getNumber() + 1)
+                .size(equipmentDtosPage .getSize())
+                .totalElements(equipmentDtosPage .getTotalElements())
+                .totalPages(equipmentDtosPage .getTotalPages())
+                .numberOfElements(equipmentDtosPage .getNumberOfElements())
+                .first(equipmentDtosPage .isFirst())
+                .last(equipmentDtosPage .isLast())
+                .empty(equipmentDtosPage .isEmpty())
                 .build();
     }
 
