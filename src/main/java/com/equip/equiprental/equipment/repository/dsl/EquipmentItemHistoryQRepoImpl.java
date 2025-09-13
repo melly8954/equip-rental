@@ -1,10 +1,7 @@
 package com.equip.equiprental.equipment.repository.dsl;
 
-import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
-import com.equip.equiprental.equipment.domain.QEquipmentItem;
 import com.equip.equiprental.equipment.domain.QEquipmentItemHistory;
 import com.equip.equiprental.equipment.dto.EquipmentItemHistoryDto;
-import com.equip.equiprental.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

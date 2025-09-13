@@ -2,7 +2,6 @@ package com.equip.equiprental.equipment.repository.dsl;
 
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.domain.QEquipmentItem;
-import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.equipment.dto.EquipmentItemDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
