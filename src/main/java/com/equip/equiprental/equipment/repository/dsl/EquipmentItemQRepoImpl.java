@@ -1,16 +1,15 @@
 package com.equip.equiprental.equipment.repository.dsl;
 
-import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.equipment.domain.*;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.domain.QEquipmentItem;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.equipment.dto.EquipmentItemDto;
-import com.equip.equiprental.equipment.dto.EquipmentItemListDto;
-import com.equip.equiprental.equipment.repository.EquipmentRepository;
-import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -21,91 +20,40 @@ import java.util.List;
 public class EquipmentItemQRepoImpl implements EquipmentItemQRepo {
 
     private final JPAQueryFactory queryFactory;
-    private final EquipmentRepository equipmentRepository;
-    private final FileRepository fileRepository;
 
     @Override
-    public EquipmentItemListDto findEquipmentItemByFilter(Long equipmentId, EquipmentStatus status, Pageable pageable) {
-        QEquipmentItem item = QEquipmentItem.equipmentItem;
-        QEquipment equipment = QEquipment.equipment;
+    public Page<EquipmentItemDto> findByStatus(Long equipmentId, EquipmentStatus status, Pageable pageable) {
+        QEquipmentItem i = QEquipmentItem.equipmentItem;
 
+        // 동적 조건을 누적할 BooleanBuilder 생성
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(item.equipment.equipmentId.eq(equipmentId));
-        if (status != null) {
-            builder.and(item.status.eq(status));
+        if (status != null){
+            builder.and(i.status.eq(status));
         }
 
-        // fetch join + 페이징
-        JPQLQuery<EquipmentItem> query = queryFactory
-                .selectFrom(item)
-                .leftJoin(item.equipment, equipment).fetchJoin()
+        // 조회용 DTO(EquipmentDto) 응답 객체 반환, DTO Projection
+        List<EquipmentItemDto> content = queryFactory
+                // 메인 쿼리, EquipmentDto 생성자의 파라미터 순서에 맞춰 값 세팅
+                .select(Projections.constructor(EquipmentItemDto.class,
+                        i.equipmentItemId,
+                        i.serialNumber,
+                        i.status
+                ))
+                .from(i)
                 .where(builder)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .limit(pageable.getPageSize())
+                .orderBy(i.equipmentItemId.desc())
+                .fetch();
 
-        List<EquipmentItem> itemList = query.fetch();
-
+        // total count
         Long total = queryFactory
-                .select(item.count())
-                .from(item)
+                .select(i.count())
+                .from(i)
                 .where(builder)
                 .fetchOne();
-        total = (total != null) ? total : 0L;
+        total = total == null ? 0 : total;
 
-        // 전체 재고 (모든 상태)
-        Integer totalStock = queryFactory
-                .select(item.count().castToNum(Integer.class))
-                .from(item)
-                .where(item.equipment.equipmentId.eq(equipmentId))
-                .fetchOne();
-
-        // AVAILABLE 상태만 카운트
-        Integer availableStock = queryFactory
-                .select(item.count().castToNum(Integer.class))
-                .from(item)
-                .where(item.equipment.equipmentId.eq(equipmentId)
-                        .and(item.status.eq(EquipmentStatus.AVAILABLE)))
-                .fetchOne();
-
-        List<EquipmentItemDto> content = itemList.stream()
-                .map(i -> EquipmentItemDto.builder()
-                        .equipmentItemId(i.getEquipmentItemId())
-                        .serialNumber(i.getSerialNumber())
-                        .status(i.getStatus())
-                        .build())
-                .toList();
-
-        Equipment e = itemList.isEmpty() ?
-                equipmentRepository.findById(equipmentId)
-                        .orElseThrow(() -> new RuntimeException("장비가 존재하지 않습니다."))
-                : itemList.get(0).getEquipment();
-
-        EquipmentDto equipmentSummary = EquipmentDto.builder()
-                .equipmentId(e.getEquipmentId())
-                .category(e.getCategory().name())
-                .subCategory(e.getSubCategory())
-                .model(e.getModel())
-                .availableStock(availableStock != null ? availableStock : 0)
-                .totalStock(totalStock != null ? totalStock : 0)
-                .imageUrl(fileRepository.findUrlsByEquipmentId(equipmentId)
-                        .stream().findFirst().orElse(null))
-                .build();
-
-        return EquipmentItemListDto.builder()
-                .equipmentSummary(equipmentSummary)
-                .equipmentItems(
-                        PageResponseDto.<EquipmentItemDto>builder()
-                                .content(content)
-                                .page(pageable.getPageNumber() + 1)
-                                .size(pageable.getPageSize())
-                                .totalElements(total)
-                                .totalPages((int) Math.ceil((double) total / pageable.getPageSize()))
-                                .numberOfElements(content.size())
-                                .first(pageable.getPageNumber() == 0)
-                                .last((pageable.getOffset() + content.size()) >= total)
-                                .empty(content.isEmpty())
-                                .build()
-                )
-                .build();
+        return new PageImpl<>(content, pageable, total);
     }
 }
