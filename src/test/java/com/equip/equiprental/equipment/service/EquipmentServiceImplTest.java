@@ -9,8 +9,8 @@ import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
-import com.equip.equiprental.equipment.service.EquipmentServiceImpl;
 import com.equip.equiprental.equipment.util.ModelCodeGenerator;
+import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.FileService;
 import com.equip.equiprental.member.domain.Member;
@@ -29,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,9 @@ public class EquipmentServiceImplTest {
     
     @Captor
     ArgumentCaptor<List<EquipmentItem>> itemListCaptor;
+
+    @Captor
+    ArgumentCaptor<List<FileMeta>> fileMetaListCaptor;
 
     @InjectMocks
     private EquipmentServiceImpl equipmentService;
@@ -563,6 +567,100 @@ public class EquipmentServiceImplTest {
 
             assertThat(result.isFirst()).isTrue();
             assertThat(result.isLast()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("updateEquipmentImage 메서드 테스트")
+    class updateEquipmentImage {
+        @Test
+        @DisplayName("성공 - 새 이미지 업로드 (기존 이미지 없음)")
+        void updateEquipmentImage_success_newFiles() throws Exception {
+            // given
+            Long equipmentId = 1L;
+            Equipment equipment = Equipment.builder().equipmentId(equipmentId).build();
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
+            when(fileRepository.findByRelatedTypeAndRelatedId("equipment", equipmentId))
+                    .thenReturn(Collections.emptyList());
+
+            MultipartFile file1 = mock(MultipartFile.class);
+            when(file1.getOriginalFilename()).thenReturn("file1.jpg");
+            when(file1.getContentType()).thenReturn("image/jpeg");
+            when(file1.getSize()).thenReturn(100L);
+
+            MultipartFile file2 = mock(MultipartFile.class);
+            when(file2.getOriginalFilename()).thenReturn("file2.jpg");
+            when(file2.getContentType()).thenReturn("image/jpeg");
+            when(file2.getSize()).thenReturn(200L);
+
+            List<MultipartFile> files = List.of(file1, file2);
+            List<String> urls = List.of("http://cdn/file1.jpg", "http://cdn/file2.jpg");
+            when(fileService.saveFiles(files, "equipment")).thenReturn(urls);
+
+            // when
+            equipmentService.updateEquipmentImage(equipmentId, files);
+
+            // then
+            verify(fileRepository, never()).deleteAll(anyList());
+            verify(fileService).saveFiles(files, "equipment");
+
+            verify(fileRepository).saveAll(fileMetaListCaptor.capture());
+
+            List<FileMeta> savedFiles = fileMetaListCaptor.getValue();
+            assertThat(savedFiles).hasSize(2);
+            assertThat(savedFiles.get(0).getOriginalName()).isEqualTo("file1.jpg");
+            assertThat(savedFiles.get(0).getFilePath()).isEqualTo("http://cdn/file1.jpg");
+            assertThat(savedFiles.get(1).getOriginalName()).isEqualTo("file2.jpg");
+            assertThat(savedFiles.get(1).getFilePath()).isEqualTo("http://cdn/file2.jpg");
+        }
+
+        @Test
+        @DisplayName("성공 - 기존 이미지 삭제 후 새 이미지 업로드")
+        void updateEquipmentImage_success_existingFiles() throws Exception {
+            // given
+            Long equipmentId = 1L;
+            Equipment equipment = Equipment.builder().equipmentId(equipmentId).build();
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
+
+            FileMeta existingFile = mock(FileMeta.class);
+            when(fileRepository.findByRelatedTypeAndRelatedId("equipment", equipmentId))
+                    .thenReturn(List.of(existingFile));
+
+            MultipartFile newFile = mock(MultipartFile.class);
+            when(newFile.getOriginalFilename()).thenReturn("new.jpg");
+            when(newFile.getContentType()).thenReturn("image/jpeg");
+            when(newFile.getSize()).thenReturn(150L);
+
+            List<MultipartFile> files = List.of(newFile);
+            when(fileService.saveFiles(files, "equipment")).thenReturn(List.of("http://cdn/new.jpg"));
+
+            // when
+            equipmentService.updateEquipmentImage(equipmentId, files);
+
+            // then
+            verify(fileRepository).deleteAll(List.of(existingFile));
+            verify(fileService).saveFiles(files, "equipment");
+
+            verify(fileRepository).saveAll(fileMetaListCaptor.capture());
+
+            List<FileMeta> savedFiles = fileMetaListCaptor.getValue();
+            assertThat(savedFiles).hasSize(1);
+            assertThat(savedFiles.get(0).getOriginalName()).isEqualTo("new.jpg");
+            assertThat(savedFiles.get(0).getFilePath()).isEqualTo("http://cdn/new.jpg");
+        }
+
+        @Test
+        @DisplayName("예외 - 장비가 존재하지 않음")
+        void updateEquipmentImage_equipmentNotFound() {
+            // given
+            Long equipmentId = 1L;
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> equipmentService.updateEquipmentImage(equipmentId, List.of()))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
         }
     }
 }
