@@ -6,6 +6,7 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentCategory;
+import com.equip.equiprental.equipment.domain.EquipmentItem;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,6 +45,9 @@ public class EquipmentServiceImplTest {
     @Mock private ModelCodeGenerator modelCodeGenerator;
     @Mock private FileRepository fileRepository;
     @Mock private FileService fileService;
+    
+    @Captor
+    ArgumentCaptor<List<EquipmentItem>> itemListCaptor;
 
     @InjectMocks
     private EquipmentServiceImpl equipmentService;
@@ -343,6 +349,71 @@ public class EquipmentServiceImplTest {
 
             // 검증: CustomException 발생
             assertThatThrownBy(() -> equipmentService.getEquipmentItem(equipmentId, paramDto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("increaseStock 메서드 테스트")
+    class increaseStock {
+        @Test
+        @DisplayName("성공 - 재고 증가 및 아이템 추가")
+        void increaseStock_success() {
+            // given
+            Long equipmentId = 1L;
+            IncreaseStockRequestDto dto = IncreaseStockRequestDto.builder()
+                    .amount(3)
+                    .build();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(equipmentId)
+                    .model("LG Gram")
+                    .modelCode("LG001")
+                    .stock(5) // 기존 재고
+                    .build();
+
+            when(equipmentRepository.findByEquipmentId(equipmentId)).thenReturn(Optional.of(equipment));
+            when(equipmentItemRepository.findMaxSequenceByModel(equipment.getModel())).thenReturn(Optional.of(10L));
+
+            // when
+            equipmentService.increaseStock(equipmentId, dto);
+
+            // then
+            // saveAll 호출 검증
+            verify(equipmentItemRepository).saveAll(itemListCaptor.capture());
+
+            List<EquipmentItem> savedItems = itemListCaptor.getValue();
+            assertThat(savedItems).hasSize(3);
+
+            // 시퀀스와 serialNumber 검증
+            assertThat(savedItems.get(0).getSequence()).isEqualTo(11L);
+            assertThat(savedItems.get(1).getSequence()).isEqualTo(12L);
+            assertThat(savedItems.get(2).getSequence()).isEqualTo(13L);
+
+            assertThat(savedItems.get(0).getSerialNumber()).startsWith("LG001");
+            assertThat(savedItems.get(1).getSerialNumber()).startsWith("LG001");
+            assertThat(savedItems.get(2).getSerialNumber()).startsWith("LG001");
+
+            // 상태 검증
+            assertThat(savedItems).allMatch(item -> item.getStatus() == EquipmentStatus.AVAILABLE);
+
+            // Equipment 재고 증가 검증
+            assertThat(equipment.getStock()).isEqualTo(8); // 기존 5 + 3
+        }
+
+        @Test
+        @DisplayName("예외 - 장비가 존재하지 않음")
+        void increaseStock_equipmentNotFound() {
+            Long equipmentId = 1L;
+            IncreaseStockRequestDto dto = IncreaseStockRequestDto.builder()
+                    .amount(3)
+                    .build();
+
+            when(equipmentRepository.findByEquipmentId(equipmentId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> equipmentService.increaseStock(equipmentId, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
