@@ -142,7 +142,7 @@ $(document).on("change", ".item-status", function() {
 
 function updateItemStatus(itemId, newStatus, filters, page) {
     $.ajax({
-        url: `/api/v1/equipments/${equipmentId}/items/status`, // API 엔드포인트 예시
+        url: `/api/v1/equipment-items/status`, // API 엔드포인트 예시
         method: "PATCH",
         contentType: "application/json",
         data: JSON.stringify({
