@@ -6,9 +6,8 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentCategory;
-import com.equip.equiprental.equipment.dto.EquipmentDto;
-import com.equip.equiprental.equipment.dto.EquipmentRegisterRequest;
-import com.equip.equiprental.equipment.dto.EquipmentRegisterResponse;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.service.EquipmentServiceImpl;
@@ -152,7 +151,6 @@ public class EquipmentServiceImplTest {
                     .build();
 
             Page<EquipmentDto> mockPage = new PageImpl<>(List.of(equipment1, equipment2), pageable, 2);
-
             when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(mockPage);
 
             // when
@@ -209,6 +207,145 @@ public class EquipmentServiceImplTest {
 
             assertThat(result.isFirst()).isTrue();
             assertThat(result.isLast()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("getEquipmentItem 메서드 테스트")
+    class getEquipmentItem {
+        @Test
+        @DisplayName("성공 - 장비와 아이템 조회 성공")
+        void getEquipmentItem_success() {
+            // given
+            Long equipmentId = 1L;
+            SearchParamDto paramDto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .equipmentStatus("AVAILABLE")
+                    .build();
+
+            Pageable pageable = paramDto.getPageable();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(equipmentId)
+                    .category(EquipmentCategory.ELECTRONICS)
+                    .subCategory("Laptop")
+                    .model("LG Gram")
+                    .build();
+
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
+            when(equipmentItemRepository.countByEquipment_EquipmentIdAndStatus(equipmentId, EquipmentStatus.AVAILABLE))
+                    .thenReturn(5);
+            when(equipmentItemRepository.countByEquipment_EquipmentId(equipmentId))
+                    .thenReturn(10);
+            when(fileRepository.findUrlsByEquipmentId(equipmentId))
+                    .thenReturn(List.of("url1"));
+
+            EquipmentItemDto item1 = EquipmentItemDto.builder().equipmentItemId(1L).status(EquipmentStatus.AVAILABLE).build();
+            EquipmentItemDto item2 = EquipmentItemDto.builder().equipmentItemId(2L).status(EquipmentStatus.AVAILABLE).build();
+            Page<EquipmentItemDto> itemsPage = new PageImpl<>(List.of(item1, item2), pageable, 2);
+
+            when(equipmentItemRepository.findByStatus(equipmentId, EquipmentStatus.AVAILABLE, pageable))
+                    .thenReturn(itemsPage);
+
+            // when
+            EquipmentItemListDto result = equipmentService.getEquipmentItem(equipmentId, paramDto);
+
+            // then
+            // 장비 요약 검증
+            assertThat(result.getEquipmentSummary().getEquipmentId()).isEqualTo(equipmentId);
+            assertThat(result.getEquipmentSummary().getAvailableStock()).isEqualTo(5);
+            assertThat(result.getEquipmentSummary().getTotalStock()).isEqualTo(10);
+            assertThat(result.getEquipmentSummary().getImageUrl()).isEqualTo("url1");
+
+            // 장비 아이템 페이지 검증
+            assertThat(result.getEquipmentItems().getContent()).hasSize(2)
+                    .extracting(EquipmentItemDto::getEquipmentItemId)
+                    .containsExactly(1L, 2L);
+
+            assertThat(result.getEquipmentItems()).extracting(
+                    PageResponseDto::getPage,
+                    PageResponseDto::getSize,
+                    PageResponseDto::getTotalElements,
+                    PageResponseDto::getTotalPages,
+                    PageResponseDto::getNumberOfElements,
+                    PageResponseDto::isFirst,
+                    PageResponseDto::isLast,
+                    PageResponseDto::isEmpty
+            ).containsExactly(1, 10, 2L, 1, 2, true, true, false);
+        }
+
+        @Test
+        @DisplayName("성공 - 장비는 존재하지만 아이템 없음 (빈 페이지)")
+        void getEquipmentItem_emptyItems() {
+            // given
+            Long equipmentId = 1L;
+            SearchParamDto paramDto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .equipmentStatus("AVAILABLE")
+                    .build();
+
+            Pageable pageable = paramDto.getPageable();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(equipmentId)
+                    .category(EquipmentCategory.ELECTRONICS)
+                    .subCategory("Laptop")
+                    .model("LG Gram")
+                    .build();
+
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
+            when(equipmentItemRepository.countByEquipment_EquipmentIdAndStatus(equipmentId, EquipmentStatus.AVAILABLE))
+                    .thenReturn(0); // 아이템 없음
+            when(equipmentItemRepository.countByEquipment_EquipmentId(equipmentId))
+                    .thenReturn(0); // 전체 재고도 0
+            when(fileRepository.findUrlsByEquipmentId(equipmentId))
+                    .thenReturn(List.of("url1"));
+
+            Page<EquipmentItemDto> emptyPage = Page.empty(pageable);
+            when(equipmentItemRepository.findByStatus(equipmentId, EquipmentStatus.AVAILABLE, pageable))
+                    .thenReturn(emptyPage);
+
+            // when
+            EquipmentItemListDto result = equipmentService.getEquipmentItem(equipmentId, paramDto);
+
+            // then
+            // 장비 요약 검증
+            assertThat(result.getEquipmentSummary().getEquipmentId()).isEqualTo(equipmentId);
+            assertThat(result.getEquipmentSummary().getAvailableStock()).isEqualTo(0);
+            assertThat(result.getEquipmentSummary().getTotalStock()).isEqualTo(0);
+            assertThat(result.getEquipmentSummary().getImageUrl()).isEqualTo("url1");
+
+            // 장비 아이템 페이지 검증 (빈 페이지)
+            assertThat(result.getEquipmentItems().getContent()).isEmpty();
+            assertThat(result.getEquipmentItems().isEmpty()).isTrue();
+
+            assertThat(result.getEquipmentItems()).extracting(
+                    PageResponseDto::getPage,
+                    PageResponseDto::getSize,
+                    PageResponseDto::getTotalElements,
+                    PageResponseDto::getTotalPages,
+                    PageResponseDto::getNumberOfElements,
+                    PageResponseDto::isFirst,
+                    PageResponseDto::isLast
+            ).containsExactly(1, 10, 0L, 0, 0, true, true);
+        }
+
+        @Test
+        @DisplayName("예외 - 장비가 존재하지 않음")
+        void getEquipmentItem_notFound() {
+            Long equipmentId = 1L;
+            SearchParamDto paramDto = SearchParamDto.builder().build();
+
+            // Mock: 장비가 존재하지 않음
+            when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.empty());
+
+            // 검증: CustomException 발생
+            assertThatThrownBy(() -> equipmentService.getEquipmentItem(equipmentId, paramDto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
         }
     }
 }
