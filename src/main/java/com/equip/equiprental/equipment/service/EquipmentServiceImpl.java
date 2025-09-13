@@ -159,7 +159,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         // 장비 요약 정보는 서비스에서 직접 조회
         Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new RuntimeException("장비가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
 
         Integer availableStock = equipmentItemRepository.countByEquipment_EquipmentIdAndStatus(equipmentId, EquipmentStatus.AVAILABLE);
         Integer totalStock = equipmentItemRepository.countByEquipment_EquipmentId(equipmentId);
