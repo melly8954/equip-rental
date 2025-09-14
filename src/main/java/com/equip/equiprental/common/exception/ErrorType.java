@@ -45,7 +45,10 @@ public enum ErrorType {
     INVALID_DATE_FORMAT("invalid_date_format", "날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식으로 입력해주세요.", HttpStatus.BAD_REQUEST),
 
     // 장비 대여 신청 에러
-    EQUIPMENT_ITEM_NOT_AVAILABLE("equipment_item_not_available", "해당 장비 모델에 대여 가능한 장비 아이템이 없습니다.", HttpStatus.BAD_REQUEST),
+    //    EQUIPMENT_ITEM_NOT_AVAILABLE("equipment_item_not_available", "해당 장비 모델에 대여 가능한 장비 아이템이 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_RENTAL_START_DATE("invalid_rental_start_date", "대여 시작일은 오늘날 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_RENTAL_END_DATE("invalid_rental_end_date", "대여 종료일은 대여 시작일과 같거나 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_RENTAL_QUANTITY("invalid_rental_quantity", "대여 수량이 남은 재고보다 많습니다.", HttpStatus.BAD_REQUEST),
 
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
