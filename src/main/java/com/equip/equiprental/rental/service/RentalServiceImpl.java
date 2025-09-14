@@ -1,5 +1,7 @@
 package com.equip.equiprental.rental.service;
 
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
@@ -9,10 +11,13 @@ import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalStatus;
+import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +61,8 @@ public class RentalServiceImpl implements RentalService{
         Rental rental = Rental.builder()
                 .member(member)
                 .equipment(equipment)
+                .requestStartDate(dto.getStartDate())
+                .requestEndDate(dto.getEndDate())
                 .quantity(dto.getQuantity())
                 .rentalReason(dto.getRentalReason())
                 .status(RentalStatus.PENDING)
@@ -69,5 +76,25 @@ public class RentalServiceImpl implements RentalService{
                 .quantity(rental.getQuantity())
                 .status(rental.getStatus())
                 .build();
+    }
+
+    @Override
+    public PageResponseDto<AdminRentalDto> getAdminRentalList(SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<AdminRentalDto> dtosPage = rentalRepository.findAdminRentals(paramDto, pageable);
+
+        return PageResponseDto.<AdminRentalDto>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
+                .build();
+
     }
 }
