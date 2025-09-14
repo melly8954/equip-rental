@@ -5,6 +5,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -62,4 +63,38 @@ public class GlobalExceptionHandler implements ResponseController {
                 null
         );
     }
+
+    // JSON 파싱(역직렬화, 클라이언트가 보낸 JSON → DTO로 바인딩하는 과정) 실패 시
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseDto<Void>> handleInvalidDateFormat(HttpMessageNotReadableException ex) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+
+        Throwable cause = ex.getCause();
+        if (cause instanceof java.time.format.DateTimeParseException) {
+            log.error("TraceId: {}, 날짜 파싱 실패: {}", traceId, cause.getMessage());
+
+            // 여기서 ErrorType 사용
+            ErrorType errorType = ErrorType.INVALID_DATE_FORMAT;
+
+            return makeResponseEntity(
+                    traceId,
+                    errorType.getStatus(),
+                    errorType.getErrorCode(),
+                    errorType.getMessage(),
+                    null
+            );
+        }
+
+        // 기타 HttpMessageNotReadableException 처리
+        log.error("TraceId: {}, 메시지 바인딩 실패: {}", traceId, ex.getMessage());
+        ErrorType errorType = ErrorType.BAD_REQUEST;
+        return makeResponseEntity(
+                traceId,
+                errorType.getStatus(),
+                errorType.getErrorCode(),
+                errorType.getMessage(),
+                null
+        );
+    }
+
 }
