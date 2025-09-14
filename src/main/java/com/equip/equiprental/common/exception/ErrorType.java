@@ -41,11 +41,18 @@ public enum ErrorType {
     // 장비 재고 수량 처리 에러
     AMOUNT_MUST_BE_POSITIVE("amount_must_be_positive", "추가할 재고 수량은 반드시 양수여야합니다.", HttpStatus.BAD_REQUEST),
 
+    // 날짜 포맷팅 에러
+    INVALID_DATE_FORMAT("invalid_date_format", "날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식으로 입력해주세요.", HttpStatus.BAD_REQUEST),
+
+    // 장비 대여 신청 에러
+    EQUIPMENT_ITEM_NOT_AVAILABLE("equipment_item_not_available", "해당 장비 모델에 대여 가능한 장비 아이템이 없습니다.", HttpStatus.BAD_REQUEST),
+
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     FILE_REQUIRED("file_required", "파일을 추가하지 않았습니다.", HttpStatus.BAD_REQUEST),
     FILE_UPLOAD_FAILED("file_upload_failed", "파일 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_SIZE_EXCEEDED("file_size_exceeded", "파일 크기가 허용된 범위를 초과했습니다.", HttpStatus.PAYLOAD_TOO_LARGE);
+
 
     private final String errorCode;
     private final String message;
