@@ -251,7 +251,10 @@ $("#submitRental").on("click", function() {
     }).done(function(response) {
         alert(response.message);
         $("#rentalModal").modal("hide"); // jQuery 방식
-        fetchEquipment();
+
+        // 현재 필터 상태를 그대로 사용해서 리스트만 갱신
+        const currentFilters = getFilterValues(filterConfig);
+        fetchEquipment(currentFilters);
     }).fail(function(xhr) {
         handleServerError(xhr);
     });
