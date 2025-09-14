@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name="rental_tbl")
 @Getter
@@ -19,7 +21,7 @@ public class Rental extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="rental_id")
-    private Long RentalId;
+    private Long rentalId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -28,6 +30,12 @@ public class Rental extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
+
+    @Column(name="request_start_date")
+    private LocalDate requestStartDate;
+
+    @Column(name="request_end_date")
+    private LocalDate requestEndDate;
 
     private Integer quantity;
 
