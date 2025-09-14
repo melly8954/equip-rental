@@ -65,6 +65,7 @@ public class RentalQRepoImpl implements RentalQRepo{
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(r.createdAt.desc())
                 .fetch();
 
         // total count
