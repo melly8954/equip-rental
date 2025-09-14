@@ -30,6 +30,9 @@ public class SearchParamDto {
 
     private String equipmentStatus;
 
+    private String memberName;
+    private String department;
+
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
     }
