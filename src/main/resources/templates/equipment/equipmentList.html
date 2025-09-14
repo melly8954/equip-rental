@@ -35,6 +35,43 @@
                     <div id="pagination"></div>
                 </nav>
             </div>
+
+            <!-- 대여 신청 모달 -->
+            <div class="modal fade" id="rentalModal" tabindex="-1" aria-labelledby="rentalModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="rentalModalLabel">장비 대여 신청</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="rentalForm">
+                                <input type="hidden" id="modalEquipmentId">
+                                <div class="mb-3">
+                                    <label for="rentalQuantity" class="form-label">수량</label>
+                                    <input type="number" class="form-control" id="rentalQuantity" min="1" value="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="rentalStartDate" class="form-label">대여 시작일</label>
+                                    <input type="date" class="form-control" id="rentalStartDate" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="rentalEndDate" class="form-label">대여 종료일</label>
+                                    <input type="date" class="form-control" id="rentalEndDate" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="rentalReason" class="form-label">대여 사유</label>
+                                    <textarea class="form-control" id="rentalReason" rows="3" required></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                            <button type="button" class="btn btn-primary" id="submitRental">신청</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>

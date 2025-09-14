@@ -194,10 +194,70 @@ function renderEquipmentList(list) {
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
                             <p class="card-text">재고: ${equip.availableStock}</p>
                         </div>
+                        <div class="d-flex align-items-stretch" style="height: 100%;">
+                            <button class="btn btn-outline-primary btn-sm rental-btn w-100 h-100"
+                                    data-id="${equip.equipmentId}">
+                                <i class="bi bi-box-seam"></i> 대여 신청
+                            </button>
+                        </div>
                     </div>
+                    
                 </div>
             </div>
         `);
         container.append(card);
     });
 }
+
+$(document).on("click", ".rental-btn", function() {
+    const equipmentId = $(this).data("id");
+    $("#modalEquipmentId").val(equipmentId);
+
+    // 오늘 날짜를 기본값으로 설정
+    const today = new Date().toISOString().split("T")[0];
+    $("#rentalStartDate").val(today);
+    $("#rentalEndDate").val(today);
+
+    // 모달 띄우기
+    const rentalModal = new bootstrap.Modal(document.getElementById('rentalModal'));
+    rentalModal.show();
+});
+
+$("#submitRental").on("click", function() {
+    const equipmentId = $("#modalEquipmentId").val();
+    const quantity = parseInt($("#rentalQuantity").val(), 10);
+    const startDate = $("#rentalStartDate").val();
+    const endDate = $("#rentalEndDate").val();
+    const rentalReason = $("#rentalReason").val();
+
+    if (!startDate || !endDate || !rentalReason || quantity <= 0) {
+        alert("모든 항목을 올바르게 입력해주세요.");
+        return;
+    }
+
+    const payload = {
+        equipmentId: parseInt(equipmentId, 10),
+        quantity,
+        startDate,
+        endDate,
+        rentalReason
+    };
+
+    $.ajax({
+        url: "/api/v1/rentals",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload)
+    }).done(function(response) {
+        alert(response.message);
+        $("#rentalModal").modal("hide"); // jQuery 방식
+        fetchEquipment();
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    });
+});
+
+$("#rentalModal").on("hidden.bs.modal", function () {
+    $("#rentalForm")[0].reset();      // form 요소 초기화
+    $("#modalEquipmentId").val("");    // hidden input 초기화
+});
