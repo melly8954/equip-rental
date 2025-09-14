@@ -70,6 +70,11 @@ public class AllViewController {
         return "equipment/admin/equipmentItemHistory";
     }
 
+    @GetMapping("/admin/rental/list")
+    public String rentalList() {
+        return "rental/admin/adminRentalList";
+    }
+
     // 에러 페이지
     @GetMapping("/error/unauthorized")
     public String errorUnAuthorized() {
