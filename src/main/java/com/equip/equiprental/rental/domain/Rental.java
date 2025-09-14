@@ -29,6 +29,8 @@ public class Rental extends BaseEntity {
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
+    private Integer quantity;
+
     @Column(name="rental_reason")
     private String rentalReason;
 
