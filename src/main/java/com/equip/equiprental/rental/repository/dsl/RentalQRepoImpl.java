@@ -1,9 +1,12 @@
 package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.equipment.domain.QEquipment;
+import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
+import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -62,6 +65,56 @@ public class RentalQRepoImpl implements RentalQRepo{
                 .from(r)
                 .join(r.member)
                 .join(r.equipment)
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(r.createdAt.desc())
+                .fetch();
+
+        // total count
+        Long total = queryFactory
+                .select(r.count())
+                .from(r)
+                .where(builder)
+                .fetchOne();
+        total = (total != null) ? total : 0L;
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public Page<UserRentalDto> findUserRentals(SearchParamDto paramDto, Pageable pageable, Long memberId) {
+        QRental r = QRental.rental;
+        QEquipment e = QEquipment.equipment;
+        QFileMeta f = QFileMeta.fileMeta;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(r.member.memberId.eq(memberId));
+
+        if (paramDto.getCategoryEnum() != null) {
+            builder.and(r.equipment.category.eq(paramDto.getCategoryEnum()));
+        }
+
+        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
+            builder.and(r.equipment.subCategory.eq(paramDto.getSubCategory()));
+        }
+
+        List<UserRentalDto> content = queryFactory
+                .select(Projections.constructor(UserRentalDto.class,
+                        r.rentalId,
+                        e.model,
+                        e.category.stringValue(),
+                        e.subCategory,
+                        f.filePath,
+                        r.requestStartDate,
+                        r.requestEndDate,
+                        r.quantity,
+                        r.status.stringValue(),
+                        r.rejectReason
+                ))
+                .from(r)
+                .join(r.equipment, e)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(e.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
