@@ -9,6 +9,7 @@ import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
+import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.equip.equiprental.rental.service.RentalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,5 +48,18 @@ public class RentalController implements ResponseController {
 
         PageResponseDto<AdminRentalDto> result = rentalService.getAdminRentalList(paramDto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 장비 대여 신청내역 조히 성공", result);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ResponseDto<PageResponseDto<UserRentalDto>>> getUserRentalList(@ModelAttribute SearchParamDto paramDto,
+                                                                                         @AuthenticationPrincipal PrincipalDetails principal){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("사용자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);
+
+        Long memberId = principal.getMember().getMemberId();
+
+        PageResponseDto<UserRentalDto> result = rentalService.getUserRentalList(paramDto, memberId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 장비 대여 신청내역 조회 성공", result);
     }
 }
