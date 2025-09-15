@@ -122,6 +122,7 @@ function onFilterChange(values) {
 
 // 서브카테고리 업데이트
 function updateSubCategoryOptions(parentCategory) {
+    const currentValues = getFilterValues(filterConfig); // 현재 체크된 값 저장
     const options = ["전체"].concat(subCategoryMap[parentCategory] || []);
 
     filterConfig.subCategory.options = options;
@@ -137,10 +138,15 @@ function updateSubCategoryOptions(parentCategory) {
         // category 필터도 함께 포함
         const combinedFilters = {
             category: getFilterValues(filterConfig).category,
-            subCategory: values.subCategory
+            subCategory: values.subCategory,
+            status: currentValues.status
         };
         fetchRentalList(combinedFilters);
     });
+
+    // 렌더링 후 기존 선택값 복원
+    const prevSub = currentValues.subCategory || "";
+    $(`#sub-category-filters input[value="${prevSub}"]`).prop("checked", true);
 }
 
 
