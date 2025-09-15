@@ -15,6 +15,11 @@ const filterConfig = {
         label: "서브카테고리",
         type: "radio",
         options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
+    },
+    status: {
+        label: "신청 상태",
+        type: "radio",
+        options: ["전체", "PENDING", "APPROVED", "REJECTED"]
     }
 };
 
@@ -65,6 +70,13 @@ const subCategoryMap = {
     ]
 };
 
+const statusLabelMap = {
+    "전체": "전체",
+    "PENDING": "대기 중",
+    "APPROVED": "대여 승인",
+    "REJECTED": "대여 거절"
+};
+
 // 페이지 조회
 let currentPage = 1;
 
@@ -75,6 +87,9 @@ window.addEventListener("pageshow", function(event) {
 
     $("input[name='subCategory']").prop("checked", false);
     $("input[name='subCategory'][value='전체']").prop("checked", true);
+
+    $("input[name='status']").prop("checked", false);
+    $("input[name='status'][value='전체']").prop("checked", true);
 
     // 필터 렌더링
     renderFilter("filter-container", filterConfig, onFilterChange);
@@ -133,6 +148,7 @@ function fetchRentalList(filters={}) {
     const params = {
         category: filters.category,
         subCategory: filters.subCategory,
+        rentalStatus: filters.status,
     };
 
     // page가 있으면 추가
@@ -163,6 +179,11 @@ function fetchRentalList(filters={}) {
 function renderRentalList(data) {
     const container = $("#rental-list");
     container.empty();
+
+    if (!data.length) {
+        container.append(`<div class="text-center py-3">아이템이 없습니다.</div>`);
+        return;
+    }
 
     data.forEach(r => {
         const card = $(`
