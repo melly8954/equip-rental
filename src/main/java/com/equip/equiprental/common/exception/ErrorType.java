@@ -37,6 +37,7 @@ public enum ErrorType {
     // 404 에러
     EQUIPMENT_NOT_FOUND("equipment_not_found","해당 정보로 등록된 장비가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     EQUIPMENT_ITEM_NOT_FOUND("equipment_item_not_found","해당 정보로 등록된 장비 아이템이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    RENTAL_NOT_FOUND("rental_not_found","해당 정보로 등록된 장비 대여 신청내역이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     // 장비 재고 수량 처리 에러
     AMOUNT_MUST_BE_POSITIVE("amount_must_be_positive", "추가할 재고 수량은 반드시 양수여야합니다.", HttpStatus.BAD_REQUEST),
