@@ -5,9 +5,12 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
+import com.equip.equiprental.rental.dto.UserRentalDto;
 
 public interface RentalService {
     RentalResponseDto requestRental(RentalRequestDto dto, Long memberId);
 
     PageResponseDto<AdminRentalDto> getAdminRentalList(SearchParamDto paramDto);
+
+    PageResponseDto<UserRentalDto> getUserRentalList(SearchParamDto paramDto, Long memberId);
 }

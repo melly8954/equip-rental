@@ -14,8 +14,10 @@ import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
+import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -79,6 +81,7 @@ public class RentalServiceImpl implements RentalService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponseDto<AdminRentalDto> getAdminRentalList(SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
 
@@ -96,5 +99,25 @@ public class RentalServiceImpl implements RentalService{
                 .empty(dtosPage.isEmpty())
                 .build();
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<UserRentalDto> getUserRentalList(SearchParamDto paramDto, Long memberId) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<UserRentalDto> dtosPage = rentalRepository.findUserRentals(paramDto, pageable, memberId);
+
+        return PageResponseDto.<UserRentalDto>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
+                .build();
     }
 }
