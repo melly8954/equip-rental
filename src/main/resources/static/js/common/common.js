@@ -38,6 +38,8 @@ function renderFilter(containerId, config, onChange) {
             let displayText = opt;
             if (key === "category") {
                 displayText = categoryLabelMap[opt] || opt;
+            } else if (key === "subCategory") {
+                displayText = subCategoryMap?.[opt] || opt;
             } else if (key === "status") {
                 displayText = statusLabelMap?.[opt] || opt;
             }

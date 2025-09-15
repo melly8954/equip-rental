@@ -92,7 +92,9 @@ window.addEventListener("pageshow", function(event) {
     $("input[name='status'][value='전체']").prop("checked", true);
 
     // 필터 렌더링
-    renderFilter("filter-container", filterConfig, onFilterChange);
+    renderFilter("category-filters", { category: filterConfig.category }, onFilterChange);
+    renderFilter("sub-category-filters", { subCategory: filterConfig.subCategory }, onFilterChange);
+    renderFilter("status-filters", { status: filterConfig.status }, onFilterChange);
 
     // 초기 데이터 로딩
     fetchRentalList();
@@ -120,7 +122,7 @@ function onFilterChange(values) {
 
 // 서브카테고리 업데이트
 function updateSubCategoryOptions(parentCategory) {
-    const options = subCategoryMap[parentCategory] || [];
+    const options = ["전체"].concat(subCategoryMap[parentCategory] || []);
 
     filterConfig.subCategory.options = options;
 
