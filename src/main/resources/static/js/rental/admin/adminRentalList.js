@@ -152,7 +152,7 @@ function fetchRentalList(filters={}) {
         department: filters.department,
         category: filters.category,
         subCategory: filters.subCategory,
-        memberName: memberSearch,
+        memberName: memberSearch || filters.memberName || "",
         size: pageSize
     };
 
