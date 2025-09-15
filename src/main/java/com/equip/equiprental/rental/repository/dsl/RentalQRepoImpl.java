@@ -99,6 +99,10 @@ public class RentalQRepoImpl implements RentalQRepo{
             builder.and(r.equipment.subCategory.eq(paramDto.getSubCategory()));
         }
 
+        if (paramDto.getRentalStatus() != null && !paramDto.getRentalStatus().isEmpty()) {
+            builder.and(r.status.eq(paramDto.getRentalStatusEnum()));
+        }
+
         List<UserRentalDto> content = queryFactory
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
