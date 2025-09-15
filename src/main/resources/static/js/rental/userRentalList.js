@@ -137,7 +137,7 @@ function updateSubCategoryOptions(parentCategory) {
     }, (values) => {
         // category 필터도 함께 포함
         const combinedFilters = {
-            category: getFilterValues(filterConfig).category,
+            category: currentValues.category,
             subCategory: values.subCategory,
             status: currentValues.status
         };
