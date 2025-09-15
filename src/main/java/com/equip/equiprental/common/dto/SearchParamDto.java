@@ -6,6 +6,7 @@ import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.rental.domain.RentalStatus;
 import lombok.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class SearchParamDto {
     private String model;
 
     private String equipmentStatus;
+    private String rentalStatus;
 
     private String memberName;
     private String department;
@@ -68,6 +70,15 @@ public class SearchParamDto {
         if (equipmentStatus == null || equipmentStatus.isBlank()) return null;
         try {
             return EquipmentStatus.valueOf(equipmentStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
+        }
+    }
+
+    public RentalStatus getRentalStatusEnum() {
+        if (rentalStatus == null || rentalStatus.isBlank()) return null;
+        try {
+            return RentalStatus.valueOf(rentalStatus.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
         }
