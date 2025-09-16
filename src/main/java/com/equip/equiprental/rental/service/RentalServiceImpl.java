@@ -138,6 +138,7 @@ public class RentalServiceImpl implements RentalService{
 
         // 거절(REJECTED) 처리
         if (dto.getRentalStatusEnum() == RentalStatus.REJECTED) {
+            rental.updateRejectReason(dto.getRejectReason());
             return;
         }
 
@@ -153,9 +154,7 @@ public class RentalServiceImpl implements RentalService{
         List<Long> itemIds = equipmentItems.stream()
                 .map(EquipmentItem::getEquipmentItemId)
                 .toList();
-
-
-
+        
         // bulk update 전에 상태 저장
         List<EquipmentStatus> oldStatuses = equipmentItems.stream()
                 .map(EquipmentItem::getStatus)
