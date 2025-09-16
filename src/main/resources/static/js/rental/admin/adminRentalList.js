@@ -69,6 +69,8 @@ const subCategoryMap = {
 // 페이지 조회
 let currentPage = 1;
 const pageSize = 6;
+let selectedRentalId = null;
+let selectedEquipmentId = null;
 
 // 페이지 로드 또는 뒤로/앞으로가기 시
 window.addEventListener("pageshow", function (event) {
@@ -212,11 +214,10 @@ function renderRentalList(data) {
     });
 }
 
-// 승인/거절 이벤트
-$(document).on("click", ".btn-approve, .btn-reject", function () {
+// 승인 버튼
+$(document).on("click", ".btn-approve", function () {
     const rentalId = $(this).data("rental-id");
     const equipmentId = $(this).data("equipment-id");
-    const newStatus = $(this).hasClass("btn-approve") ? "APPROVED" : "REJECTED";
 
     $.ajax({
         url: `/api/v1/rentals/${rentalId}`,
@@ -224,12 +225,57 @@ $(document).on("click", ".btn-approve, .btn-reject", function () {
         contentType: "application/json",
         data: JSON.stringify({
             equipmentId: equipmentId,
-            newStatus: newStatus
+            newStatus: "APPROVED"
         })
     }).done(function (response) {
         alert(response.message);
         const filterValues = getFilterValues(filterConfig);
-        fetchRentalList(filterValues); // 새로고침
+        fetchRentalList(filterValues);
+    }).fail(xhr => {
+        handleServerError(xhr);
+    });
+});
+
+
+// 거절 버튼 → 모달 열기
+$(document).on("click", ".btn-reject", function () {
+    selectedRentalId = $(this).data("rental-id");
+    selectedEquipmentId = $(this).data("equipment-id");
+
+    const modal = new bootstrap.Modal(document.getElementById("rejectReasonModal"));
+    modal.show();
+});
+
+// 모달 내 "거절 확정" 버튼
+$("#confirm-reject").on("click", function () {
+    const reasonSelect = $("#reject-reason").val();
+    const reasonText = $("#reject-reason-text").val();
+    const rejectReason = reasonSelect === "기타" ? reasonText : reasonSelect;
+
+    if (!rejectReason) {
+        alert("거절 사유를 입력해주세요.");
+        return;
+    }
+
+    $.ajax({
+        url: `/api/v1/rentals/${selectedRentalId}`,
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            equipmentId: selectedEquipmentId,
+            newStatus: "REJECTED",
+            rejectReason: rejectReason
+        })
+    }).done(function (response) {
+        alert(response.message);
+        const filterValues = getFilterValues(filterConfig);
+        fetchRentalList(filterValues);
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById("rejectReasonModal"));
+        modal.hide();
+
+        $("#reject-reason").val("");
+        $("#reject-reason-text").val("");
     }).fail(xhr => {
         handleServerError(xhr);
     });

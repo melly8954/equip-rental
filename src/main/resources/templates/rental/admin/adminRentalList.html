@@ -37,6 +37,32 @@
                     <div id="pagination-container" class="mt-3"></div>
                 </div>
             </div>
+
+            <!-- 거절 사유 모달 -->
+            <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">거절 사유 입력</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="reject-reason" class="form-label">거절 사유</label>
+                            <select id="reject-reason" class="form-select mb-2">
+                                <option value="">사유 선택</option>
+                                <option value="재고 없음">재고 없음</option>
+                                <option value="기간 불가">기간 불가</option>
+                                <option value="기타">기타</option>
+                            </select>
+                            <textarea id="reject-reason-text" class="form-control" placeholder="기타 사유 입력 (선택)" rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                            <button type="button" class="btn btn-danger" id="confirm-reject">거절 확정</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 </div>
