@@ -200,6 +200,7 @@ function renderRentalList(data) {
                             수량: ${r.quantity} <br>
                             신청 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
                             신청자: ${r.name} (${r.department}) <br>
+                            신청 사유: ${r.rentalReason} <br>
                             신청일: ${r.createdAt}
                         </p>
                         <div class="d-flex gap-2 mt-3">
