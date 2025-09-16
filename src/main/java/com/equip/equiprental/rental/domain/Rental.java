@@ -51,4 +51,8 @@ public class Rental extends BaseEntity {
     public void updateStatus(RentalStatus status) {
         this.status = status;
     }
+
+    public void updateRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
 }
