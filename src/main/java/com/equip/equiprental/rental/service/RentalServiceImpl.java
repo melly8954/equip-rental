@@ -5,25 +5,30 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
+import com.equip.equiprental.equipment.domain.EquipmentItem;
+import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
+import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.domain.RentalStatus;
-import com.equip.equiprental.rental.dto.AdminRentalDto;
-import com.equip.equiprental.rental.dto.RentalRequestDto;
-import com.equip.equiprental.rental.dto.RentalResponseDto;
-import com.equip.equiprental.rental.dto.UserRentalDto;
+import com.equip.equiprental.rental.dto.*;
+import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +37,9 @@ public class RentalServiceImpl implements RentalService{
     private final MemberRepository memberRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentItemRepository equipmentItemRepository;
+    private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final RentalRepository rentalRepository;
+    private final RentalItemRepository rentalItemRepository;
 
     @Override
     @Transactional
@@ -119,5 +126,69 @@ public class RentalServiceImpl implements RentalService{
                 .last(dtosPage.isLast())
                 .empty(dtosPage.isEmpty())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateRentalStatus(UpdateRentalStatusDto dto, Long rentalId, Long memberId) {
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+
+        rental.updateStatus(dto.getRentalStatusEnum());
+
+        // 거절(REJECTED) 처리
+        if (dto.getRentalStatusEnum() == RentalStatus.REJECTED) {
+            return;
+        }
+
+        // 승인(APPROVED) 처리
+        Pageable limit = PageRequest.of(0, rental.getQuantity());
+
+        List<EquipmentItem> equipmentItems = equipmentItemRepository.findAvailableItemsForUpdate(dto.getEquipmentId(),limit);
+
+        if (equipmentItems.size() < rental.getQuantity()) {
+            throw new CustomException(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK);
+        }
+
+        List<Long> itemIds = equipmentItems.stream()
+                .map(EquipmentItem::getEquipmentItemId)
+                .toList();
+
+
+
+        // bulk update 전에 상태 저장
+        List<EquipmentStatus> oldStatuses = equipmentItems.stream()
+                .map(EquipmentItem::getStatus)
+                .toList();
+
+        int updatedCount = equipmentItemRepository.approveRental(itemIds);
+        if (updatedCount != itemIds.size()) {
+            throw new CustomException(ErrorType.PARTIAL_UPDATE);
+        }
+
+        List<RentalItem> rentalItems = equipmentItems.stream()
+                .map(item -> RentalItem.builder()
+                        .rental(rental)
+                        .equipmentItem(item)
+                        .startDate(rental.getRequestStartDate())
+                        .endDate(rental.getRequestEndDate())
+                        .actualReturnDate(null)
+                        .isExtended(false)
+                        .build())
+                .toList();
+        rentalItemRepository.saveAll(rentalItems);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
+        List<EquipmentItemHistory> histories = IntStream.range(0, equipmentItems.size())
+                .mapToObj(i -> EquipmentItemHistory.builder()
+                        .item(equipmentItems.get(i))
+                        .changedBy(member)
+                        .oldStatus(oldStatuses.get(i))
+                        .newStatus(EquipmentStatus.RENTED)
+                        .build())
+                .toList();
+        equipmentItemHistoryRepository.saveAll(histories);
     }
 }
