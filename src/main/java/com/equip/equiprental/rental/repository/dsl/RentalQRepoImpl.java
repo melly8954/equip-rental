@@ -1,7 +1,6 @@
 package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
-import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
@@ -32,7 +31,7 @@ public class RentalQRepoImpl implements RentalQRepo{
         builder.and(r.status.eq(RentalStatus.PENDING));
 
         if (paramDto.getDepartment() != null && !paramDto.getDepartment().isEmpty()) {
-            builder.and(r.member.department.containsIgnoreCase(paramDto.getDepartment()));
+            builder.and(r.member.department.eq(paramDto.getDepartment()));
         }
 
         if (paramDto.getMemberName() != null && !paramDto.getMemberName().isEmpty()) {
@@ -60,11 +59,10 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.member.name,
                         r.member.department,
                         r.equipment.category.stringValue(),
-                        r.equipment.subCategory
+                        r.equipment.subCategory,
+                        r.equipment.model
                 ))
                 .from(r)
-                .join(r.member)
-                .join(r.equipment)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -85,7 +83,6 @@ public class RentalQRepoImpl implements RentalQRepo{
     @Override
     public Page<UserRentalDto> findUserRentals(SearchParamDto paramDto, Pageable pageable, Long memberId) {
         QRental r = QRental.rental;
-        QEquipment e = QEquipment.equipment;
         QFileMeta f = QFileMeta.fileMeta;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -106,9 +103,9 @@ public class RentalQRepoImpl implements RentalQRepo{
         List<UserRentalDto> content = queryFactory
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
-                        e.model,
-                        e.category.stringValue(),
-                        e.subCategory,
+                        r.equipment.model,
+                        r.equipment.category.stringValue(),
+                        r.equipment.subCategory,
                         f.filePath,
                         r.requestStartDate,
                         r.requestEndDate,
@@ -117,8 +114,7 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.rejectReason
                 ))
                 .from(r)
-                .join(r.equipment, e)
-                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(e.equipmentId)))
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
