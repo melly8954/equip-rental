@@ -38,6 +38,11 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
 
         EquipmentStatus oldStatus = item.getStatus();
 
+        // 대여 중인 장비는 상태 변경 불가
+        if (oldStatus == EquipmentStatus.RENTED) {
+            throw new CustomException(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+        }
+
         // 상태 변경
         item.updateStatus(newStatus);
 
