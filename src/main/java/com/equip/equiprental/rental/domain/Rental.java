@@ -47,4 +47,8 @@ public class Rental extends BaseEntity {
 
     @Column(name="reject_reason")
     private String rejectReason;
+
+    public void updateStatus(RentalStatus status) {
+        this.status = status;
+    }
 }
