@@ -1,5 +1,5 @@
 const filterConfig = {
-    department: { label: "부서", type: "radio", options: ["전체", "QA팀", "UI/UX팀", "개발팀","인사팀","인프라팀"] },
+    department: {label: "부서", type: "radio", options: ["전체", "QA팀", "UI/UX팀", "개발팀", "인사팀", "인프라팀"]},
     category: {
         label: "카테고리",
         type: "radio",
@@ -71,7 +71,7 @@ let currentPage = 1;
 const pageSize = 6;
 
 // 페이지 로드 또는 뒤로/앞으로가기 시
-window.addEventListener("pageshow", function(event) {
+window.addEventListener("pageshow", function (event) {
     // 필터 초기화
     $("input[name='department']").prop("checked", false);
     $("input[name='department'][value='전체']").prop("checked", true);
@@ -93,7 +93,7 @@ window.addEventListener("pageshow", function(event) {
 });
 
 // 이름 검색(input)
-$("#member-search").on("input", function() {
+$("#member-search").on("input", function () {
     currentPage = 1;
     fetchRentalList();
 });
@@ -145,7 +145,7 @@ function updateSubCategoryOptions(parentCategory) {
 
 
 // 대여 신청내역 조회 AJAX
-function fetchRentalList(filters={}) {
+function fetchRentalList(filters = {}) {
     const filterValues = filters || getFilterValues(filterConfig);
     const memberSearch = $("#member-search").val();
     const params = {
@@ -165,7 +165,7 @@ function fetchRentalList(filters={}) {
         url: "/api/v1/rentals",
         method: "GET",
         data: params,
-    }).done(function (response){
+    }).done(function (response) {
         renderRentalList(response.data.content);
         renderPagination("pagination-container", {
             page: response.data.page,
@@ -193,15 +193,16 @@ function renderRentalList(data) {
                         <h5 class="card-title">신청 ID: ${r.rentalId}</h5>
                         <p class="card-text">
                             장비 ID: ${r.equipmentId} <br>
-                            카테고리: ${r.category} / ${r.subCategory} <br>
+                            모델: ${r.model} <br>
+                            카테고리: ${categoryLabelMap[r.category]} / ${r.subCategory} <br>
                             수량: ${r.quantity} <br>
                             신청 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
                             신청자: ${r.name} (${r.department}) <br>
                             신청일: ${r.createdAt}
                         </p>
                         <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-success btn-approve" data-id="${r.rentalId}">승인</button>
-                            <button class="btn btn-danger btn-reject" data-id="${r.rentalId}">거절</button>
+                            <button class="btn btn-success btn-approve" data-rental-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">승인</button>
+                            <button class="btn btn-danger btn-reject" data-rental-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">거절</button>
                         </div>
                     </div>
                 </div>
@@ -211,3 +212,25 @@ function renderRentalList(data) {
     });
 }
 
+// 승인/거절 이벤트
+$(document).on("click", ".btn-approve, .btn-reject", function () {
+    const rentalId = $(this).data("rental-id");
+    const equipmentId = $(this).data("equipment-id");
+    const newStatus = $(this).hasClass("btn-approve") ? "APPROVED" : "REJECTED";
+
+    $.ajax({
+        url: `/api/v1/rentals/${rentalId}`,
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            equipmentId: equipmentId,
+            newStatus: newStatus
+        })
+    }).done(function (response) {
+        alert(response.message);
+        const filterValues = getFilterValues(filterConfig);
+        fetchRentalList(filterValues); // 새로고침
+    }).fail(xhr => {
+        handleServerError(xhr);
+    });
+});
