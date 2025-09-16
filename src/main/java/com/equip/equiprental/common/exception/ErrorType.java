@@ -42,6 +42,9 @@ public enum ErrorType {
     // 장비 재고 수량 처리 에러
     AMOUNT_MUST_BE_POSITIVE("amount_must_be_positive", "추가할 재고 수량은 반드시 양수여야합니다.", HttpStatus.BAD_REQUEST),
 
+    // 장비 상태 변경
+    CANNOT_MODIFY_WHILE_RENTED("cannot_modify_while_rented","대여 중인 장비는 상태 변경이 불가능합니다. 반납 처리 메뉴에서만 수정 가능합니다.", HttpStatus.CONFLICT),
+
     // 날짜 포맷팅 에러
     INVALID_DATE_FORMAT("invalid_date_format", "날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식으로 입력해주세요.", HttpStatus.BAD_REQUEST),
 
