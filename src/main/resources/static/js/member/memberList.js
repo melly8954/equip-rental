@@ -1,5 +1,5 @@
 const filterConfig = {
-    status: {
+    memberStatus: {
         label: "상태",
         type: "radio",
         options: ["전체", "PENDING", "ACTIVE", "DELETED"]
@@ -9,6 +9,18 @@ const filterConfig = {
         type: "radio",
         options: ["전체", "USER", "MANAGER"]
     }
+};
+
+const statusLabelMap = {
+    PENDING: "대기 중",
+    ACTIVE: "활성화",
+    DELETED: "탈퇴"
+};
+
+const roleLabelMap = {
+    USER: "사용자",
+    MANAGER: "매니저",
+    ADMIN: "관리자"
 };
 
 $(document).ready(function () {
@@ -23,14 +35,14 @@ $(document).ready(function () {
     $memberList.on("change", ".member-status", function() {
         const memberId = $(this).data("id");
         const newStatus = $(this).val();
-        updateMember(memberId, "status", newStatus, getCurrentFilters());
+        updateMember(memberId, "status", newStatus, getFilterValues(filterConfig));
     });
 
     // 역할 변경
     $memberList.on("change", ".member-role", function() {
         const memberId = $(this).data("id");
         const newRole = $(this).val();
-        updateMember(memberId, "role", newRole, getCurrentFilters());
+        updateMember(memberId, "role", newRole, getFilterValues(filterConfig));
     });
 });
 
@@ -64,27 +76,27 @@ function renderMemberList(response, filters = {}) {
             // admin 계정은 수정 불가 (조회만 가능)
             statusSelect = `
                 <select class="form-select" disabled>
-                    <option value="ACTIVE" selected>ACTIVE</option>
+                    <option value="ACTIVE" selected>활성화</option>
                 </select>
             `;
             roleSelect = `
                 <select class="form-select" disabled>
-                    <option value="ADMIN" selected>ADMIN</option>
+                    <option value="ADMIN" selected>관리자</option>
                 </select>
             `;
         } else {
             // 일반 사용자/매니저 계정
             statusSelect = `
                 <select class="form-select member-status" data-id="${member.memberId}">
-                    <option value="PENDING" ${member.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-                    <option value="ACTIVE" ${member.status === 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
-                    <option value="DELETED" ${member.status === 'DELETED' ? 'selected' : ''}>DELETED</option>
+                    <option value="PENDING" ${member.status === 'PENDING' ? 'selected' : ''}>${statusLabelMap['PENDING']}</option>
+                    <option value="ACTIVE" ${member.status === 'ACTIVE' ? 'selected' : ''}>${statusLabelMap['ACTIVE']}</option>
+                    <option value="DELETED" ${member.status === 'DELETED' ? 'selected' : ''}>${statusLabelMap['DELETED']}</option>
                 </select>
             `;
             roleSelect = `
                 <select class="form-select member-role" data-id="${member.memberId}">
-                    <option value="USER" ${member.role === 'USER' ? 'selected' : ''}>USER</option>
-                    <option value="MANAGER" ${member.role === 'MANAGER' ? 'selected' : ''}>MANAGER</option>
+                    <option value="USER" ${member.role === 'USER' ? 'selected' : ''}>${roleLabelMap['USER']}</option>
+                    <option value="MANAGER" ${member.role === 'MANAGER' ? 'selected' : ''}>${roleLabelMap['MANAGER']}</option>
                 </select>
             `;
         }
@@ -136,12 +148,4 @@ function updateMember(memberId, type, value, currentFilters = {}) {
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })
-
-}
-
-function getCurrentFilters() {
-    return {
-        status: $('input[name="status"]:checked').val(),
-        role: $('input[name="role"]:checked').val()
-    };
 }
