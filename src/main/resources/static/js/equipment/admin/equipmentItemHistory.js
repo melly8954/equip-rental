@@ -48,6 +48,7 @@ function renderHistoryList(content, page, size, totalElements) {
                     <p><strong>이전 상태:</strong> ${item.oldStatus}</p>
                     <p><strong>변경 상태:</strong> ${item.newStatus}</p>
                     <p><strong>변경자:</strong> ${item.changedBy}</p>
+                    <p><strong>현재 소유자:</strong> ${item.currentOwnerName} (${item.currentOwnerDept})</p>
                     <p><strong>변경 시간:</strong> ${item.createdAt}</p>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import com.equip.equiprental.equipment.domain.QEquipmentItemHistory;
 import com.equip.equiprental.equipment.dto.EquipmentItemHistoryDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,9 +32,12 @@ public class EquipmentItemHistoryQRepoImpl implements EquipmentItemHistoryQRepo 
 
         List<EquipmentItemHistoryDto> content = queryFactory
                 .select(Projections.constructor(EquipmentItemHistoryDto.class,
-                        h.oldStatus.stringValue(), // enum → String
+                        h.item.equipmentItemId,
+                        h.oldStatus.stringValue(),
                         h.newStatus.stringValue(),
-                        h.changedBy.name,          // Member → String
+                        h.changedBy.name,
+                        Expressions.constant(""),
+                        Expressions.constant(""),
                         h.createdAt
                 ))
                 .from(h)

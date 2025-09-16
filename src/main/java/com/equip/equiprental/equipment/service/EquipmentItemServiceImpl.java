@@ -12,6 +12,8 @@ import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.rental.domain.RentalItem;
+import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
 
     private final EquipmentItemRepository equipmentItemRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
+    private final RentalItemRepository rentalItemRepository;
 
     @Override
     @Transactional
@@ -54,6 +57,24 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
         Pageable pageable = paramDto.getPageable();
 
         Page<EquipmentItemHistoryDto> historyDtosPage = equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable);
+
+        for (EquipmentItemHistoryDto dto : historyDtosPage) {
+            if ("RENTED".equals(dto.getNewStatus())) {
+                RentalItem rentalItem = rentalItemRepository
+                        .findFirstByEquipmentItem_EquipmentItemIdAndActualReturnDateIsNull(equipmentItemId);
+
+                if (rentalItem != null) {
+                    dto.setCurrentOwnerName(rentalItem.getRental().getMember().getName());
+                    dto.setCurrentOwnerDept(rentalItem.getRental().getMember().getDepartment());
+                } else {
+                    dto.setCurrentOwnerName("관리자");
+                    dto.setCurrentOwnerDept("시스템");
+                }
+            } else {
+                dto.setCurrentOwnerName("관리자");
+                dto.setCurrentOwnerDept("시스템");
+            }
+        }
 
         return PageResponseDto.<EquipmentItemHistoryDto>builder()
                 .content(historyDtosPage.getContent())

@@ -4,4 +4,5 @@ import com.equip.equiprental.rental.domain.RentalItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RentalItemRepository extends JpaRepository<RentalItem, Long> {
+    RentalItem findFirstByEquipmentItem_EquipmentItemIdAndActualReturnDateIsNull(Long equipmentItemId);
 }
