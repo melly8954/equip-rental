@@ -33,7 +33,7 @@ public class AllViewController {
             }
         }
 
-        return "userHome";  // 일반 사용자 페이지
+        return "equipment/equipmentList";  // 일반 사용자 페이지
     }
 
     // 사용자 접근
