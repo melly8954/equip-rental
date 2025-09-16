@@ -8,6 +8,15 @@ const statusFilterConfig = {
     }
 };
 
+const categoryLabelMap = {
+    "전체": "전체",
+    "OFFICE_SUPPLIES": "사무용품",
+    "ELECTRONICS": "전자기기",
+    "FURNITURE": "가구",
+    "TOOLS": "공구",
+    "SAFETY_EQUIPMENT": "안전장비"
+};
+
 const statusLabelMap = {
     "전체": "전체",
     "AVAILABLE": "사용 가능",
@@ -70,7 +79,7 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                     <div class="col-md-8">
                         <div class="card-body">
                             <h5 class="card-title">${equipmentSummary.model}</h5>
-                            <p class="card-text mb-1"><strong>카테고리:</strong> ${equipmentSummary.category}</p>
+                            <p class="card-text mb-1"><strong>카테고리:</strong> ${categoryLabelMap[equipmentSummary.category]}</p>
                             ${equipmentSummary.subCategory ? `<p class="card-text mb-1"><strong>서브카테고리:</strong> ${equipmentSummary.subCategory}</p>` : ""}
                             <p class="card-text mb-1"><strong>사용 가능한 재고:</strong> ${equipmentSummary.availableStock}</p>
                             <p class="card-text"><strong>총 재고:</strong> ${equipmentSummary.totalStock}</p>

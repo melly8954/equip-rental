@@ -190,7 +190,7 @@ function renderEquipmentList(list) {
                     <div class="col-md-10 d-flex align-items-center">
                         <div class="card-body">
                             <h5 class="card-title">${equip.model}</h5>
-                            <p class="card-text">카테고리: ${equip.category}</p>
+                            <p class="card-text">카테고리: ${categoryLabelMap[equip.category]}</p>
                             <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
                             <p class="card-text">재고: ${equip.availableStock}</p>
                         </div>

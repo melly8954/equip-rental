@@ -206,7 +206,7 @@ function renderRentalList(data) {
                             <h5 class="card-title mb-1">${r.model}</h5>
                             <p class="card-text mb-0">
                                 신청 ID: ${r.rentalId} <br>
-                                카테고리: ${r.category} / ${r.subCategory} <br>
+                                카테고리: ${categoryLabelMap[r.category]} / ${r.subCategory} <br>
                                 수량: ${r.quantity} <br>
                                 대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
                                 상태: ${r.status} <br>
