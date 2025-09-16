@@ -20,6 +20,4 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findByStatusAndRole(MemberStatus status, MemberRole role, Pageable pageable);
     Page<Member> findByStatus(MemberStatus status, Pageable pageable);
     Page<Member> findByRole(MemberRole role, Pageable pageable);
-
-
 }
