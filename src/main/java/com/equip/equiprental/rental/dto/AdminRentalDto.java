@@ -20,6 +20,7 @@ public class AdminRentalDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate requestEndDate;
     private String rentalReason;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
     private Long memberId;
@@ -28,4 +29,5 @@ public class AdminRentalDto {
 
     private String category;
     private String subCategory;
+    private String model;
 }
