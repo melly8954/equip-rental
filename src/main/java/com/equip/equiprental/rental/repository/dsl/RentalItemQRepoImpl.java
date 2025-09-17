@@ -53,6 +53,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.rental.equipment.category.stringValue(),
                         i.rental.equipment.subCategory,
                         i.rental.equipment.model,
+                        i.equipmentItem.serialNumber,
                         i.rental.member.name,
                         i.rental.member.department,
                         i.startDate,

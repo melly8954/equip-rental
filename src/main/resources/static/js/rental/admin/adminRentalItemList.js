@@ -214,8 +214,11 @@ function renderRentalItemList(data) {
                         <div class="col">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">
-                                    <p class="mb-0 fw-bold">${r.model}</p>
-                                    <p class="mb-0 text-muted">${categoryLabelMap[r.category]} / ${r.subCategory}</p>                               
+                                    <p class="d-flex align-items-center mb-1 fw-bold">
+                                      <span>${r.model}</span>
+                                      <span class="text-muted ms-2">[${categoryLabelMap[r.category]} - ${r.subCategory}]</span>
+                                    </p> 
+                                    <i class="mb-0 text-muted">${r.serialName}</i>
                                 </h6>
                                 <p class="card-text mb-1">
                                     대여자: ${r.memberName} (${r.department})

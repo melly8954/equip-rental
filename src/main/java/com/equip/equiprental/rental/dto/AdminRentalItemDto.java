@@ -19,6 +19,7 @@ public class AdminRentalItemDto {
     private String category;
     private String subCategory;
     private String model;
+    private String serialName;
 
     private String memberName;
     private String department;
