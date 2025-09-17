@@ -47,6 +47,11 @@ public class AllViewController {
         return "rental/rentalList";
     }
 
+    @GetMapping("/rental/item/list")
+    public String userRentalItemList() {
+        return "rental/rentalItemList";
+    }
+
     // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")
@@ -78,6 +83,11 @@ public class AllViewController {
     @GetMapping("/admin/rental/list")
     public String adminRentalList() {
         return "rental/admin/adminRentalList";
+    }
+
+    @GetMapping("/admin/rental/item/list")
+    public String adminRentalItemList() {
+        return "rental/admin/adminRentalItemList";
     }
 
     // 에러 페이지
