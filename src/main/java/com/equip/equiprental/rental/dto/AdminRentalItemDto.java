@@ -15,6 +15,7 @@ public class AdminRentalItemDto {
     private Long rentalItemId;
     private Long rentalId;
 
+    private String thumbnailUrl;
     private String category;
     private String subCategory;
     private String model;

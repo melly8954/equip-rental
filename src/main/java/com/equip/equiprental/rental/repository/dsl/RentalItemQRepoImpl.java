@@ -1,6 +1,7 @@
 package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRentalItem;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.querydsl.core.BooleanBuilder;
@@ -24,6 +25,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     @Override
     public Page<AdminRentalItemDto> findAdminRentalItems(SearchParamDto paramDto, Pageable pageable) {
         QRentalItem i = QRentalItem.rentalItem;
+        QFileMeta f = QFileMeta.fileMeta;
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -47,6 +49,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                 .select(Projections.constructor(AdminRentalItemDto.class,
                         i.rentalItemId,
                         i.rental.rentalId,
+                        f.filePath,
                         i.rental.equipment.category.stringValue(),
                         i.rental.equipment.subCategory,
                         i.rental.equipment.model,
@@ -59,6 +62,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.isExtended
                 ))
                 .from(i)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(i.rental.equipment.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
