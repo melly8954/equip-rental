@@ -183,7 +183,14 @@ function renderRentalItemList(data) {
     const container = $("#rental-item-list");
     container.empty();
 
-    data.forEach(r => {
+    if (!data || data.length === 0) {
+        container.append(`<div class="text-center py-3">대여 이력이 없습니다.</div>`);
+        return;
+    }
+
+    let row = $('<div class="row"></div>');
+
+    data.forEach((r, index) => {
         const overdueBadge = r.overdue
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
@@ -194,43 +201,52 @@ function renderRentalItemList(data) {
 
         const thumbnail = r.thumbnailUrl
             ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.model}" style="width:100px; height:100px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail" style="width:100px; height:100px; background:#eee; display:flex; align-items:center; justify-content:center;">No Image</div>`;
+            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded-start" 
+                   style="width:100px; height:100px;">No Image</div>`;
 
         const card = $(`
-            <div class="card mb-3 shadow-sm">
-                <div class="row g-0 align-items-center">
-                    <div class="col-auto">
-                        ${thumbnail}
-                    </div>
-                    <div class="col">
-                        <div class="card-body p-2">
-                            <h6 class="card-title mb-1">
-                                <p>${r.model}</p>
-                                <p>${categoryLabelMap[r.category]} / ${r.subCategory}</p>                               
-                            </h6>
-                            <p class="card-text mb-1">
-                                대여자: ${r.memberName} (${r.department})
-                            </p>
-                            <p class="card-text mb-0 text-muted">
-                                대여기간: ${r.startDate} ~ ${r.endDate} 
-                                ${r.actualReturnDate ? `(반납: ${r.actualReturnDate})` : ''}
-                                ${overdueBadge} ${extendedBadge}
-                            </p>
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto">
+                            ${thumbnail}
                         </div>
-                    </div>
-                    <div class="col-auto pe-2">
-                        ${!r.actualReturnDate
-            ? `<button class="btn btn-sm btn-success return-btn" data-id="${r.rentalItemId}">반납처리</button>`
-            : `<span class="text-success small">반납완료</span>`}
+                        <div class="col">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">
+                                    <p class="mb-0 fw-bold">${r.model}</p>
+                                    <p class="mb-0 text-muted">${categoryLabelMap[r.category]} / ${r.subCategory}</p>                               
+                                </h6>
+                                <p class="card-text mb-1">
+                                    대여자: ${r.memberName} (${r.department})
+                                </p>
+                                <p class="card-text mb-0 text-muted">
+                                    대여기간: ${r.startDate} ~ ${r.endDate} 
+                                    ${r.actualReturnDate ? `(반납: ${r.actualReturnDate})` : ''}
+                                    ${overdueBadge} ${extendedBadge}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-auto pe-2">
+                            ${!r.actualReturnDate
+                            ? `<button class="btn btn-sm btn-success return-btn" data-id="${r.rentalItemId}">반납처리</button>`
+                            : `<span class="text-success small">반납완료</span>`}
+                        </div>
                     </div>
                 </div>
             </div>
         `);
 
-        container.append(card);
+        row.append(card);
+
+        // 2개마다 container에 추가 후 새로운 row 시작
+        if ((index + 1) % 2 === 0 || index === data.length - 1) {
+            container.append(row);
+            row = $('<div class="row"></div>');
+        }
     });
 
-    // 반납 처리 버튼 클릭 이벤트
+    // 반납 처리 버튼 이벤트 바인딩
     $(".return-btn").off("click").on("click", function() {
         const rentalItemId = $(this).data("id");
         handleReturn(rentalItemId, $(this));

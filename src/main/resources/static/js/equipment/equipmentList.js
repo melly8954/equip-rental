@@ -175,37 +175,49 @@ function renderEquipmentList(list) {
         return;
     }
 
-    list.forEach(equip => {
+    let row = $('<div class="row"></div>');
+
+    list.forEach((equip, index) => {
         const card = $(`
-            <div class="card mb-3">
-                <div class="row g-0 h-100">
-                    <!-- 이미지 영역 고정 -->
-                    <div class="col-md-2 d-flex align-items-center justify-content-center bg-light" style="height: 168px;">
-                        <img src="${equip.imageUrl}"  
-                             style="max-width: 100%; max-height: 100%; object-fit: contain;" 
-                             alt="대표 이미지">
-                    </div>
-            
-                    <!-- 텍스트 영역 -->
-                    <div class="col-md-10 d-flex align-items-center">
-                        <div class="card-body">
-                            <h5 class="card-title">${equip.model}</h5>
-                            <p class="card-text">카테고리: ${categoryLabelMap[equip.category]}</p>
-                            <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
-                            <p class="card-text">재고: ${equip.availableStock}</p>
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0 align-items-center">
+                        <!-- 이미지 영역 -->
+                        <div class="col-auto bg-light d-flex align-items-center justify-content-center" style="width:120px; height:120px;">
+                            <img src="${equip.imageUrl}"  
+                                 style="max-width:100%; max-height:100%; object-fit:contain;" 
+                                 alt="대표 이미지"
+                                 class="p-1 rounded-start">
                         </div>
-                        <div class="d-flex align-items-stretch" style="height: 100%;">
-                            <button class="btn btn-outline-primary btn-sm rental-btn w-100 h-100"
-                                    data-id="${equip.equipmentId}">
-                                <i class="bi bi-box-seam"></i> 대여 신청
-                            </button>
+
+                        <!-- 텍스트 + 버튼 영역 -->
+                        <div class="col d-flex align-items-center justify-content-between">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
+                                <p class="mb-0 text-muted">
+                                    ${categoryLabelMap[equip.category]} / ${equip.subCategory || '-'}
+                                </p>
+                                <p class="card-text mb-1">재고: ${equip.availableStock}</p>
+                            </div>
+                            <div class="pe-2">
+                                <button class="btn btn-outline-primary btn-sm rental-btn" 
+                                        data-id="${equip.equipmentId}">
+                                    <i class="bi bi-box-seam"></i> 대여 신청
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         `);
-        container.append(card);
+
+        row.append(card);
+
+        // 2개마다 row 추가하고 새로운 row 시작
+        if ((index + 1) % 2 === 0 || index === list.length - 1) {
+            container.append(row);
+            row = $('<div class="row"></div>');
+        }
     });
 }
 

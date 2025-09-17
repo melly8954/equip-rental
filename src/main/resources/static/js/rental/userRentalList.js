@@ -188,36 +188,62 @@ function renderRentalList(data) {
     const container = $("#rental-list");
     container.empty();
 
-    if (!data.length) {
+    if (!data || data.length === 0) {
         container.append(`<div class="text-center py-3">아이템이 없습니다.</div>`);
         return;
     }
 
-    data.forEach(r => {
+    let row = $('<div class="row"></div>');
+
+    data.forEach((r, index) => {
+        const thumbnail = r.thumbnailUrl
+            ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.equipmentName}" 
+                     style="width:120px; height:120px; object-fit:cover;">`
+            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded-start" 
+                   style="width:120px; height:120px;">No Image</div>`;
+
         const card = $(`
-            <div class="card mb-3 shadow-sm">
-                <div class="row g-0 align-items-center">
-                    ${r.thumbnailUrl ? `
-                    <div class="col-auto">
-                        <img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.equipmentName}" style="width:120px; height: 120px; object-fit:cover;">
-                    </div>` : ""}
-                    <div class="col">
-                        <div class="card-body py-2">
-                            <h5 class="card-title mb-1">${r.model}</h5>
-                            <p class="card-text mb-0">
-                                신청 ID: ${r.rentalId} <br>
-                                카테고리: ${categoryLabelMap[r.category]} / ${r.subCategory} <br>
-                                수량: ${r.quantity} <br>
-                                대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
-                                상태: ${r.status} <br>
-                                ${r.status === "REJECTED" ? `거절 사유: ${r.rejectReason}` : ""}
-                            </p>
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto">
+                            ${thumbnail}
+                        </div>
+                        <div class="col">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">
+                                    <p class="mb-0 fw-bold">${r.model}</p>
+                                    <p class="mb-0 text-muted">
+                                        ${categoryLabelMap[r.category]} / ${r.subCategory || '-'}
+                                    </p>
+                                </h6>
+                                <p class="card-text mb-1">
+                                    신청 ID: ${r.rentalId} <br>
+                                    수량: ${r.quantity} <br>
+                                    대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
+                                    상태: ${r.status} <br>
+                                    ${r.status === "REJECTED" ? `거절 사유: ${r.rejectReason}` : ""}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         `);
-        container.append(card);
+
+        row.append(card);
+
+        // 2개마다 row append 후 새 row 시작
+        if ((index + 1) % 2 === 0 || index === data.length - 1) {
+            container.append(row);
+            row = $('<div class="row"></div>');
+        }
+    });
+
+    // 반납 처리 버튼 이벤트 바인딩
+    $(".return-btn").off("click").on("click", function() {
+        const rentalItemId = $(this).data("id");
+        handleReturn(rentalItemId, $(this));
     });
 }
 

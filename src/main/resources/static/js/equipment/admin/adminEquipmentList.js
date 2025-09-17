@@ -166,7 +166,6 @@ function fetchEquipment(filters={}) {
     }).fail(handleServerError);
 }
 
-
 // 장비 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
@@ -177,33 +176,46 @@ function renderEquipmentList(list) {
         return;
     }
 
-    list.forEach(equip => {
+    // row를 만들어 col을 담는 구조
+    let row = $('<div class="row"></div>');
+
+    list.forEach((equip, index) => {
         const card = $(`
-            <div class="card mb-3">
-                <div class="row g-0 h-100">
-                    <!-- 이미지 영역 고정 -->
-                    <div class="col-md-2 d-flex align-items-center justify-content-center bg-light" style="height: 168px;">
-                        <img src="${equip.imageUrl}"  
-                             style="max-width: 100%; max-height: 100%; object-fit: contain;" 
-                             alt="대표 이미지">
-                    </div>
-            
-                    <!-- 텍스트 영역 -->
-                    <div class="col-md-10 d-flex align-items-center">
-                        <div class="card-body">
-                            <h5 class="card-title">${equip.model}</h5>
-                            <p class="card-text">카테고리: ${categoryLabelMap[equip.category]}</p>
-                            <p class="card-text">서브카테고리: ${equip.subCategory}</p>
-                            <p class="card-text">사용 가능한 재고: ${equip.availableStock}</p>
-                            <p class="card-text">
-                                총 재고: ${equip.totalStock}
-                                <span class="text-success stock-increase-btn ms-2" style="cursor:pointer;" data-id="${equip.equipmentId}" title="재고 추가">
-                                재고 추가[➕]
-                                </span>
-                            </p>
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0 align-items-center">
+                        <!-- 이미지 영역 -->
+                        <div class="col-auto">
+                            <img src="${equip.imageUrl}" 
+                                 alt="대표 이미지"
+                                 style="width:120px; height:120px; object-fit:contain;"
+                                 class="rounded-start bg-light p-1">
                         </div>
-                        <div class="d-flex align-items-stretch" style="height: 100%;">
-                            <button class="btn btn-outline-primary btn-sm item-list-btn w-100 h-100"
+
+                        <!-- 텍스트 영역 -->
+                        <div class="col">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">
+                                    <p class="mb-0 fw-bold">${equip.model}</p>
+                                    <p class="mb-0 text-muted">
+                                        ${categoryLabelMap[equip.category]} / ${equip.subCategory}
+                                    </p>
+                                </h6>
+                                <p class="card-text mb-1">사용 가능 재고: ${equip.availableStock}</p>
+                                <p class="card-text mb-0">
+                                    총 재고: ${equip.totalStock}
+                                    <span class="text-success stock-increase-btn ms-2" 
+                                          style="cursor:pointer;" 
+                                          data-id="${equip.equipmentId}">
+                                        [➕ 재고 추가]
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 버튼 영역 -->
+                        <div class="col-auto pe-2">
+                            <button class="btn btn-outline-primary btn-sm item-list-btn" 
                                     data-id="${equip.equipmentId}">
                                 <i class="bi bi-box-seam"></i> Item List
                             </button>
@@ -212,7 +224,14 @@ function renderEquipmentList(list) {
                 </div>
             </div>
         `);
-        container.append(card);
+
+        row.append(card);
+
+        // 2개마다 container에 row 추가하고 새로운 row 시작
+        if ((index + 1) % 2 === 0 || index === list.length - 1) {
+            container.append(row);
+            row = $('<div class="row"></div>');
+        }
     });
 }
 
