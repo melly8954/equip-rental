@@ -1,0 +1,36 @@
+package com.equip.equiprental.rental.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+
+@Getter
+@AllArgsConstructor
+@Builder
+public class AdminRentalItemDto {
+    private Long rentalItemId;
+    private Long rentalId;
+
+    private String category;
+    private String subCategory;
+    private String model;
+
+    private String memberName;
+    private String department;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate actualReturnDate;
+
+    @Setter
+    private boolean overdue;
+    private boolean isExtended;
+
+}
