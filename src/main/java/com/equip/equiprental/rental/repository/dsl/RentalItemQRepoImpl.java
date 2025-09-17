@@ -67,7 +67,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(i.createdAt.desc())
+                .orderBy(i.createdAt.desc(), i.rentalItemId.desc())
                 .fetch();
 
         // 카운트 조회
