@@ -93,7 +93,7 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         container.empty();
 
         if (!items.length) {
-            container.append(`<div class="text-center py-3">아이템이 없습니다.</div>`);
+            container.append(`<div class="text-center py-3">해당 장비모델의 아이템이 존재하지 않습니다.</div>`);
             $("#equipment-pagination").empty();
             return;
         }

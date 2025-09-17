@@ -184,7 +184,7 @@ function renderRentalItemList(data) {
     container.empty();
 
     if (!data || data.length === 0) {
-        container.append(`<div class="text-center py-3">대여 이력이 없습니다.</div>`);
+        container.append(`<div class="text-center py-3">사용자들의 장비 대여 물품내역이 없습니다.</div>`);
         return;
     }
 

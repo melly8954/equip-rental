@@ -33,7 +33,7 @@ function renderHistoryList(content, page, size, totalElements) {
     listDiv.empty();
 
     if (!content || content.length === 0) {
-        listDiv.append('<p class="text-muted">히스토리가 없습니다.</p>');
+        listDiv.append('<p class="text-muted">해당 장비 아이템의 히스토리가 존재하지 않습니다.</p>');
         return;
     }
 

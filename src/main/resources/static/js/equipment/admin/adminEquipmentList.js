@@ -172,7 +172,7 @@ function renderEquipmentList(list) {
     container.empty();
 
     if (!list || list.length === 0) {
-        container.append(`<div class="text-center py-3">장비가 없습니다.</div>`);
+        container.append(`<div class="text-center py-3">등록된 장비가 존재하지 않습니다.</div>`);
         return;
     }
 
