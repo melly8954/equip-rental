@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class ExtendRequestDto {
+public class ExtendRentalItemDto {
     private int days;
 }

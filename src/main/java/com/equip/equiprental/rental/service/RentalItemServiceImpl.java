@@ -6,7 +6,7 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
-import com.equip.equiprental.rental.dto.ExtendRequestDto;
+import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class RentalItemServiceImpl implements RentalItemService{
 
     @Override
     @Transactional
-    public void extendRentalItem(Long rentalItem, ExtendRequestDto dto) {
+    public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
                 .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
 
