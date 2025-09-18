@@ -262,7 +262,7 @@ $(document).on("click", ".extend-btn", function() {
 
     $.ajax({
         url: `/api/v1/rental-items/${rentalItemId}`,
-        method: "PATCH",
+        method: "POST",
         contentType: "application/json",
         data: JSON.stringify({
             days: 7

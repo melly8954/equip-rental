@@ -50,7 +50,7 @@ public class RentalItemController implements ResponseController {
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 장비 대여 물품내역 조회 성공", result);
     }
 
-    @PatchMapping("/{rentalItem}")
+    @PostMapping("/{rentalItem}")
     public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRequestDto dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("장비 대여 연장 요청 API] TraceId={}", traceId);
