@@ -57,6 +57,10 @@ public enum ErrorType {
     EQUIPMENT_ITEM_INSUFFICIENT_STOCK("equipment_item_insufficient_stock", "해당 장비 모델의 대여 가능 재고가 부족합니다.", HttpStatus.CONFLICT),
     PARTIAL_UPDATE("partial_update", "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.", HttpStatus.CONFLICT),
 
+    // 대여 연장
+    ALREADY_EXTENDED("already_extended", "이미 연장된 대여건입니다.", HttpStatus.CONFLICT),
+    ALREADY_RETURNED("already_returned", "이미 반납된 대여건은 연장할 수 없습니다.", HttpStatus.CONFLICT),
+
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     FILE_REQUIRED("file_required", "파일을 추가하지 않았습니다.", HttpStatus.BAD_REQUEST),
