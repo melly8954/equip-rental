@@ -221,6 +221,7 @@ function renderRentalItemList(data) {
                         <div class="col">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">
+                                    <p class="d-flex align-items-center mb-1 fw-bold">Rental ${r.rentalId}</p>
                                     <p class="d-flex align-items-center mb-1 fw-bold">
                                       <span>${r.model}</span>
                                       <span class="text-muted ms-2">[${categoryLabelMap[r.category]} - ${r.subCategory}]</span>
@@ -254,6 +255,10 @@ function renderRentalItemList(data) {
 
 $(document).on("click", ".extend-btn", function() {
     const rentalItemId = $(this).data("id");
+
+    // confirm 창 띄우기
+    const ok = confirm("정말 대여를 연장하시겠습니까?");
+    if (!ok) return; // 취소 누르면 종료
 
     $.ajax({
         url: `/api/v1/rental-items/${rentalItemId}`,
