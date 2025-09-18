@@ -7,6 +7,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.ExtendRequestDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.equip.equiprental.rental.service.RentalItemService;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -50,5 +48,15 @@ public class RentalItemController implements ResponseController {
         PageResponseDto<UserRentalItemDto> result = rentalItemService.getUserRentalItemLists(paramDto, memberId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 장비 대여 물품내역 조회 성공", result);
+    }
+
+    @PatchMapping("/{rentalItem}")
+    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRequestDto dto){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("장비 대여 연장 요청 API] TraceId={}", traceId);
+
+        rentalItemService.extendRentalItem(rentalItem, dto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 연장 성공", null);
     }
 }
