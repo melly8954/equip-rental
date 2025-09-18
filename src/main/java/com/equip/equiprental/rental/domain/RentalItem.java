@@ -1,6 +1,8 @@
 package com.equip.equiprental.rental.domain;
 
 import com.equip.equiprental.common.domain.BaseEntity;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,4 +43,16 @@ public class RentalItem extends BaseEntity {
 
     @Column(name = "is_extended")
     private Boolean isExtended;
+
+    // 대여 연장
+    public void extend(LocalDate newEndDate) {
+        if (Boolean.TRUE.equals(this.isExtended)) {
+            throw new CustomException(ErrorType.ALREADY_EXTENDED);
+        }
+        if (this.actualReturnDate != null) {
+            throw new CustomException(ErrorType.ALREADY_RETURNED);
+        }
+        this.endDate = newEndDate;
+        this.isExtended = true;
+    }
 }
