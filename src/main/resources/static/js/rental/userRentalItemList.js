@@ -87,7 +87,8 @@ window.addEventListener("pageshow", function (event) {
 $(document).ready(function() {
     // 검색 이벤트
     $("#model-search").on("input", function() {
-        fetchRentalItemList();
+        const currentValues = getFilterValues(filterConfig);
+        fetchRentalItemList(currentValues);
     });
 });
 

@@ -91,7 +91,8 @@ window.addEventListener("pageshow", function(event) {
 // 검색 이벤트 등록
 $(document).ready(function() {
     $("#equipment-search").on("input", function() {
-        fetchEquipment();
+        const currentValues = getFilterValues(filterConfig);
+        fetchEquipment(currentValues);
     });
 });
 

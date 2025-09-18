@@ -93,8 +93,8 @@ window.addEventListener("pageshow", function (event) {
 
 // 이름 검색(input)
 $("#member-search").on("input", function () {
-    currentPage = 1;
-    fetchRentalItemList();
+    const currentValues = getFilterValues(filterConfig);
+    fetchRentalItemList(currentValues);
 });
 
 // 필터 변경 시 동작

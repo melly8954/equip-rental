@@ -90,7 +90,8 @@ window.addEventListener("pageshow", function(event) {
 $(document).ready(function() {
     // 검색 이벤트
     $("#equipment-search").on("input", function() {
-        fetchEquipment();
+        const currentValues = getFilterValues(filterConfig);
+        fetchEquipment(currentValues);
     });
 });
 
