@@ -237,8 +237,9 @@ function renderRentalItemList(data) {
                         <div class="col-auto pe-2">
                             ${extendBtnHtml}           
                         </div>
+                    </div>
                 </div>
-            </div>
+            </div>           
         `);
 
         row.append(card);
@@ -250,3 +251,22 @@ function renderRentalItemList(data) {
         }
     });
 }
+
+$(document).on("click", ".extend-btn", function() {
+    const rentalItemId = $(this).data("id");
+
+    $.ajax({
+        url: `/api/v1/rental-items/${rentalItemId}`,
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            days: 7
+        })
+    }).done(function(response) {
+        alert(response.message);
+        const currentValues = getFilterValues(filterConfig);
+        fetchRentalItemList(currentValues);
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    });
+});
