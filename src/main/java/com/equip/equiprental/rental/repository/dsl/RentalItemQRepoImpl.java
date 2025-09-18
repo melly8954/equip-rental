@@ -123,7 +123,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(i.createdAt.desc(), i.rentalItemId.desc())
+                .orderBy(i.createdAt.desc(), i.endDate.desc())
                 .fetch();
 
         // 카운트 조회
