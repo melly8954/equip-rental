@@ -4,6 +4,7 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRentalItem;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -56,6 +57,61 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.equipmentItem.serialNumber,
                         i.rental.member.name,
                         i.rental.member.department,
+                        i.startDate,
+                        i.endDate,
+                        i.actualReturnDate,
+                        Expressions.constant(false),
+                        i.isExtended
+                ))
+                .from(i)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(i.rental.equipment.equipmentId)))
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(i.createdAt.desc(), i.rentalItemId.desc())
+                .fetch();
+
+        // 카운트 조회
+        Long total = queryFactory
+                .select(i.count())
+                .from(i)
+                .where(builder)
+                .fetchOne();
+        total = total == null ? 0 : total;
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long memberId) {
+        QRentalItem i = QRentalItem.rentalItem;
+        QFileMeta f = QFileMeta.fileMeta;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(i.rental.member.memberId.eq(memberId));
+
+        if (paramDto.getCategoryEnum() != null) {
+            builder.and(i.rental.equipment.category.eq(paramDto.getCategoryEnum()));
+        }
+
+        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
+            builder.and(i.rental.equipment.subCategory.eq(paramDto.getSubCategory()));
+        }
+
+        if (paramDto.getModel() != null && !paramDto.getModel().isEmpty()) {
+            builder.and(i.rental.equipment.model.containsIgnoreCase(paramDto.getModel()));
+        }
+
+        List<UserRentalItemDto> results = queryFactory
+                .select(Projections.constructor(UserRentalItemDto.class,
+                        i.rentalItemId,
+                        i.rental.rentalId,
+                        f.filePath,
+                        i.rental.equipment.category.stringValue(),
+                        i.rental.equipment.subCategory,
+                        i.rental.equipment.model,
+                        i.equipmentItem.serialNumber,
                         i.startDate,
                         i.endDate,
                         i.actualReturnDate,
