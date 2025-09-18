@@ -257,14 +257,14 @@ function renderRentalItemList(data) {
     });
 }
 
-// // 반납 처리 예시 함수
-// function handleReturn(rentalItemId, button) {
-//     $.ajax({
-//         url: `/api/v1/rental-items/${rentalItemId}/return`,
-//         method: "POST",
-//     }).done(() => {
-//         button.replaceWith(`<span class="text-success small">반납완료</span>`);
-//     }).fail(xhr => {
-//         alert("반납 처리 실패: " + xhr.responseText);
-//     });
-// }
+// 반납 처리 예시 함수
+function handleReturn(rentalItemId, button) {
+    $.ajax({
+        url: `/api/v1/rental-items/${rentalItemId}`,
+        method: "PATCH",
+    }).done(() => {
+        button.replaceWith(`<span class="text-success small">반납완료</span>`);
+    }).fail(xhr => {
+        alert("반납 처리 실패: " + xhr.responseText);
+    });
+}

@@ -11,4 +11,6 @@ public interface RentalItemService {
     PageResponseDto<UserRentalItemDto> getUserRentalItemLists(SearchParamDto paramDto, Long memberId);
 
     void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto);
+
+    void returnRentalItem(Long rentalItem, Long memberId);
 }

@@ -7,7 +7,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
-import com.equip.equiprental.rental.dto.ExtendRequestDto;
+import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.equip.equiprental.rental.service.RentalItemService;
 import lombok.RequiredArgsConstructor;
@@ -51,12 +51,25 @@ public class RentalItemController implements ResponseController {
     }
 
     @PostMapping("/{rentalItem}")
-    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRequestDto dto){
+    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRentalItemDto dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("장비 대여 연장 요청 API] TraceId={}", traceId);
 
         rentalItemService.extendRentalItem(rentalItem, dto);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 연장 성공", null);
+    }
+
+    @PatchMapping("/{rentalItem}")
+    public ResponseEntity<ResponseDto<Void>> returnRentalItem(@PathVariable Long rentalItem,
+                                                              @AuthenticationPrincipal PrincipalDetails principal){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("장비 대여 반납 요청 API] TraceId={}", traceId);
+
+        Long memberId = principal.getMember().getMemberId();
+
+        rentalItemService.returnRentalItem(rentalItem, memberId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 반납 성공", null);
     }
 }

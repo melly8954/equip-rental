@@ -55,4 +55,9 @@ public class RentalItem extends BaseEntity {
         this.endDate = newEndDate;
         this.isExtended = true;
     }
+    
+    // 대여 실 반납일 지정
+    public void returnItem(LocalDate now) {
+        this.actualReturnDate = now;
+    }
 }

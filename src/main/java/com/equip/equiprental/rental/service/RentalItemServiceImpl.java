@@ -4,6 +4,12 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.equipment.domain.EquipmentItem;
+import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
+import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
@@ -22,6 +28,8 @@ import java.time.LocalDate;
 public class RentalItemServiceImpl implements RentalItemService{
 
     private final RentalItemRepository rentalItemRepository;
+    private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -89,5 +97,32 @@ public class RentalItemServiceImpl implements RentalItemService{
 
         // 엔티티 수정 메서드 호출
         item.extend(extendedEndDate);
+    }
+
+    @Override
+    @Transactional
+    public void returnRentalItem(Long rentalItem, Long memberId) {
+        RentalItem item = rentalItemRepository.findById(rentalItem)
+                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+
+        EquipmentItem equipmentItem = item.getEquipmentItem();
+
+        EquipmentStatus oldStatus = equipmentItem.getStatus();
+
+        // 장비 상태 변경(사용 가능) + 실 반납일 저장
+        equipmentItem.updateStatus(EquipmentStatus.AVAILABLE);
+        item.returnItem(LocalDate.now());
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
+        EquipmentItemHistory history = EquipmentItemHistory.builder()
+                .item(equipmentItem)
+                .changedBy(member)
+                .oldStatus(oldStatus)
+                .newStatus(EquipmentStatus.AVAILABLE)
+                .build();
+
+        equipmentItemHistoryRepository.save(history);
     }
 }
