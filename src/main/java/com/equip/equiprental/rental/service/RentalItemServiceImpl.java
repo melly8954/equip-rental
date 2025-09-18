@@ -3,6 +3,7 @@ package com.equip.equiprental.rental.service;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,33 @@ public class RentalItemServiceImpl implements RentalItemService{
         });
 
         return PageResponseDto.<AdminRentalItemDto>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
+                .build();
+    }
+
+    @Override
+    public PageResponseDto<UserRentalItemDto> getUserRentalItemLists(SearchParamDto paramDto, Long memberId) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(paramDto, pageable, memberId);
+
+        // overdue 계산
+        dtosPage.getContent().forEach(dto -> {
+            boolean overdue = dto.getActualReturnDate() == null
+                    && dto.getEndDate() != null
+                    && dto.getEndDate().isBefore(LocalDate.now());
+            dto.setOverdue(overdue);
+        });
+
+        return PageResponseDto.<UserRentalItemDto>builder()
                 .content(dtosPage.getContent())
                 .page(dtosPage.getNumber() + 1)
                 .size(dtosPage.getSize())
