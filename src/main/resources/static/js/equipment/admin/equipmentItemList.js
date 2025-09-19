@@ -8,15 +8,6 @@ const statusFilterConfig = {
     }
 };
 
-const categoryLabelMap = {
-    "전체": "전체",
-    "OFFICE_SUPPLIES": "사무용품",
-    "ELECTRONICS": "전자기기",
-    "FURNITURE": "가구",
-    "TOOLS": "공구",
-    "SAFETY_EQUIPMENT": "안전장비"
-};
-
 const statusLabelMap = {
     "전체": "전체",
     "AVAILABLE": "사용 가능",
@@ -25,6 +16,13 @@ const statusLabelMap = {
     "OUT_OF_STOCK": "폐기",
     "LOST": "분실",
 };
+
+
+$(document).ready(function () {
+    // URL에서 equipmentId 추출
+    const pathParts = window.location.pathname.split("/");
+    equipmentId = pathParts[pathParts.indexOf("equipment") + 1];
+});
 
 // pageshow 이벤트: 뒤로가기/앞으로가기 시 항상 초기화
 window.addEventListener("pageshow", function(event) {
@@ -41,18 +39,62 @@ window.addEventListener("pageshow", function(event) {
     fetchEquipmentItems(equipmentId, {}, 1);
 });
 
-$(document).ready(function () {
-    // URL에서 equipmentId 추출
-    const pathParts = window.location.pathname.split("/");
-    equipmentId = pathParts[pathParts.indexOf("equipment") + 1];
-});
+function renderFilter(containerId, config, onChange) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    Object.entries(config).forEach(([key, value]) => {
+        const group = $("<div>").addClass("mb-3");
+
+        // 라벨
+        if (value.label) {
+            group.append($("<label>").addClass("form-label fw-bold me-2").text(value.label));
+        }
+
+        // 버튼 그룹 또는 라디오
+        const btnGroup = $("<div>").addClass("btn-group").attr("role", "group");
+
+        value.options.forEach(opt => {
+            const inputId = key + "-" + (opt ?? "");
+            const input = $("<input>")
+                .attr("type", value.type)
+                .addClass("btn-check")
+                .attr("name", key)
+                .attr("id", inputId)
+                .val(opt)
+                .prop("checked", opt === "전체"); // 기본 전체 선택
+
+            const button = $("<label>")
+                .addClass("btn btn-outline-primary btn-sm")
+                .attr("for", inputId)
+                .text(opt);
+
+            input.on("change", () => onChange(getFilterValues(config)));
+
+            btnGroup.append(input, button);
+        });
+
+        group.append(btnGroup);
+        container.append(group);
+    });
+}
+
+// 현재 필터 값 가져오기
+function getFilterValues(config) {
+    const values = {};
+    Object.keys(config).forEach(key => {
+        const selected = $(`input[name="${key}"]:checked`);
+        values[key] = selected.length ? selected.val() : "";
+    });
+    return values;
+}
 
 function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
     $.ajax({
         url: `/api/v1/equipments/${equipmentId}/items`,
         method: "GET",
         data: {
-            equipmentStatus: filters.status || "",
+            equipmentStatus: (filters.status === "전체" ? "" : filters.status),
             page: page
         }
     }).done(function(response) {
@@ -79,7 +121,7 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
                     <div class="col-md-8">
                         <div class="card-body">
                             <h5 class="card-title">${equipmentSummary.model}</h5>
-                            <p class="card-text mb-1"><strong>카테고리:</strong> ${categoryLabelMap[equipmentSummary.category]}</p>
+                            <p class="card-text mb-1"><strong>카테고리:</strong> ${equipmentSummary.category}</p>
                             ${equipmentSummary.subCategory ? `<p class="card-text mb-1"><strong>서브카테고리:</strong> ${equipmentSummary.subCategory}</p>` : ""}
                             <p class="card-text mb-1"><strong>사용 가능한 재고:</strong> ${equipmentSummary.availableStock}</p>
                             <p class="card-text"><strong>총 재고:</strong> ${equipmentSummary.totalStock}</p>
