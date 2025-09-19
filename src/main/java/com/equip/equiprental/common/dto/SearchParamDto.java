@@ -24,8 +24,8 @@ public class SearchParamDto {
     private String memberStatus;
     private String role;
 
-    private String category;
-    private String subCategory;
+    private Long categoryId;
+    private Long subCategoryId;
     private String model;
 
     private String equipmentStatus;
@@ -53,15 +53,6 @@ public class SearchParamDto {
             return MemberRole.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorType.INVALID_ROLE_REQUEST);
-        }
-    }
-
-    public EquipmentCategory getCategoryEnum() {
-        if (category == null || category.isBlank()) return null;
-        try{
-            return EquipmentCategory.valueOf(category.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_CATEGORY_REQUEST);
         }
     }
 
