@@ -1,0 +1,29 @@
+#sub-category-filters {
+    margin-top: 0.5rem;
+    display: none; /* 초기 숨김 */
+}
+#sub-category-filters.active {
+    display: block;
+}
+
+.btn-check:checked + .btn {
+    background-color: #0d6efd;
+    color: white;
+    transition: all 0.2s;
+}
+.btn {
+    border-radius: 0.5rem; /* 부드러운 모서리 */
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.filter-card {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+#equipment-list {
+    padding-top: 40px;
+    margin-top: 20px;
+}
