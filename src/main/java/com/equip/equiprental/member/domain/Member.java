@@ -22,7 +22,10 @@ public class Member extends BaseEntity {
     private String username;
     private String password;
     private String name;
-    private String department;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="department_id")
+    private Department department;
     private String email;
 
     @Enumerated(EnumType.STRING)

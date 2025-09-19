@@ -27,7 +27,7 @@ public class MemberDto {
         this.memberId = member.getMemberId();
         this.username = member.getUsername();
         this.name = member.getName();
-        this.department = member.getDepartment();
+        this.department = member.getDepartment().getDepartmentName();
         this.email = member.getEmail();
         this.status = member.getStatus().name(); // Enum이면 name()으로 String 변환
         this.role = member.getRole().name();

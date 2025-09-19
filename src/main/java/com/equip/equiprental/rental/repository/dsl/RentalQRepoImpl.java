@@ -31,7 +31,7 @@ public class RentalQRepoImpl implements RentalQRepo{
         builder.and(r.status.eq(RentalStatus.PENDING));
 
         if (paramDto.getDepartment() != null && !paramDto.getDepartment().isEmpty()) {
-            builder.and(r.member.department.eq(paramDto.getDepartment()));
+            builder.and(r.member.department.departmentName.eq(paramDto.getDepartment()));
         }
 
         if (paramDto.getMemberName() != null && !paramDto.getMemberName().isEmpty()) {
