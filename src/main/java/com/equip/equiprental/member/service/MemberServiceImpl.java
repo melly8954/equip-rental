@@ -4,8 +4,10 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
+import com.equip.equiprental.member.repository.DepartmentRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
+    private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -39,11 +42,14 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorType.PASSWORD_MISMATCH);
         }
 
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+
         Member member = Member.builder()
                 .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
-                .department(dto.getDepartment())
+                .department(department)
                 .email(dto.getEmail())
                 .role(MemberRole.USER)
                 .status(MemberStatus.PENDING)
@@ -54,7 +60,7 @@ public class MemberServiceImpl implements MemberService {
                 .memberId(member.getMemberId())
                 .username(member.getUsername())
                 .name(member.getName())
-                .department(member.getDepartment())
+                .department(department.getDepartmentName())
                 .email(member.getEmail())
                 .createdAt(member.getCreatedAt())
                 .build();

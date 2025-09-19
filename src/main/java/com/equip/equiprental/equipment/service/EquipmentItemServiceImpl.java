@@ -70,7 +70,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
             if ("RENTED".equals(dto.getNewStatus())) {
                 if (rentalItem != null) {
                     dto.setCurrentOwnerName(rentalItem.getRental().getMember().getName());
-                    dto.setCurrentOwnerDept(rentalItem.getRental().getMember().getDepartment());
+                    dto.setCurrentOwnerDept(rentalItem.getRental().getMember().getDepartment().getDepartmentName());
                 } else {
                     dto.setCurrentOwnerName("관리자");
                     dto.setCurrentOwnerDept("시스템");

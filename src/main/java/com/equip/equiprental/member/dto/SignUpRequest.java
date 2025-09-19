@@ -14,6 +14,6 @@ public class SignUpRequest {
     private String password;
     private String confirmPassword;
     private String name;
-    private String department;
+    private Long departmentId;
     private String email;
 }
