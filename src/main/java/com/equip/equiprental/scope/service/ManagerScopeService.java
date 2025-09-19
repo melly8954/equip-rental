@@ -1,6 +1,6 @@
 package com.equip.equiprental.scope.service;
 
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
+import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.scope.repository.ManagerScopeRepository;
@@ -18,12 +18,12 @@ public class ManagerScopeService {
      * Equipment 단위 권한 체크
      */
     public boolean canAccessEquipment(Long equipmentId, Long managerId) {
-        EquipmentCategory categoryEnum = equipmentRepository.findCategoryByEquipmentId(equipmentId);
-        if (categoryEnum == null) return false;
+        Category category = equipmentRepository.findCategoryByEquipmentId(equipmentId);
+        if (category == null) return false;
 
         // enum -> String
-        String category = categoryEnum.name();
-        return managerScopeRepository.existsByManagerIdAndCategory(managerId, category);
+        String label = category.getLabel();
+        return managerScopeRepository.existsByManagerIdAndCategory(managerId, label);
     }
 
     /**

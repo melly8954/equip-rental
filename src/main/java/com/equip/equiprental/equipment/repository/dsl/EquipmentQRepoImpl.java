@@ -32,11 +32,11 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
 
         // 동적 조건을 누적할 BooleanBuilder 생성
         BooleanBuilder builder = new BooleanBuilder();
-        if (paramDto.getCategoryEnum() != null) {
-            builder.and(e.category.eq(paramDto.getCategoryEnum()));
+        if (paramDto.getCategoryId() != null) {
+            builder.and(e.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
-        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
-            builder.and(e.subCategory.eq(paramDto.getSubCategory()));
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(e.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
         if (paramDto.getModel() != null && !paramDto.getModel().isEmpty()) {
             builder.and(e.model.containsIgnoreCase(paramDto.getModel()));
@@ -47,8 +47,8 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
                 // 메인 쿼리, EquipmentDto 생성자의 파라미터 순서에 맞춰 값 세팅
                 .select(Projections.constructor(EquipmentDto.class,
                         e.equipmentId,
-                        e.category.stringValue(),
-                        e.subCategory,
+                        e.subCategory.category.label,
+                        e.subCategory.label,
                         e.model,
                         // available 재고, 서브 쿼리 (JPAExpressions.select)
                         // .count()는 NumberExpression<Long> 반환 -> 타입 변환

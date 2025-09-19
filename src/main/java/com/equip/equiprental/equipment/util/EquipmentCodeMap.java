@@ -28,7 +28,7 @@ public class EquipmentCodeMap {
         subCategoryCodeMap.put("오디오장비(스피커/마이크)", "AD");
         subCategoryCodeMap.put("외장저장장치(SSD/HDD)", "ST");
         subCategoryCodeMap.put("사무용 의자", "CH");
-        subCategoryCodeMap.put("책상/테이블", "DS");
+        subCategoryCodeMap.put("책상", "DS");
         subCategoryCodeMap.put("서랍장/캐비닛", "CA");
         subCategoryCodeMap.put("이동식 파티션", "PT");
         subCategoryCodeMap.put("화이트보드", "WB");

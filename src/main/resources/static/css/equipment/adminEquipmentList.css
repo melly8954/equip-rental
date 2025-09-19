@@ -1,0 +1,10 @@
+.filter-card {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+#equipment-list {
+    padding-top: 40px;
+    margin-top: 20px;
+}

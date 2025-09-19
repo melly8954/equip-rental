@@ -8,6 +8,7 @@
     <title>EquipRental - 장비 조회</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/common/common.css">
+    <link rel="stylesheet" href="/css/equipment/adminEquipmentList.css">
 </head>
 <body>
 <div class="wrapper">
@@ -15,13 +16,13 @@
         {{> common/adminSidebar }}
         <main class="content">
             <div class="container-fluid mt-5">
-                <h2>장비 조회</h2>
                 <!-- 필터 영역 -->
-                <div id="equipment-filters" class="mt-3"></div>
-                <div id="sub-category-filters"></div>
+                <div class="filter-card p-3 mb-3 border rounded shadow-sm">
+                    <div id="category-filters" class="mt-3"></div>
+                    <div id="sub-category-filters" class="mt-3 mb-3"></div>
 
-                <!-- 검색창 -->
-                <div class="mb-3">
+                    <!-- 검색창 -->
+                    <label for="equipment-search"></label>
                     <input type="text" id="equipment-search" class="form-control" placeholder="모델 검색">
                 </div>
 
@@ -32,7 +33,7 @@
 
                 <!-- 페이징 영역 -->
                 <nav>
-                    <div id="pagination"></div>
+                    <div id="pagination" class="mt-4"></div>
                 </nav>
             </div>
 

@@ -1,6 +1,5 @@
 package com.equip.equiprental.scope.domain;
 
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -2,7 +2,6 @@ package com.equip.equiprental.common.dto;
 
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
@@ -25,8 +24,8 @@ public class SearchParamDto {
     private String memberStatus;
     private String role;
 
-    private String category;
-    private String subCategory;
+    private Long categoryId;
+    private Long subCategoryId;
     private String model;
 
     private String equipmentStatus;
@@ -54,15 +53,6 @@ public class SearchParamDto {
             return MemberRole.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorType.INVALID_ROLE_REQUEST);
-        }
-    }
-
-    public EquipmentCategory getCategoryEnum() {
-        if (category == null || category.isBlank()) return null;
-        try{
-            return EquipmentCategory.valueOf(category.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_CATEGORY_REQUEST);
         }
     }
 

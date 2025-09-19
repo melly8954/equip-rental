@@ -8,9 +8,11 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.domain.SubCategory;
 import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
+import com.equip.equiprental.equipment.repository.SubCategoryRepository;
 import com.equip.equiprental.equipment.util.ModelCodeGenerator;
 import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
@@ -31,6 +33,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class EquipmentServiceImpl implements EquipmentService {
+    private final SubCategoryRepository subCategoryRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentItemRepository equipmentItemRepository;
     private final ModelCodeGenerator modelCodeGenerator;
@@ -40,16 +43,18 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     @Transactional
     public EquipmentRegisterResponse register(EquipmentRegisterRequest dto, List<MultipartFile> files) {
+        SubCategory subCategory = subCategoryRepository.findById(dto.getSubCategoryId())
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+
         // 모델이 이미 존재하면 예외 던지기
         if (equipmentRepository.findByModel(dto.getModel()).isPresent()) {
             throw new CustomException(ErrorType.EXIST_EQUIPMENT_MODEL_CODE);
         }
         // 없으면 새 장비 생성
-        String modelCode = modelCodeGenerator.generate(dto.getCategory(), dto.getSubCategory());
+        String modelCode = modelCodeGenerator.generate(subCategory.getCategory().getCategoryCode(), subCategory.getLabel());
 
         Equipment equipment = Equipment.builder()
-                .category(dto.getCategoryEnum())
-                .subCategory(dto.getSubCategory())
+                .subCategory(subCategory)
                 .model(dto.getModel())
                 .modelCode(modelCode)
                 .stock(dto.getStock())
@@ -118,8 +123,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         return EquipmentRegisterResponse.builder()
                 .equipmentId(equipment.getEquipmentId())
-                .category(equipment.getCategory().name())
-                .subCategory(equipment.getSubCategory())
+                .subCategory(equipment.getSubCategory().getLabel())
                 .model(equipment.getModel())
                 .stock(equipment.getStock())
                 .images(lists)
@@ -162,8 +166,8 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         EquipmentDto equipmentSummary = EquipmentDto.builder()
                 .equipmentId(equipment.getEquipmentId())
-                .category(equipment.getCategory().name())
-                .subCategory(equipment.getSubCategory())
+                .category(equipment.getSubCategory().getCategory().getLabel())
+                .subCategory(equipment.getSubCategory().getLabel())
                 .model(equipment.getModel())
                 .availableStock(availableStock)
                 .totalStock(totalStock)

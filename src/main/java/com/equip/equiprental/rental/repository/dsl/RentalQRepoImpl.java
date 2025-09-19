@@ -38,12 +38,12 @@ public class RentalQRepoImpl implements RentalQRepo{
             builder.and(r.member.name.containsIgnoreCase(paramDto.getMemberName()));
         }
 
-        if (paramDto.getCategoryEnum() != null) {
-            builder.and(r.equipment.category.eq(paramDto.getCategoryEnum()));
+        if (paramDto.getCategoryId() != null) {
+            builder.and(r.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
 
-        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
-            builder.and(r.equipment.subCategory.eq(paramDto.getSubCategory()));
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(r.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
         List<AdminRentalDto> content = queryFactory
@@ -58,8 +58,8 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.member.memberId,
                         r.member.name,
                         r.member.department,
-                        r.equipment.category.stringValue(),
-                        r.equipment.subCategory,
+                        r.equipment.subCategory.category.label,
+                        r.equipment.subCategory.label,
                         r.equipment.model
                 ))
                 .from(r)
@@ -88,12 +88,12 @@ public class RentalQRepoImpl implements RentalQRepo{
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(r.member.memberId.eq(memberId));
 
-        if (paramDto.getCategoryEnum() != null) {
-            builder.and(r.equipment.category.eq(paramDto.getCategoryEnum()));
+        if (paramDto.getCategoryId() != null) {
+            builder.and(r.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
 
-        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
-            builder.and(r.equipment.subCategory.eq(paramDto.getSubCategory()));
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(r.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
         if (paramDto.getRentalStatus() != null && !paramDto.getRentalStatus().isEmpty()) {
@@ -104,8 +104,8 @@ public class RentalQRepoImpl implements RentalQRepo{
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
                         r.equipment.model,
-                        r.equipment.category.stringValue(),
-                        r.equipment.subCategory,
+                        r.equipment.subCategory.category.label,
+                        r.equipment.subCategory.label,
                         f.filePath,
                         r.requestStartDate,
                         r.requestEndDate,

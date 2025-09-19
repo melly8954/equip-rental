@@ -21,11 +21,9 @@ public class Equipment extends BaseEntity {
     @Column(name="equipment_id")
     private Long equipmentId;
 
-    @Enumerated(EnumType.STRING)
-    private EquipmentCategory category;
-
-    @Column(name="sub_category")
-    private String subCategory;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="sub_category_id")
+    private SubCategory subCategory;
 
     private String model;
 

@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class EquipmentRegisterRequest {
-    private Long subCategoryId;
-    private String model;
-    private Integer stock;
+public class CategoryDto {
+    private Long categoryId;
+    private String categoryCode;
+    private String label;
 }
