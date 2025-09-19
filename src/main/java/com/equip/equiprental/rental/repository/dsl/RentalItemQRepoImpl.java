@@ -38,12 +38,12 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
             builder.and(i.rental.member.name.containsIgnoreCase(paramDto.getMemberName()));
         }
 
-        if (paramDto.getCategoryEnum() != null) {
-            builder.and(i.rental.equipment.category.eq(paramDto.getCategoryEnum()));
+        if (paramDto.getCategoryId() != null) {
+            builder.and(i.rental.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
 
-        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
-            builder.and(i.rental.equipment.subCategory.eq(paramDto.getSubCategory()));
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(i.rental.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
         List<AdminRentalItemDto> results = queryFactory
@@ -51,8 +51,8 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.rentalItemId,
                         i.rental.rentalId,
                         f.filePath,
-                        i.rental.equipment.category.stringValue(),
-                        i.rental.equipment.subCategory,
+                        i.rental.equipment.subCategory.category.label,
+                        i.rental.equipment.subCategory.label,
                         i.rental.equipment.model,
                         i.equipmentItem.serialNumber,
                         i.rental.member.name,
@@ -91,12 +91,12 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
 
         builder.and(i.rental.member.memberId.eq(memberId));
 
-        if (paramDto.getCategoryEnum() != null) {
-            builder.and(i.rental.equipment.category.eq(paramDto.getCategoryEnum()));
+        if (paramDto.getCategoryId() != null) {
+            builder.and(i.rental.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
 
-        if (paramDto.getSubCategory() != null && !paramDto.getSubCategory().isEmpty()) {
-            builder.and(i.rental.equipment.subCategory.eq(paramDto.getSubCategory()));
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(i.rental.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
         if (paramDto.getModel() != null && !paramDto.getModel().isEmpty()) {
@@ -108,8 +108,8 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.rentalItemId,
                         i.rental.rentalId,
                         f.filePath,
-                        i.rental.equipment.category.stringValue(),
-                        i.rental.equipment.subCategory,
+                        i.rental.equipment.subCategory.category.label,
+                        i.rental.equipment.subCategory.label,
                         i.rental.equipment.model,
                         i.equipmentItem.serialNumber,
                         i.startDate,
