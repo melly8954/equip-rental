@@ -25,7 +25,7 @@ public class DepartmentController implements ResponseController {
     @GetMapping("")
     public ResponseEntity<ResponseDto<List<DepartmentDto>>> getAll() {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[회원 가입 요청 API] TraceId={}", traceId);
+        log.info("모든 부서명 조회 요청 API] TraceId={}", traceId);
 
         List<DepartmentDto> result = departmentService.getDepartmentList();
         return makeResponseEntity(traceId, HttpStatus.OK, null, "모든 부서명 조회 성공", result);

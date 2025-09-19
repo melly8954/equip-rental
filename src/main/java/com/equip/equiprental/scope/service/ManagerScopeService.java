@@ -1,6 +1,5 @@
 package com.equip.equiprental.scope.service;
 
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.scope.repository.ManagerScopeRepository;
