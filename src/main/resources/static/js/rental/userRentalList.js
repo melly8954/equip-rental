@@ -1,152 +1,159 @@
-const filterConfig = {
-    category: {
-        label: "카테고리",
-        type: "radio",
-        options: [
-            "전체",
-            "OFFICE_SUPPLIES",
-            "ELECTRONICS",
-            "FURNITURE",
-            "TOOLS",
-            "SAFETY_EQUIPMENT"
-        ]
-    },
-    subCategory: {
-        label: "서브카테고리",
-        type: "radio",
-        options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
-    },
-    status: {
-        label: "신청 상태",
-        type: "radio",
-        options: ["전체", "PENDING", "APPROVED", "REJECTED"]
-    }
-};
+let filterConfig;
 
-const categoryLabelMap = {
-    "전체": "전체",
-    "OFFICE_SUPPLIES": "사무용품",
-    "ELECTRONICS": "전자기기",
-    "FURNITURE": "가구",
-    "TOOLS": "공구",
-    "SAFETY_EQUIPMENT": "안전장비"
-};
+$(document).ready(function() {
+    // 이름 검색(input)
+    $("#member-search").on("input", function() {
+        fetchRentalList(getFilterValues(filterConfig));
+    });
+});
 
-const subCategoryMap = {
-    OFFICE_SUPPLIES: [
-        "문서 파쇄기",
-        "라벨프린터",
-        "프로젝트 보드"
-    ],
-    ELECTRONICS: [
-        "노트북",
-        "태블릿",
-        "프로젝터",
-        "모니터",
-        "프린터",
-        "카메라/캠코더",
-        "오디오장비(스피커/마이크)",
-        "외장저장장치(SSD/HDD)"
-    ],
-    FURNITURE: [
-        "사무용 의자",
-        "책상/테이블",
-        "서랍장/캐비닛",
-        "이동식 파티션",
-        "화이트보드"
-    ],
-    TOOLS: [
-        "전동공구(드릴, 그라인더)",
-        "수공구(망치, 드라이버)",
-        "측정도구(레이저측정기, 콤파스)",
-        "납땜장비"
-    ],
-    SAFETY_EQUIPMENT: [
-        "안전모",
-        "안전화",
-        "보호안경/귀마개",
-        "방진마스크",
-        "소화기/응급키트"
-    ]
-};
-
-const statusLabelMap = {
-    "전체": "전체",
-    "PENDING": "대기 중",
-    "APPROVED": "대여 승인",
-    "REJECTED": "대여 거절"
-};
-
-// 페이지 조회
-let currentPage = 1;
 
 // 페이지 로드 또는 뒤로/앞으로가기 시
-window.addEventListener("pageshow", function(event) {
+window.addEventListener("pageshow", async function (event) {
     $("input[name='category']").prop("checked", false);
-    $("input[name='category'][value='전체']").prop("checked", true);
-
     $("input[name='subCategory']").prop("checked", false);
-    $("input[name='subCategory'][value='전체']").prop("checked", true);
-
     $("input[name='status']").prop("checked", false);
-    $("input[name='status'][value='전체']").prop("checked", true);
 
-    // 필터 렌더링
+    // 필터 구성 가져오기
+    const serverFilter = await fetchFilterConfig();
+    filterConfig = {
+        ...serverFilter,
+        status: {
+            label: "신청 상태",
+            type: "radio",
+            options: [
+                { id: "PENDING", label: "대기 중", default: true },
+                { id: "APPROVED", label: "대여 승인" },
+                { id: "REJECTED", label: "대여 거절" }
+            ]
+        }
+    };
+
     renderFilter("category-filters", { category: filterConfig.category }, onFilterChange);
-    renderFilter("sub-category-filters", { subCategory: filterConfig.subCategory }, onFilterChange);
-    renderFilter("status-filters", { status: filterConfig.status }, onFilterChange);
+    $("#sub-category-filters").hide();
 
-    // 초기 데이터 로딩
-    fetchRentalList();
+    renderFilter("status-filters", { status: filterConfig.status }, () => {
+        fetchRentalList(getFilterValues(filterConfig));
+    });
+
+    fetchRentalList(getFilterValues(filterConfig));
 });
 
-// 이름 검색(input)
-$("#member-search").on("input", function() {
-    currentPage = 1;
-    fetchRentalList();
-});
+// 필터 구성 가져오기
+async function fetchFilterConfig() {
+    try {
+        const categoryResp = await $.getJSON('/api/v1/categories');
+        const categories = categoryResp.data;
 
-// 필터 변경 시 동작
-function onFilterChange(values) {
-    // 현재 선택된 카테고리 값
-    const category = getFilterValues(filterConfig).category;
-
-    // 서브카테고리 갱신
-    updateSubCategoryOptions(category);
-
-    // 최신 filterConfig 값으로 fetch
-    const filters = getFilterValues(filterConfig);
-    fetchRentalList(filters);
+        return {
+            category: {
+                label: "카테고리",
+                type: "radio",
+                options: [
+                    { id: null, label: "전체", default: true }, // 전체 추가
+                    ...categories.map(c => ({ id: c.categoryId, label: c.label }))
+                ]
+            },
+            subCategory: {
+                label: "서브카테고리",
+                type: "radio",
+                options: []
+            }
+        };
+    } catch (e) {
+        console.error("필터 구성 불러오기 실패", e);
+        return null;
+    }
 }
 
+// 필터 렌더링
+function renderFilter(containerId, config, onChange) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    Object.entries(config).forEach(([key, value]) => {
+        if (!value.options || value.options.length === 0) {
+            container.hide();
+            return;
+        } else {
+            container.show();
+        }
+
+        const group = $("<div>").addClass("mb-3");
+
+        const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
+
+        value.options.forEach(opt => {
+            const inputId = key + "-" + (opt.id ?? opt.label);
+            const input = $("<input>")
+                .attr("type", value.type)
+                .addClass("btn-check")
+                .attr("name", key)
+                .attr("id", inputId)
+                .val(opt.id ?? "")
+                .prop("checked", opt.default === true)
+
+            const button = $("<label>")
+                .addClass("btn btn-outline-primary")
+                .attr("for", inputId)
+                .text(opt.label);
+
+            input.on("change", () => onChange(getFilterValues(filterConfig)));
+
+            btnGroup.append(input, button);
+        });
+
+        group.append(btnGroup);
+        container.append(group);
+    });
+}
+
+// 현재 필터 값 가져오기
+function getFilterValues(config) {
+    const values = {};
+    Object.keys(config).forEach(key => {
+        const selected = $(`input[name="${key}"]:checked`);
+        values[key] = selected.length ? selected.val() : "";
+    });
+    return values;
+}
+
+// 필터 변경 시 동작
+async function onFilterChange() {
+    const categoryId = getFilterValues(filterConfig).category;
+    await updateSubCategoryOptions(categoryId); // 서버 fetch 후 렌더링
+    fetchRentalList(getFilterValues(filterConfig));
+}
 
 // 서브카테고리 업데이트
-function updateSubCategoryOptions(parentCategory) {
-    const currentValues = getFilterValues(filterConfig); // 현재 체크된 값 저장
-    const options = ["전체"].concat(subCategoryMap[parentCategory] || []);
+async function updateSubCategoryOptions(categoryId) {
+    let options = [{id: null, label: "전체", default: true}];
+    if (categoryId) {
+        try {
+            const resp = await $.getJSON(`/api/v1/categories/${categoryId}/sub-categories`);
+            options = options.concat(resp.data.map(sc => ({id: sc.subCategoryId, label: sc.label})));
+        } catch (e) {
+            console.error("서브카테고리 불러오기 실패", e);
+        }
+    }
 
     filterConfig.subCategory.options = options;
 
     const container = $("#sub-category-filters");
     container.empty();
-    renderFilter("sub-category-filters", {
-        subCategory: {
-            type: "radio",
-            options: options
-        }
-    }, (values) => {
-        // category 필터도 함께 포함
+
+    if (options.length > 1) container.show();
+    else container.hide();
+
+    renderFilter("sub-category-filters", {subCategory: {type: "radio", options}}, (values) => {
+        // 카테고리 값 포함해서 fetch
         const combinedFilters = {
-            category: currentValues.category,
+            category: getFilterValues(filterConfig).category,
             subCategory: values.subCategory,
-            status: currentValues.status
+            status: getFilterValues(filterConfig).status
         };
         fetchRentalList(combinedFilters);
     });
-
-    // 렌더링 후 기존 선택값 복원
-    const prevSub = currentValues.subCategory || "";
-    $(`#sub-category-filters input[value="${prevSub}"]`).prop("checked", true);
 }
 
 
@@ -154,9 +161,9 @@ function updateSubCategoryOptions(parentCategory) {
 function fetchRentalList(filters={}) {
     const filterValues = filters || getFilterValues(filterConfig);
     const params = {
-        category: filters.category,
-        subCategory: filters.subCategory,
-        rentalStatus: filters.status,
+        categoryId: filterValues.category,
+        subCategoryId: filterValues.subCategory,
+        rentalStatus: filterValues.status,
     };
 
     // page가 있으면 추가
@@ -214,7 +221,7 @@ function renderRentalList(data) {
                                 <h6 class="card-title mb-1">
                                     <p class="mb-0 fw-bold">${r.model}</p>
                                     <p class="mb-0 text-muted">
-                                        ${categoryLabelMap[r.category]} / ${r.subCategory || '-'}
+                                        ${r.category} / ${r.subCategory}
                                     </p>
                                 </h6>
                                 <p class="card-text mb-1">
