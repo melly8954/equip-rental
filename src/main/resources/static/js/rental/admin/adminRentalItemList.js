@@ -181,9 +181,9 @@ function fetchRentalItemList(filters = {}) {
     const filterValues = filters || getFilterValues(filterConfig);
     const memberSearch = $("#member-search").val();
     const params = {
-        department: filters.department,
-        category: filters.category,
-        subCategory: filters.subCategory,
+        departmentId: filters.department,
+        categoryId: filters.category,
+        subCategoryId: filters.subCategory,
         memberName: memberSearch || filters.memberName || "",
     };
 
