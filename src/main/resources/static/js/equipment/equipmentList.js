@@ -200,7 +200,7 @@ function renderEquipmentList(list) {
                     <div class="card-body p-2 text-center">
                         <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
                         <p class="mb-1 text-muted small">${equip.category} / ${equip.subCategory || '-'}</p>
-                        <p class="mb-2">재고: <span class="fw-bold">${equip.availableStock}</span></p>
+                        <p class="mb-2">대여 가능: <span class="fw-bold">${equip.availableStock}</span></p>
                         <button class="btn btn-outline-primary btn-sm rental-btn" 
                                 data-id="${equip.equipmentId}">
                             <i class="bi bi-box-seam"></i> 대여 신청

@@ -216,7 +216,7 @@ function renderEquipmentList(list) {
                             ${equip.category} / ${equip.subCategory}
                         </p>
                         <p class="card-text mb-1 text-center">
-                            사용 가능: <span class="fw-bold">${equip.availableStock}</span> / 총 ${equip.totalStock}
+                            재고 현황: <span class="fw-bold">${equip.availableStock}</span> / ${equip.totalStock}
                         </p>
                     </div>
 
