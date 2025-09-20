@@ -3,11 +3,15 @@ package com.equip.equiprental.common.exception;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
@@ -87,6 +91,35 @@ public class GlobalExceptionHandler implements ResponseController {
 
         // 기타 HttpMessageNotReadableException 처리
         log.error("TraceId: {}, 메시지 바인딩 실패: {}", traceId, ex.getMessage());
+        ErrorType errorType = ErrorType.BAD_REQUEST;
+        return makeResponseEntity(
+                traceId,
+                errorType.getStatus(),
+                errorType.getErrorCode(),
+                errorType.getMessage(),
+                null
+        );
+    }
+
+    // Enum 요청 매핑 실패 시
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseDto<Void>> handleEnumMismatch(MethodArgumentNotValidException ex) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            if (fieldError.getCode().equals("typeMismatch")
+                    && RentalItemStatus.class.getSimpleName().equals(fieldError.getField())) {
+                ErrorType errorType = ErrorType.INVALID_ENUM_VALUE;
+                return makeResponseEntity(
+                        traceId,
+                        errorType.getStatus(),
+                        errorType.getErrorCode(),
+                        errorType.getMessage() + ": " + fieldError.getRejectedValue(),
+                        null
+                );
+            }
+        }
+
         ErrorType errorType = ErrorType.BAD_REQUEST;
         return makeResponseEntity(
                 traceId,
