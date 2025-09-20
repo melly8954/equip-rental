@@ -190,8 +190,6 @@ function fetchRentalList(filters = {}) {
     };
     if (filterValues.page) params.page = filterValues.page;
 
-    console.log("fetchRentalList params:", params); // 디버깅
-
     $.ajax({
         url: "/api/v1/rentals",
         method: "GET",
@@ -217,33 +215,56 @@ function renderRentalList(data) {
         return;
     }
 
+    // 행(row) 컨테이너 추가
+    const row = $('<div class="row row-cols-5 g-3"></div>');
+
     data.forEach(r => {
+        const thumbnail = r.thumbnailUrl
+            ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="${r.model}" style="width:100px; height:100px; object-fit:cover;">`
+            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded" 
+                   style="width:100px; height:100px;">No Image</div>`;
+
         const card = $(`
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">신청 ID: ${r.rentalId}</h5>
-                        <p class="card-text">
-                            장비 ID: ${r.equipmentId} <br>
-                            모델: ${r.model} <br>
-                            카테고리: ${r.category} / ${r.subCategory} <br>
-                            수량: ${r.quantity} <br>
-                            신청 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
-                            신청자: ${r.name} (${r.department}) <br>
-                            신청 사유: ${r.rentalReason} <br>
-                            신청일: ${r.createdAt}
-                        </p>
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-success btn-approve" data-rental-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">승인</button>
-                            <button class="btn btn-danger btn-reject" data-rental-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">거절</button>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2 text-center">
+                                    ${thumbnail}
+                                </div>
+                                <h6 class="card-title fw-bold">${r.model}</h6>
+                                <p class="card-subtitle text-muted small mb-2">
+                                    ${r.category} / ${r.subCategory}
+                                </p>
+                                <p class="card-text small flex-grow-1">
+                                    수량: ${r.quantity} <br>
+                                    기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
+                                    신청자: ${r.name} (${r.department}) <br>
+                                    사유: ${(r.rentalReason && r.rentalReason.length > 20)
+                                        ? r.rentalReason.substring(0, 20) + "..."
+                                        : (r.rentalReason || "-")}
+                                </p>
+                                <div class="d-flex gap-2 mt-auto">
+                                    <button class="btn btn-success btn-sm btn-approve" 
+                                        data-rental-id="${r.rentalId}" 
+                                        data-equipment-id="${r.equipmentId}">
+                                        승인
+                                    </button>
+                                    <button class="btn btn-danger btn-sm btn-reject" 
+                                        data-rental-id="${r.rentalId}" 
+                                        data-equipment-id="${r.equipmentId}">
+                                        거절
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `);
-        container.append(card);
+                `);
+        row.append(card);
     });
+
+    container.append(row);
 }
+
 
 // 승인 버튼
 $(document).on("click", ".btn-approve", function () {
