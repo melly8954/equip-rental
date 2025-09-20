@@ -2,7 +2,9 @@ package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.QCategory;
+import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QSubCategory;
+import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
@@ -104,24 +106,6 @@ public class RentalQRepoImpl implements RentalQRepo{
         QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
 
-        JPAQuery<UserRentalDto> query = queryFactory
-                .select(Projections.constructor(UserRentalDto.class,
-                        r.rentalId,
-                        r.equipment.model,
-                        c.label,
-                        sc.label,
-                        f.filePath,
-                        r.requestStartDate,
-                        r.requestEndDate,
-                        r.quantity,
-                        r.status.stringValue(),
-                        r.rejectReason
-                ))
-                .from(r)
-                .leftJoin(r.equipment.subCategory, sc)
-                .leftJoin(sc.category, c)
-                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)));
-
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(r.member.memberId.eq(memberId));
 
@@ -137,8 +121,23 @@ public class RentalQRepoImpl implements RentalQRepo{
             builder.and(r.status.eq(paramDto.getRentalStatusEnum()));
         }
 
-        // 결과 fetch
-        List<UserRentalDto> content = query
+        List<UserRentalDto> content = queryFactory
+                .select(Projections.constructor(UserRentalDto.class,
+                        r.rentalId,
+                        r.equipment.model,
+                        c.label,
+                        sc.label,
+                        f.filePath,
+                        r.requestStartDate,
+                        r.requestEndDate,
+                        r.quantity,
+                        r.status.stringValue(),
+                        r.rejectReason
+                ))
+                .from(r)
+                .leftJoin(r.equipment.subCategory, sc)
+                .leftJoin(sc.category, c)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
