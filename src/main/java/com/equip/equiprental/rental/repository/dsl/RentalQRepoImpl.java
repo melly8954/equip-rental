@@ -1,6 +1,8 @@
 package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.equipment.domain.QCategory;
+import com.equip.equiprental.equipment.domain.QSubCategory;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
@@ -8,6 +10,7 @@ import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,27 +29,11 @@ public class RentalQRepoImpl implements RentalQRepo{
     @Override
     public Page<AdminRentalDto> findAdminRentals(SearchParamDto paramDto, Pageable pageable) {
         QRental r = QRental.rental;
+        QSubCategory sc = QSubCategory.subCategory;
+        QCategory c = QCategory.category;
 
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(r.status.eq(RentalStatus.PENDING));
-
-        if (paramDto.getDepartment() != null && !paramDto.getDepartment().isEmpty()) {
-            builder.and(r.member.department.departmentName.eq(paramDto.getDepartment()));
-        }
-
-        if (paramDto.getMemberName() != null && !paramDto.getMemberName().isEmpty()) {
-            builder.and(r.member.name.containsIgnoreCase(paramDto.getMemberName()));
-        }
-
-        if (paramDto.getCategoryId() != null) {
-            builder.and(r.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
-        }
-
-        if (paramDto.getSubCategoryId() != null) {
-            builder.and(r.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
-        }
-
-        List<AdminRentalDto> content = queryFactory
+        // 기본 쿼리
+        JPAQuery<AdminRentalDto> query = queryFactory
                 .select(Projections.constructor(AdminRentalDto.class,
                         r.rentalId,
                         r.equipment.equipmentId,
@@ -57,12 +44,37 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.createdAt,
                         r.member.memberId,
                         r.member.name,
-                        r.member.department,
-                        r.equipment.subCategory.category.label,
-                        r.equipment.subCategory.label,
+                        r.member.department.departmentName,
+                        c.label,
+                        sc.label,
                         r.equipment.model
                 ))
                 .from(r)
+                .leftJoin(r.equipment.subCategory, sc)
+                .leftJoin(sc.category, c);
+
+        // 조건
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(r.status.eq(RentalStatus.PENDING));
+
+        if (paramDto.getDepartmentId() != null) {
+            builder.and(r.member.department.departmentId.eq(paramDto.getDepartmentId()));
+        }
+
+        if (paramDto.getMemberName() != null && !paramDto.getMemberName().isEmpty()) {
+            builder.and(r.member.name.containsIgnoreCase(paramDto.getMemberName()));
+        }
+
+        if (paramDto.getCategoryId() != null) {
+            builder.and(c.categoryId.eq(paramDto.getCategoryId()));
+        }
+
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
+        }
+
+        // 결과 fetch
+        List<AdminRentalDto> content = query
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -73,6 +85,8 @@ public class RentalQRepoImpl implements RentalQRepo{
         Long total = queryFactory
                 .select(r.count())
                 .from(r)
+                .leftJoin(r.equipment.subCategory, sc)
+                .leftJoin(sc.category, c)
                 .where(builder)
                 .fetchOne();
         total = (total != null) ? total : 0L;
