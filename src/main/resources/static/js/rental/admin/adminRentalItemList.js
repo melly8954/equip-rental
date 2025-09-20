@@ -228,10 +228,6 @@ function renderRentalItemList(data) {
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
 
-        const extendedBadge = r.isExtended
-            ? `<span class="badge bg-warning text-dark ms-1">연장</span>`
-            : '';
-
         const thumbnail = r.thumbnailUrl
             ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.model}" style="width:100px; height:100px; object-fit:cover;">`
             : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded-start" 
@@ -259,15 +255,14 @@ function renderRentalItemList(data) {
                                 </p>
                                 <p class="card-text mb-0 text-muted">
                                     대여기간: ${r.startDate} ~ ${r.endDate} 
-                                    ${r.actualReturnDate ? `(반납: ${r.actualReturnDate})` : ''}
-                                    ${overdueBadge} ${extendedBadge}
+                                    ${overdueBadge}
                                 </p>
                             </div>
                         </div>
-                        <div class="col-auto pe-2">
+                        <div class="col-auto pe-2 ps-2 text-center">
                             ${!r.actualReturnDate
                             ? `<button class="btn btn-sm btn-success return-btn" data-id="${r.rentalItemId}">반납처리</button>`
-                            : `<span class="text-success small">반납완료</span>`}
+                            : `<span class="text-success small">반납완료</span><br>${r.actualReturnDate ? `(반납: ${r.actualReturnDate})` : ''}`}
                         </div>
                     </div>
                 </div>
@@ -297,7 +292,8 @@ function handleReturn(rentalItemId, button) {
         method: "PATCH",
     }).done(() => {
         button.replaceWith(`<span class="text-success small">반납완료</span>`);
+        fetchRentalItemList(getFilterValues());
     }).fail(xhr => {
-        alert("반납 처리 실패: " + xhr.responseText);
+        handleServerError(xhr)
     });
 }
