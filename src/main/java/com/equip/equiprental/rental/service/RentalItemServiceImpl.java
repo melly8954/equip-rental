@@ -38,14 +38,6 @@ public class RentalItemServiceImpl implements RentalItemService{
 
         Page<AdminRentalItemDto> dtosPage = rentalItemRepository.findAdminRentalItems(paramDto, pageable);
 
-        // overdue 계산
-        dtosPage.getContent().forEach(dto -> {
-            boolean overdue = dto.getActualReturnDate() == null
-                    && dto.getEndDate() != null
-                    && dto.getEndDate().isBefore(LocalDate.now());
-            dto.setOverdue(overdue);
-        });
-
         return PageResponseDto.<AdminRentalItemDto>builder()
                 .content(dtosPage.getContent())
                 .page(dtosPage.getNumber() + 1)
