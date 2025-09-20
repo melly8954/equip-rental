@@ -203,18 +203,12 @@ function renderRentalList(data) {
     let row = $('<div class="row"></div>');
 
     data.forEach((r, index) => {
-        const thumbnail = r.thumbnailUrl
-            ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.equipmentName}" 
-                     style="width:120px; height:120px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded-start" 
-                   style="width:120px; height:120px;">No Image</div>`;
-
         const card = $(`
             <div class="col-md-6 mb-3">
                 <div class="card shadow-sm h-100">
                     <div class="row g-0 align-items-center">
                         <div class="col-auto">
-                            ${thumbnail}
+                            <img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
                         <div class="col">
                             <div class="card-body p-2">

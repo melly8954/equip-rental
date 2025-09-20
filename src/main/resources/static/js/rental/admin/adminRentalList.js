@@ -219,46 +219,41 @@ function renderRentalList(data) {
     const row = $('<div class="row row-cols-5 g-3"></div>');
 
     data.forEach(r => {
-        const thumbnail = r.thumbnailUrl
-            ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="${r.model}" style="width:100px; height:100px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded" 
-                   style="width:100px; height:100px;">No Image</div>`;
-
         const card = $(`
-                    <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body d-flex flex-column">
-                                <div class="mb-2 text-center">
-                                    ${thumbnail}
-                                </div>
-                                <h6 class="card-title fw-bold">${r.model}</h6>
-                                <p class="card-subtitle text-muted small mb-2">
-                                    ${r.category} / ${r.subCategory}
-                                </p>
-                                <p class="card-text small flex-grow-1">
-                                    수량: ${r.quantity} <br>
-                                    기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
-                                    신청자: ${r.name} (${r.department}) <br>
-                                    사유: ${(r.rentalReason && r.rentalReason.length > 20)
-                                        ? r.rentalReason.substring(0, 20) + "..."
-                                        : (r.rentalReason || "-")}
-                                </p>
-                                <div class="d-flex gap-2 mt-auto">
-                                    <button class="btn btn-success btn-sm btn-approve" 
-                                        data-rental-id="${r.rentalId}" 
-                                        data-equipment-id="${r.equipmentId}">
-                                        승인
-                                    </button>
-                                    <button class="btn btn-danger btn-sm btn-reject" 
-                                        data-rental-id="${r.rentalId}" 
-                                        data-equipment-id="${r.equipmentId}">
-                                        거절
-                                    </button>
-                                </div>
-                            </div>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2 text-center">
+                            <img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
+                        </div>
+                        <h6 class="card-title fw-bold">${r.model}</h6>
+                        <p class="card-subtitle text-muted small mb-2">
+                            ${r.category} / ${r.subCategory}
+                        </p>
+                        <p class="card-text small flex-grow-1">
+                            수량: ${r.quantity} <br>
+                            기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
+                            신청자: ${r.name} (${r.department}) <br>
+                            사유: ${(r.rentalReason && r.rentalReason.length > 20)
+                                ? r.rentalReason.substring(0, 20) + "..."
+                                : (r.rentalReason || "-")}
+                        </p>
+                        <div class="d-flex gap-2 mt-auto">
+                            <button class="btn btn-success btn-sm btn-approve" 
+                                data-rental-id="${r.rentalId}" 
+                                data-equipment-id="${r.equipmentId}">
+                                승인
+                            </button>
+                            <button class="btn btn-danger btn-sm btn-reject" 
+                                data-rental-id="${r.rentalId}" 
+                                data-equipment-id="${r.equipmentId}">
+                                거절
+                            </button>
                         </div>
                     </div>
-                `);
+                </div>
+            </div>
+        `);
         row.append(card);
     });
 
