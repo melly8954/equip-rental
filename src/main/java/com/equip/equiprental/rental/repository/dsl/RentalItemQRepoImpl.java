@@ -74,7 +74,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
                         i.startDate,
                         i.endDate,
                         i.actualReturnDate,
-                        Expressions.constant(false),
+                        i.status,
                         i.isExtended
                 ))
                 .from(i)
