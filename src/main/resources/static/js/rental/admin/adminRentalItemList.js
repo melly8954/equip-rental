@@ -224,7 +224,7 @@ function renderRentalItemList(data) {
     let row = $('<div class="row"></div>');
 
     data.forEach((r, index) => {
-        const overdueBadge = r.overdue
+        const overdueBadge = r.status === "OVERDUE"
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
 
