@@ -60,6 +60,10 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
             builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
+        if (paramDto.getRentalItemStatus() != null) {
+            builder.and(i.status.eq(paramDto.getRentalItemStatus()));
+        }
+
         List<AdminRentalItemDto> results = queryFactory
                 .select(Projections.constructor(AdminRentalItemDto.class,
                         i.rentalItemId,
