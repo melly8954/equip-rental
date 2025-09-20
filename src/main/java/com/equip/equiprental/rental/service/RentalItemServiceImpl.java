@@ -125,4 +125,10 @@ public class RentalItemServiceImpl implements RentalItemService{
 
         equipmentItemHistoryRepository.save(history);
     }
+
+    @Override
+    @Transactional
+    public int updateOverdueStatus() {
+        return rentalItemRepository.markOverdueRentalItems();
+    }
 }

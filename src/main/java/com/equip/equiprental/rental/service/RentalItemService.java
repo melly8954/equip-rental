@@ -13,4 +13,6 @@ public interface RentalItemService {
     void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto);
 
     void returnRentalItem(Long rentalItem, Long memberId);
+
+    int updateOverdueStatus();
 }
