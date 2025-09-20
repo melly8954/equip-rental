@@ -2,6 +2,7 @@ package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.QCategory;
+import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QSubCategory;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
@@ -100,29 +101,17 @@ public class RentalQRepoImpl implements RentalQRepo{
     @Override
     public Page<UserRentalDto> findUserRentals(SearchParamDto paramDto, Pageable pageable, Long memberId) {
         QRental r = QRental.rental;
+        QEquipment eq = QEquipment.equipment;
+        QSubCategory sc = QSubCategory.subCategory;
+        QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
 
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(r.member.memberId.eq(memberId));
-
-        if (paramDto.getCategoryId() != null) {
-            builder.and(r.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
-        }
-
-        if (paramDto.getSubCategoryId() != null) {
-            builder.and(r.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
-        }
-
-        if (paramDto.getRentalStatus() != null && !paramDto.getRentalStatus().isEmpty()) {
-            builder.and(r.status.eq(paramDto.getRentalStatusEnum()));
-        }
-
-        List<UserRentalDto> content = queryFactory
+        JPAQuery<UserRentalDto> query = queryFactory
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
-                        r.equipment.model,
-                        r.equipment.subCategory.category.label,
-                        r.equipment.subCategory.label,
+                        eq.model,
+                        c.label,
+                        sc.label,
                         f.filePath,
                         r.requestStartDate,
                         r.requestEndDate,
@@ -131,7 +120,28 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.rejectReason
                 ))
                 .from(r)
-                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)))
+                .leftJoin(r.equipment, eq)
+                .leftJoin(eq.subCategory, sc)
+                .leftJoin(sc.category, c)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)));
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(r.member.memberId.eq(memberId));
+
+        if (paramDto.getCategoryId() != null) {
+            builder.and(c.categoryId.eq(paramDto.getCategoryId()));
+        }
+
+        if (paramDto.getSubCategoryId() != null) {
+            builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
+        }
+
+        if (paramDto.getRentalStatus() != null && !paramDto.getRentalStatus().isEmpty()) {
+            builder.and(r.status.eq(paramDto.getRentalStatusEnum()));
+        }
+
+        // 결과 fetch
+        List<UserRentalDto> content = query
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -142,6 +152,9 @@ public class RentalQRepoImpl implements RentalQRepo{
         Long total = queryFactory
                 .select(r.count())
                 .from(r)
+                .leftJoin(r.equipment, eq)
+                .leftJoin(eq.subCategory, sc)
+                .leftJoin(sc.category, c)
                 .where(builder)
                 .fetchOne();
         total = (total != null) ? total : 0L;
