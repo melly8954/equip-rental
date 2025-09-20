@@ -30,8 +30,8 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (paramDto.getDepartment() != null && !paramDto.getDepartment().isEmpty()) {
-            builder.and(i.rental.member.department.departmentName.eq(paramDto.getDepartment()));
+        if (paramDto.getDepartmentId() != null ) {
+            builder.and(i.rental.member.department.departmentId.eq(paramDto.getDepartmentId()));
         }
 
         if (paramDto.getMemberName() != null && !paramDto.getMemberName().isEmpty()) {
