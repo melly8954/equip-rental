@@ -5,6 +5,7 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import lombok.*;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,7 @@ public class SearchParamDto {
 
     private String equipmentStatus;
     private String rentalStatus;
+    private RentalItemStatus rentalItemStatus;
 
     private String memberName;
     private Long departmentId;
