@@ -184,6 +184,7 @@ function fetchEquipment(filters={}) {
 }
 
 // 장비 리스트 렌더링
+// 장비 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
     container.empty();
@@ -193,50 +194,38 @@ function renderEquipmentList(list) {
         return;
     }
 
-    // row를 만들어 col을 담는 구조
-    let row = $('<div class="row"></div>');
+    // 행(row) 컨테이너 (5열 카드 구조)
+    let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
 
     list.forEach((equip, index) => {
         const card = $(`
-            <div class="col-md-6 mb-3">
-                <div class="card shadow-sm h-100">
-                    <div class="row g-0 align-items-center">
-                        <!-- 이미지 영역 -->
-                        <div class="col-auto">
-                            <img src="${equip.imageUrl}" 
-                                 alt="대표 이미지"
-                                 style="width:120px; height:120px; object-fit:contain;"
-                                 class="rounded-start bg-light p-1">
-                        </div>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <!-- 이미지 -->
+                    <div class="text-center mt-3">
+                        <img src="${equip.imageUrl}" 
+                             alt="대표 이미지"
+                             style="width:100px; height:100px; object-fit:contain;"
+                             class="rounded bg-light p-1">
+                    </div>
 
-                        <!-- 텍스트 영역 -->
-                        <div class="col">
-                            <div class="card-body p-2">
-                                <h6 class="card-title mb-1">
-                                    <p class="mb-0 fw-bold">${equip.model}</p>
-                                    <p class="mb-0 text-muted">
-                                        ${equip.category} / ${equip.subCategory}
-                                    </p>
-                                </h6>
-                                <p class="card-text mb-1">사용 가능 재고: ${equip.availableStock}</p>
-                                <p class="card-text mb-0">
-                                    총 재고: ${equip.totalStock}
-                                    <span class="text-success stock-increase-btn ms-2" 
-                                          style="cursor:pointer;" 
-                                          data-id="${equip.equipmentId}">
-                                        [➕ 재고 추가]
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
+                    <!-- 본문 -->
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1 text-center fw-bold">${equip.model}</h6>
+                        <p class="card-text small text-muted text-center mb-2">
+                            ${equip.category} / ${equip.subCategory}
+                        </p>
+                        <p class="card-text mb-1 text-center">
+                            사용 가능: <span class="fw-bold">${equip.availableStock}</span> / 총 ${equip.totalStock}
+                        </p>
+                    </div>
 
-                        <!-- 버튼 영역 -->
-                        <div class="col-auto pe-2">
-                            <button class="btn btn-outline-primary btn-sm item-list-btn" 
-                                    data-id="${equip.equipmentId}">
-                                <i class="bi bi-box-seam"></i> Item List
-                            </button>
-                        </div>
+                    <!-- 버튼 -->
+                    <div class="card-footer bg-white border-0 text-center pb-3">
+                        <button class="btn btn-outline-success btn-sm stock-increase-btn" 
+                                data-id="${equip.equipmentId}">
+                            ➕ 재고 추가
+                        </button>
                     </div>
                 </div>
             </div>
@@ -244,10 +233,10 @@ function renderEquipmentList(list) {
 
         row.append(card);
 
-        // 2개마다 container에 row 추가하고 새로운 row 시작
-        if ((index + 1) % 2 === 0 || index === list.length - 1) {
+        // 10개(=2행×5열)마다 끊어서 container에 붙임
+        if ((index + 1) % 10 === 0 || index === list.length - 1) {
             container.append(row);
-            row = $('<div class="row"></div>');
+            row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
         }
     });
 }
