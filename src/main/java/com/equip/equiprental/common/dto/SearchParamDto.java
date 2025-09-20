@@ -32,7 +32,7 @@ public class SearchParamDto {
     private String rentalStatus;
 
     private String memberName;
-    private String department;
+    private Long departmentId;
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
