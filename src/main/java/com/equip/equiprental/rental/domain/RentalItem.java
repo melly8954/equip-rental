@@ -38,6 +38,9 @@ public class RentalItem extends BaseEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
+    private RentalItemStatus status;
+
     @Column(name = "actual_return_date")
     private LocalDate actualReturnDate;
 

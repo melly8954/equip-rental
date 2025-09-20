@@ -15,6 +15,7 @@ import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItem;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
@@ -171,6 +172,7 @@ public class RentalServiceImpl implements RentalService{
                         .equipmentItem(item)
                         .startDate(rental.getRequestStartDate())
                         .endDate(rental.getRequestEndDate())
+                        .status(RentalItemStatus.RENTED)
                         .actualReturnDate(null)
                         .isExtended(false)
                         .build())
