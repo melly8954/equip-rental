@@ -184,7 +184,6 @@ function fetchEquipment(filters={}) {
 }
 
 // 장비 리스트 렌더링
-// 장비 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
     container.empty();
@@ -198,19 +197,19 @@ function renderEquipmentList(list) {
     let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
 
     list.forEach((equip, index) => {
+        const thumbnail = equip.imageUrl
+            ? `<img src="${equip.imageUrl}" class="img-fluid rounded" alt="${equip.model}" 
+            style="width:100px; height:100px; object-fit:cover;">`
+            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded" 
+           style="width:100px; height:100px;">No Image</div>`;
+
         const card = $(`
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <!-- 이미지 -->
-                    <div class="text-center mt-3">
-                        <img src="${equip.imageUrl}" 
-                             alt="대표 이미지"
-                             style="width:100px; height:100px; object-fit:contain;"
-                             class="rounded bg-light p-1">
-                    </div>
-
-                    <!-- 본문 -->
                     <div class="card-body p-2">
+                        <div class="mb-2 text-center">
+                            ${thumbnail}
+                        </div>
                         <h6 class="card-title mb-1 text-center fw-bold">${equip.model}</h6>
                         <p class="card-text small text-muted text-center mb-2">
                             ${equip.category} / ${equip.subCategory}
@@ -226,6 +225,12 @@ function renderEquipmentList(list) {
                                 data-id="${equip.equipmentId}">
                             ➕ 재고 추가
                         </button>
+                    </div>
+                    <div class="card-footer p-0 border-0">
+                        <div class="item-list-btn w-100 text-center py-2 bg-light" 
+                             data-id="${equip.equipmentId}">
+                            재고 목록
+                        </div>
                     </div>
                 </div>
             </div>
