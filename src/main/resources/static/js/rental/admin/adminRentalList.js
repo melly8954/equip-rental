@@ -1,188 +1,213 @@
-const filterConfig = {
-    department: {label: "부서", type: "radio", options: ["전체", "QA팀", "UI/UX팀", "개발팀", "인사팀", "인프라팀"]},
-    category: {
-        label: "카테고리",
-        type: "radio",
-        options: [
-            "전체",
-            "OFFICE_SUPPLIES",
-            "ELECTRONICS",
-            "FURNITURE",
-            "TOOLS",
-            "SAFETY_EQUIPMENT"
-        ]
-    },
-    subCategory: {
-        label: "서브카테고리",
-        type: "radio",
-        options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
-    }
-};
-
-const categoryLabelMap = {
-    "전체": "전체",
-    "OFFICE_SUPPLIES": "사무용품",
-    "ELECTRONICS": "전자기기",
-    "FURNITURE": "가구",
-    "TOOLS": "공구",
-    "SAFETY_EQUIPMENT": "안전장비"
-};
-
-const subCategoryMap = {
-    OFFICE_SUPPLIES: [
-        "문서 파쇄기",
-        "라벨프린터",
-        "프로젝트 보드"
-    ],
-    ELECTRONICS: [
-        "노트북",
-        "태블릿",
-        "프로젝터",
-        "모니터",
-        "프린터",
-        "카메라/캠코더",
-        "오디오장비(스피커/마이크)",
-        "외장저장장치(SSD/HDD)"
-    ],
-    FURNITURE: [
-        "사무용 의자",
-        "책상/테이블",
-        "서랍장/캐비닛",
-        "이동식 파티션",
-        "화이트보드"
-    ],
-    TOOLS: [
-        "전동공구(드릴, 그라인더)",
-        "수공구(망치, 드라이버)",
-        "측정도구(레이저측정기, 콤파스)",
-        "납땜장비"
-    ],
-    SAFETY_EQUIPMENT: [
-        "안전모",
-        "안전화",
-        "보호안경/귀마개",
-        "방진마스크",
-        "소화기/응급키트"
-    ]
-};
-
 // 페이지 조회
-let currentPage = 1;
-const pageSize = 6;
 let selectedRentalId = null;
 let selectedEquipmentId = null;
+let filterConfig = {}; // 전역 필터 객체
+
+$(document).ready(function() {
+    // 검색 이벤트
+    $("#member-search").on("input", function() {
+        fetchRentalList(getFilterValues());
+    });
+});
 
 // 페이지 로드 또는 뒤로/앞으로가기 시
-window.addEventListener("pageshow", function (event) {
-    // 필터 초기화
-    $("input[name='department']").prop("checked", false);
-    $("input[name='department'][value='전체']").prop("checked", true);
-
+window.addEventListener("pageshow", async function () {
+    // 초기화
     $("input[name='category']").prop("checked", false);
-    $("input[name='category'][value='전체']").prop("checked", true);
-
     $("input[name='subCategory']").prop("checked", false);
-    $("input[name='subCategory'][value='전체']").prop("checked", true);
-
-    // 이름 검색 초기화
     $("#member-search").val("");
+    $("#department").val("");
 
-    // 필터 렌더링
-    renderFilter("filter-container", filterConfig, onFilterChange);
+    // 필터 구성 가져오기
+    filterConfig = await fetchFilterConfig();
+    if (filterConfig) {
+        renderFilter("category-filters", { category: filterConfig.category }, onFilterChange);
+        $("#sub-category-filters").hide();
+    }
 
-    // 초기 데이터 로딩
+    // 부서 필터 가져오기
+    await fetchDepartments();
+
     fetchRentalList();
 });
 
-// 이름 검색(input)
-$("#member-search").on("input", function () {
-    currentPage = 1;
-    fetchRentalList();
-});
+// 필터 구성 가져오기 (카테고리 + 서브카테고리)
+async function fetchFilterConfig() {
+    try {
+        const resp = await $.getJSON('/api/v1/categories');
+        const categories = resp.data;
 
-// 필터 변경 시 동작
-function onFilterChange(values) {
-    // 현재 선택된 카테고리 값
-    const category = getFilterValues(filterConfig).category;
-
-    // 서브카테고리 갱신
-    updateSubCategoryOptions(category);
-
-    // 최신 filterConfig 값으로 fetch
-    const filters = getFilterValues(filterConfig);
-    fetchRentalList(filters);
+        return {
+            category: {
+                label: "카테고리",
+                type: "radio",
+                options: [{ id: null, label: "전체" }, ...categories.map(c => ({ id: c.categoryId, label: c.label }))]
+            },
+            subCategory: {
+                label: "서브카테고리",
+                type: "radio",
+                options: []
+            }
+        };
+    } catch (e) {
+        console.error("필터 구성 불러오기 실패", e);
+        return { category: { options: [] }, subCategory: { options: [] } };
+    }
 }
 
+// 부서 필터 렌더링
+async function fetchDepartments() {
+    try {
+        const response = await $.ajax({
+            url: "/api/v1/departments",
+            method: "GET",
+            contentType: "application/json"
+        });
+
+        const select = $("#department");
+        select.empty();
+        select.append(`<option value="">전체</option>`); // 전체 옵션
+        response.data.forEach(d => select.append(`<option value="${d.departmentId}">${d.departmentName}</option>`));
+
+        // 변경 시 필터 적용
+        select.off("change").on("change", () => fetchRentalList(getFilterValues()));
+    } catch (e) {
+        console.error("부서 데이터 불러오기 실패", e);
+    }
+}
+
+// 필터 렌더링 (카테고리, 서브카테고리)
+function renderFilter(containerId, config, onChange) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    Object.entries(config).forEach(([key, value]) => {
+        if (!value.options || value.options.length === 0) {
+            container.hide();
+            return;
+        } else {
+            container.show();
+        }
+
+        const group = $("<div>").addClass("mb-3");
+        const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
+
+        value.options.forEach(opt => {
+            const inputId = key + "-" + (opt.id ?? opt.label);
+            const input = $("<input>")
+                .attr("type", value.type)
+                .addClass("btn-check")
+                .attr("name", key)
+                .attr("id", inputId)
+                .val(opt.id ?? "")
+                .prop("checked", opt.id === null); // 전체 체크
+
+            const button = $("<label>")
+                .addClass("btn btn-outline-primary")
+                .attr("for", inputId)
+                .text(opt.label);
+
+            input.off("change").on("change", () => onChange(getFilterValues()));
+
+            btnGroup.append(input, button);
+        });
+
+        group.append(btnGroup);
+        container.append(group);
+    });
+}
+
+// 필터 값 가져오기
+function getFilterValues() {
+    const values = {};
+
+    // 카테고리 / 서브카테고리 (radio 버튼)
+    Object.keys(filterConfig).forEach(key => {
+        const selected = $(`input[name="${key}"]:checked`);
+        let val = "";
+        if (selected.length) {
+            val = selected.val();
+            // null 체크 후 숫자로 변환
+            val = val !== "" ? Number(val) : null;
+        }
+        values[key] = val;
+    });
+
+    // 부서 select
+    const deptVal = $("#department").val();
+    values.department = deptVal ? Number(deptVal) : null;
+
+    // 검색어
+    values.memberName = $("#member-search").val() || "";
+
+    return values;
+}
+
+// 필터 변경 시
+async function onFilterChange() {
+    const categoryId = getFilterValues().category;
+    await updateSubCategoryOptions(categoryId);
+    fetchRentalList(getFilterValues());
+}
 
 // 서브카테고리 업데이트
-function updateSubCategoryOptions(parentCategory) {
-    const currentValues = getFilterValues(filterConfig);
-    const options = subCategoryMap[parentCategory] || [];
+async function updateSubCategoryOptions(parentCategoryId) {
+    let options = [];
+    if (parentCategoryId) {
+        try {
+            const resp = await $.getJSON(`/api/v1/categories/${parentCategoryId}/sub-categories`);
+            options = resp.data.map(sc => ({ id: sc.subCategoryId, label: sc.label }));
+            options.unshift({ id: null, label: "전체" });
+        } catch (e) {
+            console.error("서브카테고리 불러오기 실패", e);
+        }
+    }
 
     filterConfig.subCategory.options = options;
 
-    const container = $("#sub-category-filters");
-    container.empty();
-    renderFilter("sub-category-filters", {
-        subCategory: {
-            type: "radio",
-            options: options
-        }
-    }, (values) => {
-        // category 필터도 함께 포함
-        const combinedFilters = {
-            department: currentValues.department,
-            category: currentValues.category,
-            subCategory: values.subCategory
-        };
-        fetchRentalList(combinedFilters);
-    });
-    // 기존 선택값 유지
-    if (currentValues.subCategory && options.includes(currentValues.subCategory)) {
-        $(`#sub-category-filters input[value="${currentValues.subCategory}"]`).prop("checked", true);
+    if (options.length > 1) {
+        $("#sub-category-filters").show();
     } else {
-        $(`#sub-category-filters input[value="전체"]`).prop("checked", true);
+        $("#sub-category-filters").hide();
     }
+
+    renderFilter("sub-category-filters", { subCategory: { type: "radio", options } }, () => {
+        fetchRentalList(getFilterValues());
+    });
+
+    // 기본 체크 처리
+    $(`#sub-category-filters input[value=""]`).prop("checked", true);
 }
 
-
-// 대여 신청내역 조회 AJAX
+// 대여 신청내역 조회
 function fetchRentalList(filters = {}) {
-    const filterValues = filters || getFilterValues(filterConfig);
-    const memberSearch = $("#member-search").val();
+    const filterValues = filters || getFilterValues();
     const params = {
-        department: filters.department,
-        category: filters.category,
-        subCategory: filters.subCategory,
-        memberName: memberSearch || filters.memberName || "",
-        size: pageSize
+        departmentId: filterValues.department || null,
+        categoryId: filterValues.category || null,
+        subCategoryId: filterValues.subCategory || null,
+        memberName: filterValues.memberName
     };
+    if (filterValues.page) params.page = filterValues.page;
 
-    // page가 있으면 추가
-    if (filterValues.page) {
-        params.page = filterValues.page;
-    }
+    console.log("fetchRentalList params:", params); // 디버깅
 
     $.ajax({
         url: "/api/v1/rentals",
         method: "GET",
-        data: params,
-    }).done(function (response) {
-        renderRentalList(response.data.content);
-        renderPagination("pagination-container", {
-            page: response.data.page,
-            totalPages: response.data.totalPages,
-            first: response.data.first,
-            last: response.data.last
-        }, (newPage) => {
-            fetchRentalList({...filterValues, page: newPage});
-        });
-    }).fail(function (xhr) {
-        handleServerError(xhr)
-    })
+        data: params
+    }).done(resp => {
+        renderRentalList(resp.data.content);
+        renderPagination("pagination", {
+            page: resp.data.page,
+            totalPages: resp.data.totalPages,
+            first: resp.data.first,
+            last: resp.data.last
+        }, newPage => fetchRentalList({ ...filterValues, page: newPage }));
+    }).fail(xhr => handleServerError(xhr));
 }
 
-// div 리스트 렌더링
+// 리스트 렌더링
 function renderRentalList(data) {
     const container = $("#rental-list");
     container.empty();
@@ -201,7 +226,7 @@ function renderRentalList(data) {
                         <p class="card-text">
                             장비 ID: ${r.equipmentId} <br>
                             모델: ${r.model} <br>
-                            카테고리: ${categoryLabelMap[r.category]} / ${r.subCategory} <br>
+                            카테고리: ${r.category} / ${r.subCategory} <br>
                             수량: ${r.quantity} <br>
                             신청 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
                             신청자: ${r.name} (${r.department}) <br>
@@ -229,21 +254,14 @@ $(document).on("click", ".btn-approve", function () {
         url: `/api/v1/rentals/${rentalId}`,
         method: "PATCH",
         contentType: "application/json",
-        data: JSON.stringify({
-            equipmentId: equipmentId,
-            newStatus: "APPROVED"
-        })
-    }).done(function (response) {
-        alert(response.message);
-        const filterValues = getFilterValues(filterConfig);
-        fetchRentalList(filterValues);
-    }).fail(xhr => {
-        handleServerError(xhr);
-    });
+        data: JSON.stringify({ equipmentId, newStatus: "APPROVED" })
+    }).done(resp => {
+        alert(resp.message);
+        fetchRentalList(getFilterValues());
+    }).fail(xhr => handleServerError(xhr));
 });
 
-
-// 거절 버튼 → 모달 열기
+// 거절 버튼
 $(document).on("click", ".btn-reject", function () {
     selectedRentalId = $(this).data("rental-id");
     selectedEquipmentId = $(this).data("equipment-id");
@@ -252,37 +270,27 @@ $(document).on("click", ".btn-reject", function () {
     modal.show();
 });
 
-// 모달 내 "거절 확정" 버튼
+// 거절 확정
 $("#confirm-reject").on("click", function () {
     const reasonSelect = $("#reject-reason").val();
     const reasonText = $("#reject-reason-text").val();
     const rejectReason = reasonSelect === "기타" ? reasonText : reasonSelect;
 
-    if (!rejectReason) {
-        alert("거절 사유를 입력해주세요.");
-        return;
-    }
+    if (!rejectReason) return alert("거절 사유를 입력해주세요.");
 
     $.ajax({
         url: `/api/v1/rentals/${selectedRentalId}`,
         method: "PATCH",
         contentType: "application/json",
-        data: JSON.stringify({
-            equipmentId: selectedEquipmentId,
-            newStatus: "REJECTED",
-            rejectReason: rejectReason
-        })
-    }).done(function (response) {
-        alert(response.message);
-        const filterValues = getFilterValues(filterConfig);
-        fetchRentalList(filterValues);
+        data: JSON.stringify({ equipmentId: selectedEquipmentId, newStatus: "REJECTED", rejectReason })
+    }).done(resp => {
+        alert(resp.message);
+        fetchRentalList(getFilterValues());
 
         const modal = bootstrap.Modal.getInstance(document.getElementById("rejectReasonModal"));
         modal.hide();
 
         $("#reject-reason").val("");
         $("#reject-reason-text").val("");
-    }).fail(xhr => {
-        handleServerError(xhr);
-    });
+    }).fail(xhr => handleServerError(xhr));
 });
