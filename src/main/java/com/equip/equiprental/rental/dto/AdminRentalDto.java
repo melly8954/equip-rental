@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class AdminRentalDto {
     private Long rentalId;
     private Long equipmentId;
+    private String thumbnailUrl;
     private int quantity;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate requestStartDate;

@@ -31,12 +31,14 @@ public class RentalQRepoImpl implements RentalQRepo{
         QRental r = QRental.rental;
         QSubCategory sc = QSubCategory.subCategory;
         QCategory c = QCategory.category;
+        QFileMeta f = QFileMeta.fileMeta;
 
         // 기본 쿼리
         JPAQuery<AdminRentalDto> query = queryFactory
                 .select(Projections.constructor(AdminRentalDto.class,
                         r.rentalId,
                         r.equipment.equipmentId,
+                        f.filePath,
                         r.quantity,
                         r.requestStartDate,
                         r.requestEndDate,
@@ -51,7 +53,8 @@ public class RentalQRepoImpl implements RentalQRepo{
                 ))
                 .from(r)
                 .leftJoin(r.equipment.subCategory, sc)
-                .leftJoin(sc.category, c);
+                .leftJoin(sc.category, c)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)));
 
         // 조건
         BooleanBuilder builder = new BooleanBuilder();
