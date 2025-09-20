@@ -29,6 +29,7 @@ public enum ErrorType {
     INVALID_STATUS_REQUEST("invalid_status_request", "잘못된 상태 요청입니다.", HttpStatus.BAD_REQUEST),
     INVALID_ROLE_REQUEST("invalid_role_request", "잘못된 역할 요청입니다.", HttpStatus.BAD_REQUEST),
     INVALID_CATEGORY_REQUEST("invalid_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ENUM_VALUE("invalid_enum_value", "잘못된 Enum 매핑 요청입니다.", HttpStatus.BAD_REQUEST),
 
     // 장비 등록 에러
     INVALID_EQUIP_CATEGORY_REQUEST("invalid_equipment_category_request", "잘못된 카테고리 요청입니다.", HttpStatus.BAD_REQUEST),
