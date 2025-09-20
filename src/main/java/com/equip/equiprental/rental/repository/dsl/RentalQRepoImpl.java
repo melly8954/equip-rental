@@ -2,7 +2,6 @@ package com.equip.equiprental.rental.repository.dsl;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.QCategory;
-import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QSubCategory;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.rental.domain.QRental;
@@ -101,7 +100,6 @@ public class RentalQRepoImpl implements RentalQRepo{
     @Override
     public Page<UserRentalDto> findUserRentals(SearchParamDto paramDto, Pageable pageable, Long memberId) {
         QRental r = QRental.rental;
-        QEquipment eq = QEquipment.equipment;
         QSubCategory sc = QSubCategory.subCategory;
         QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
@@ -109,7 +107,7 @@ public class RentalQRepoImpl implements RentalQRepo{
         JPAQuery<UserRentalDto> query = queryFactory
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
-                        eq.model,
+                        r.equipment.model,
                         c.label,
                         sc.label,
                         f.filePath,
@@ -120,8 +118,7 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.rejectReason
                 ))
                 .from(r)
-                .leftJoin(r.equipment, eq)
-                .leftJoin(eq.subCategory, sc)
+                .leftJoin(r.equipment.subCategory, sc)
                 .leftJoin(sc.category, c)
                 .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)));
 
@@ -152,8 +149,7 @@ public class RentalQRepoImpl implements RentalQRepo{
         Long total = queryFactory
                 .select(r.count())
                 .from(r)
-                .leftJoin(r.equipment, eq)
-                .leftJoin(eq.subCategory, sc)
+                .leftJoin(r.equipment.subCategory, sc)
                 .leftJoin(sc.category, c)
                 .where(builder)
                 .fetchOne();
