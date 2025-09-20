@@ -197,18 +197,12 @@ function renderEquipmentList(list) {
     let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
 
     list.forEach((equip, index) => {
-        const thumbnail = equip.imageUrl
-            ? `<img src="${equip.imageUrl}" class="img-fluid rounded" alt="${equip.model}" 
-            style="width:100px; height:100px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded" 
-           style="width:100px; height:100px;">No Image</div>`;
-
         const card = $(`
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body p-2">
                         <div class="mb-2 text-center">
-                            ${thumbnail}
+                            <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
                         <h6 class="card-title mb-1 text-center fw-bold">${equip.model}</h6>
                         <p class="card-text small text-muted text-center mb-2">

@@ -185,26 +185,22 @@ function renderEquipmentList(list) {
     let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
 
     list.forEach((equip, index) => {
-        const thumbnail = equip.imageUrl
-            ? `<img src="${equip.imageUrl}" class="img-fluid rounded" alt="${equip.model}" 
-            style="width:100px; height:100px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded" 
-           style="width:100px; height:100px;">No Image</div>`;
-
         const card = $(`
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body p-2 text-center">
                         <div class="mb-2 text-center">
-                            ${thumbnail}
+                            <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
                         <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
                         <p class="mb-1 text-muted small">${equip.category} / ${equip.subCategory || '-'}</p>
                         <p class="mb-2">대여 가능: <span class="fw-bold">${equip.availableStock}</span></p>
-                        <button class="btn btn-outline-primary btn-sm rental-btn" 
-                                data-id="${equip.equipmentId}">
-                            <i class="bi bi-box-seam"></i> 대여 신청
-                        </button>
+                        
+                        <div class="card-footer p-0 border-0">
+                            <div class="rental-btn w-100 text-center py-2 bg-light"  data-id="${equip.equipmentId}">
+                                <i class="bi bi-box-seam"></i> 대여 신청
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
