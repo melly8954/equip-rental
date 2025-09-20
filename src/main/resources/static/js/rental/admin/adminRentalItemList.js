@@ -1,5 +1,11 @@
 let filterConfig = {}; // 전역 필터 객체
 
+const rentalItemStatusOptions = [
+    { id: "RENTED", label: "대여중" , default: true },
+    { id: "OVERDUE", label: "연체" },
+    { id: "RETURNED", label: "반납완료" }
+];
+
 $(document).ready(function() {
     // 이름 검색(input)
     $("#member-search").on("input", function() {
@@ -24,8 +30,10 @@ window.addEventListener("pageshow", async function (event) {
         $("#sub-category-filters").hide();
     }
 
+    renderRentalItemStatusFilters();
+
     // 초기 데이터 로딩
-    fetchRentalItemList();
+    fetchRentalItemList(getFilterValues());
 });
 
 // 필터 구성 가져오기 (카테고리 + 서브카테고리)
@@ -38,7 +46,7 @@ async function fetchFilterConfig() {
             category: {
                 label: "카테고리",
                 type: "radio",
-                options: [{ id: null, label: "전체" }, ...categories.map(c => ({ id: c.categoryId, label: c.label }))]
+                options: [{ id: null, label: "전체", default: true }, ...categories.map(c => ({ id: c.categoryId, label: c.label }))]
             },
             subCategory: {
                 label: "서브카테고리",
@@ -97,7 +105,7 @@ function renderFilter(containerId, config, onChange) {
                 .attr("name", key)
                 .attr("id", inputId)
                 .val(opt.id ?? "")
-                .prop("checked", opt.id === null); // 전체 체크
+                .prop("checked", opt.default === true); // 전체 체크
 
             const button = $("<label>")
                 .addClass("btn btn-outline-primary")
@@ -112,6 +120,35 @@ function renderFilter(containerId, config, onChange) {
         group.append(btnGroup);
         container.append(group);
     });
+}
+
+function renderRentalItemStatusFilters() {
+    const container = $("#rental-item-status-filters");
+    container.empty();
+
+    const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
+
+    rentalItemStatusOptions.forEach(opt => {
+        const inputId = "status-" + (opt.id ?? "all");
+        const input = $("<input>")
+            .attr("type", "radio")
+            .addClass("btn-check")
+            .attr("name", "status")
+            .attr("id", inputId)
+            .val(opt.id ?? "")
+            .prop("checked", opt.default === true); // 전체 기본 선택
+
+        const button = $("<label>")
+            .addClass("btn btn-outline-primary")
+            .attr("for", inputId)
+            .text(opt.label);
+
+        input.off("change").on("change", () => fetchRentalItemList(getFilterValues()));
+
+        btnGroup.append(input, button);
+    });
+
+    container.append(btnGroup);
 }
 
 // 필터 값 가져오기
@@ -137,6 +174,10 @@ function getFilterValues() {
     // 검색어
     values.memberName = $("#member-search").val() || "";
 
+    // RentalItemStatus
+    const statusVal = $("input[name='status']:checked").val();
+    values.status = statusVal || null;
+
     return values;
 }
 
@@ -154,7 +195,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
         try {
             const resp = await $.getJSON(`/api/v1/categories/${parentCategoryId}/sub-categories`);
             options = resp.data.map(sc => ({ id: sc.subCategoryId, label: sc.label }));
-            options.unshift({ id: null, label: "전체" });
+            options.unshift({ id: null, label: "전체", default: true });
         } catch (e) {
             console.error("서브카테고리 불러오기 실패", e);
         }
@@ -185,6 +226,7 @@ function fetchRentalItemList(filters = {}) {
         categoryId: filters.category,
         subCategoryId: filters.subCategory,
         memberName: memberSearch || filters.memberName || "",
+        rentalItemStatus: filterValues.status
     };
 
     // page가 있으면 추가
@@ -198,7 +240,7 @@ function fetchRentalItemList(filters = {}) {
         data: params,
     }).done(function (response) {
         renderRentalItemList(response.data.content);
-        renderPagination("pagination-container", {
+        renderPagination("pagination", {
             page: response.data.page,
             totalPages: response.data.totalPages,
             first: response.data.first,
