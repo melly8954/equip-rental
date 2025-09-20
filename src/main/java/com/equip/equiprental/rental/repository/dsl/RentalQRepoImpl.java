@@ -6,6 +6,7 @@ import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QSubCategory;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
+import com.equip.equiprental.member.domain.QMember;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
@@ -35,29 +36,6 @@ public class RentalQRepoImpl implements RentalQRepo{
         QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
 
-        // 기본 쿼리
-        JPAQuery<AdminRentalDto> query = queryFactory
-                .select(Projections.constructor(AdminRentalDto.class,
-                        r.rentalId,
-                        r.equipment.equipmentId,
-                        f.filePath,
-                        r.quantity,
-                        r.requestStartDate,
-                        r.requestEndDate,
-                        r.rentalReason,
-                        r.createdAt,
-                        r.member.memberId,
-                        r.member.name,
-                        r.member.department.departmentName,
-                        c.label,
-                        sc.label,
-                        r.equipment.model
-                ))
-                .from(r)
-                .leftJoin(r.equipment.subCategory, sc)
-                .leftJoin(sc.category, c)
-                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)));
-
         // 조건
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(r.status.eq(RentalStatus.PENDING));
@@ -78,8 +56,28 @@ public class RentalQRepoImpl implements RentalQRepo{
             builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
-        // 결과 fetch
-        List<AdminRentalDto> content = query
+        // 기본 쿼리
+        List<AdminRentalDto> content = queryFactory
+                .select(Projections.constructor(AdminRentalDto.class,
+                        r.rentalId,
+                        r.equipment.equipmentId,
+                        f.filePath,
+                        r.quantity,
+                        r.requestStartDate,
+                        r.requestEndDate,
+                        r.rentalReason,
+                        r.createdAt,
+                        r.member.memberId,
+                        r.member.name,
+                        r.member.department.departmentName,
+                        c.label,
+                        sc.label,
+                        r.equipment.model
+                ))
+                .from(r)
+                .leftJoin(r.equipment.subCategory, sc)
+                .leftJoin(sc.category, c)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(r.equipment.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
