@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,8 +19,14 @@ public class EquipmentItemHistoryDto {
     private String newStatus;
     private String changedBy;
 
-    private String currentOwnerName;   // ex. "홍길동" or "관리자"
-    private String currentOwnerDept;   // ex. "개발팀" or "시스템"
+    private String rentedUserName;
+    private String rentedUserDept;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate rentalStartDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate actualReturnDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
