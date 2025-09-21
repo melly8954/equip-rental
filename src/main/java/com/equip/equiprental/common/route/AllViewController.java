@@ -47,7 +47,7 @@ public class AllViewController {
         return "rental/rentalList";
     }
 
-    @GetMapping("/rental/{rentalItem}/ltem")
+    @GetMapping("/rental/{rentalId}/item")
     public String userRentalItemList() {
         return "rental/rentalItemList";
     }
