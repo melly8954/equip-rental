@@ -1,7 +1,7 @@
-const pathParts = window.location.pathname.split("/"); // ["", "rental", "60", "item"]
-const rentalId = pathParts[2]; // "60"
-
 $(document).ready(function() {
+    const pathParts = window.location.pathname.split("/");
+    const rentalId = pathParts[2];
+
     // 초기 데이터 로딩
     fetchRentalItemList(rentalId);
 });
@@ -70,7 +70,9 @@ function renderRentalItemList(data) {
 
             // 버튼은 대여중일 때만
             if (!r.extended && endDate >= now) {
-                actionHtml = `<button class="btn btn-sm btn-outline-primary extend-btn" data-id="${r.rentalItemId}">대여 연장</button>`;
+                actionHtml = `<button class="btn btn-sm btn-outline-primary extend-btn"
+                                            data-id="${r.rentalItemId}" data-rental-id="${r.rentalId}">
+                                            대여 연장 </button>`;
             }
         }
 
@@ -118,6 +120,7 @@ function renderRentalItemList(data) {
 
 $(document).on("click", ".extend-btn", function() {
     const rentalItemId = $(this).data("id");
+    const rentalId = $(this).data("rental-id");
 
     // confirm 창 띄우기
     const ok = confirm("정말 대여를 연장하시겠습니까?");
