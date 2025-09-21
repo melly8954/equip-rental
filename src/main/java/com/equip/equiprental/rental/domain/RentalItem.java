@@ -62,5 +62,6 @@ public class RentalItem extends BaseEntity {
     // 대여 실 반납일 지정
     public void returnItem(LocalDate now) {
         this.actualReturnDate = now;
+        this.status = RentalItemStatus.RETURNED;
     }
 }
