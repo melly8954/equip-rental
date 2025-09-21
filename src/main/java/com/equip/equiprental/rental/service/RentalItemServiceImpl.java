@@ -85,6 +85,9 @@ public class RentalItemServiceImpl implements RentalItemService{
                 .changedBy(member)
                 .oldStatus(oldStatus)
                 .newStatus(EquipmentStatus.AVAILABLE)
+                .rentalStartDate(item.getStartDate())
+                .actualReturnDate(item.getActualReturnDate())
+                .rentedUser(item.getRental().getMember())
                 .build();
 
         equipmentItemHistoryRepository.save(history);
