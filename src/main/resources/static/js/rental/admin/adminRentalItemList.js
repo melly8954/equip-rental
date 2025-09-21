@@ -285,7 +285,7 @@ function renderRentalItemList(data) {
                         <div class="col">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">
-                                    <p class="d-flex align-items-center mb-1 fw-bold">Rental ${r.rentalId}</p>
+                                    <p class="d-flex align-items-center mb-1 fw-bold">대여 ID ${r.rentalId}</p>
                                     <p class="d-flex align-items-center mb-1 fw-bold">
                                       <span>${r.model}</span>
                                       <span class="text-muted ms-2">[${r.category} - ${r.subCategory}]</span>

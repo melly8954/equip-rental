@@ -223,6 +223,7 @@ function renderRentalList(data) {
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
+                        <p class="d-flex align-items-center mb-1 fw-bold">대여 ID ${r.rentalId}</p>
                         <div class="mb-2 text-center">
                             <img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
