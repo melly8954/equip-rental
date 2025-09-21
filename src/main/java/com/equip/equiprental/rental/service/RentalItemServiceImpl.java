@@ -52,34 +52,6 @@ public class RentalItemServiceImpl implements RentalItemService{
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public PageResponseDto<UserRentalItemDto> getUserRentalItemLists(SearchParamDto paramDto, Long memberId) {
-        Pageable pageable = paramDto.getPageable();
-
-        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(paramDto, pageable, memberId);
-
-        // overdue 계산
-        dtosPage.getContent().forEach(dto -> {
-            boolean overdue = dto.getActualReturnDate() == null
-                    && dto.getEndDate() != null
-                    && dto.getEndDate().isBefore(LocalDate.now());
-            dto.setOverdue(overdue);
-        });
-
-        return PageResponseDto.<UserRentalItemDto>builder()
-                .content(dtosPage.getContent())
-                .page(dtosPage.getNumber() + 1)
-                .size(dtosPage.getSize())
-                .totalElements(dtosPage.getTotalElements())
-                .totalPages(dtosPage.getTotalPages())
-                .numberOfElements(dtosPage.getNumberOfElements())
-                .first(dtosPage.isFirst())
-                .last(dtosPage.isLast())
-                .empty(dtosPage.isEmpty())
-                .build();
-    }
-
-    @Override
     @Transactional
     public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
