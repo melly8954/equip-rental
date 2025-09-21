@@ -189,6 +189,7 @@ public class RentalServiceImpl implements RentalService{
                         .changedBy(member)
                         .oldStatus(oldStatuses.get(i))
                         .newStatus(EquipmentStatus.RENTED)
+                        .rentedUser(rental.getMember())
                         .build())
                 .toList();
         equipmentItemHistoryRepository.saveAll(histories);
