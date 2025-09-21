@@ -63,24 +63,6 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
 
         Page<EquipmentItemHistoryDto> historyDtosPage = equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable);
 
-        RentalItem rentalItem = rentalItemRepository
-                .findFirstByEquipmentItem_EquipmentItemIdAndActualReturnDateIsNull(equipmentItemId);
-
-        for (EquipmentItemHistoryDto dto : historyDtosPage) {
-            if ("RENTED".equals(dto.getNewStatus())) {
-                if (rentalItem != null) {
-                    dto.setCurrentOwnerName(rentalItem.getRental().getMember().getName());
-                    dto.setCurrentOwnerDept(rentalItem.getRental().getMember().getDepartment().getDepartmentName());
-                } else {
-                    dto.setCurrentOwnerName("관리자");
-                    dto.setCurrentOwnerDept("시스템");
-                }
-            } else {
-                dto.setCurrentOwnerName("관리자");
-                dto.setCurrentOwnerDept("시스템");
-            }
-        }
-
         return PageResponseDto.<EquipmentItemHistoryDto>builder()
                 .content(historyDtosPage.getContent())
                 .page(historyDtosPage.getNumber() + 1)
