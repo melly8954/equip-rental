@@ -37,19 +37,6 @@ public class RentalItemController implements ResponseController {
         return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 장비 대여 물품내역 조회 성공", result);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<ResponseDto<PageResponseDto<UserRentalItemDto>>> getUserRentalItemList(@ModelAttribute SearchParamDto paramDto,
-                                                                                                 @AuthenticationPrincipal PrincipalDetails principal){
-        String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("사용자 장비 대여 물품내역 조회 요청 API] TraceId={}", traceId);
-
-        Long memberId = principal.getMember().getMemberId();
-
-        PageResponseDto<UserRentalItemDto> result = rentalItemService.getUserRentalItemLists(paramDto, memberId);
-
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 장비 대여 물품내역 조회 성공", result);
-    }
-
     @PostMapping("/{rentalItem}")
     public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRentalItemDto dto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
