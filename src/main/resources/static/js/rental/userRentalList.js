@@ -1,5 +1,13 @@
 let filterConfig;
 
+// 상태 코드 → 한글 맵핑
+// 상태 코드 → 한글 + 색상 클래스
+const rentalStatusMap = {
+    PENDING: { label: "대기 중", class: "text-warning" },    // 주황
+    APPROVED: { label: "대여 승인", class: "text-success" },  // 초록
+    REJECTED: { label: "대여 거절", class: "text-danger" }   // 빨강
+};
+
 $(document).ready(function() {
     // 이름 검색(input)
     $("#member-search").on("input", function() {
@@ -219,9 +227,11 @@ function renderRentalList(data) {
                                     </p>
                                 </h6>
                                 <p class="card-text mb-1">
-                                    신청 ID: ${r.rentalId} <br>
-                                    수량: ${r.quantity} <br>
-                                    상태: ${r.status} <br>
+                                    신청 ID: ${r.rentalId} 
+                                        <span class="${rentalStatusMap[r.status]?.class || ""} ms-2">
+                                            [${rentalStatusMap[r.status]?.label || r.status}]
+                                        </span> <br>
+                                    신청 수량: ${r.quantity} <br>
                                     ${
                                     r.status === "APPROVED"
                                         ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
