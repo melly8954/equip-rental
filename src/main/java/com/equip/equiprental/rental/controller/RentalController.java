@@ -84,4 +84,18 @@ public class RentalController implements ResponseController {
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "대여 신청 상태 변경 성공", null);
     }
+
+    @GetMapping("/{rentalId}/items")
+    public ResponseEntity<ResponseDto<PageResponseDto<UserRentalItemDto>>> getUserRentalItemList(@PathVariable Long rentalId,
+                                                                                                 @ModelAttribute SearchParamDto paramDto,
+                                                                                                 @AuthenticationPrincipal PrincipalDetails principal) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("사용자 대여 승인 장비 리스트 조회 요청 API] TraceId={}", traceId);
+
+        Long memberId = principal.getMember().getMemberId();
+
+        PageResponseDto<UserRentalItemDto> result = rentalService.getUserRentalItemList(paramDto, rentalId, memberId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 승인 장비 리스트 조회 성공", result);
+    }
 }
