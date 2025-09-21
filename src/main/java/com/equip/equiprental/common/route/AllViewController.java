@@ -47,11 +47,6 @@ public class AllViewController {
         return "rental/rentalList";
     }
 
-    @GetMapping("/rental/item/list")
-    public String userRentalItemList() {
-        return "rental/rentalItemList";
-    }
-
     // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")
