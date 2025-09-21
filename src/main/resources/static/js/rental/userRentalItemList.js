@@ -1,170 +1,29 @@
-const filterConfig = {
-    category: {
-        label: "카테고리",
-        type: "radio",
-        options: [
-            "전체",
-            "OFFICE_SUPPLIES",
-            "ELECTRONICS",
-            "FURNITURE",
-            "TOOLS",
-            "SAFETY_EQUIPMENT"
-        ]
-    },
-    subCategory: {
-        label: "서브카테고리",
-        type: "radio",
-        options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
-    }
-};
-
-const categoryLabelMap = {
-    "전체": "전체",
-    "OFFICE_SUPPLIES": "사무용품",
-    "ELECTRONICS": "전자기기",
-    "FURNITURE": "가구",
-    "TOOLS": "공구",
-    "SAFETY_EQUIPMENT": "안전장비"
-};
-
-const subCategoryMap = {
-    OFFICE_SUPPLIES: [
-        "문서 파쇄기",
-        "라벨프린터",
-        "프로젝트 보드"
-    ],
-    ELECTRONICS: [
-        "노트북",
-        "태블릿",
-        "프로젝터",
-        "모니터",
-        "프린터",
-        "카메라/캠코더",
-        "오디오장비(스피커/마이크)",
-        "외장저장장치(SSD/HDD)"
-    ],
-    FURNITURE: [
-        "사무용 의자",
-        "책상/테이블",
-        "서랍장/캐비닛",
-        "이동식 파티션",
-        "화이트보드"
-    ],
-    TOOLS: [
-        "전동공구(드릴, 그라인더)",
-        "수공구(망치, 드라이버)",
-        "측정도구(레이저측정기, 콤파스)",
-        "납땜장비"
-    ],
-    SAFETY_EQUIPMENT: [
-        "안전모",
-        "안전화",
-        "보호안경/귀마개",
-        "방진마스크",
-        "소화기/응급키트"
-    ]
-};
-
-// 페이지 로드 또는 뒤로/앞으로가기 시
-window.addEventListener("pageshow", function (event) {
-    $("input[name='category']").prop("checked", false);
-    $("input[name='category'][value='전체']").prop("checked", true);
-
-    $("input[name='subCategory']").prop("checked", false);
-    $("input[name='subCategory'][value='전체']").prop("checked", true);
-
-    // 이름 검색 초기화
-    $("#model-search").val("");
-
-    // 필터 렌더링
-    renderFilter("filter-container", filterConfig, onFilterChange);
+$(document).ready(function() {
+    const pathParts = window.location.pathname.split("/"); // ["", "rental", "60", "item"]
+    const rentalId = pathParts[2]; // "60"
 
     // 초기 데이터 로딩
-    fetchRentalItemList();
+    fetchRentalItemList(rentalId);
 });
 
-// 이름 검색(input)
-$(document).ready(function() {
-    // 검색 이벤트
-    $("#model-search").on("input", function() {
-        const currentValues = getFilterValues(filterConfig);
-        fetchRentalItemList(currentValues);
-    });
-});
+// 대여 현황 조회 AJAX
+function fetchRentalItemList(rentalId) {
 
-// 필터 변경 시 동작
-function onFilterChange() {
-    // 현재 선택된 카테고리 값
-    const category = getFilterValues(filterConfig).category;
-
-    // 서브카테고리 갱신
-    updateSubCategoryOptions(category);
-
-    // 최신 filterConfig 값으로 fetch
-    const filters = getFilterValues(filterConfig);
-    fetchRentalItemList(filters);
-}
-
-
-// 서브카테고리 업데이트
-function updateSubCategoryOptions(parentCategory) {
-    const currentValues = getFilterValues(filterConfig);
-    const options = subCategoryMap[parentCategory] || [];
-
-    filterConfig.subCategory.options = options;
-
-    const container = $("#sub-category-filters");
-    container.empty();
-    renderFilter("sub-category-filters", {
-        subCategory: {
-            type: "radio",
-            options: options
-        }
-    }, (values) => {
-        // category 필터도 함께 포함
-        const combinedFilters = {
-            category: currentValues.category,
-            subCategory: values.subCategory
-        };
-        fetchRentalItemList(combinedFilters);
-    });
-    // 기존 선택값 유지
-    if (currentValues.subCategory && options.includes(currentValues.subCategory)) {
-        $(`#sub-category-filters input[value="${currentValues.subCategory}"]`).prop("checked", true);
-    } else {
-        $(`#sub-category-filters input[value="전체"]`).prop("checked", true);
-    }
-}
-
-
-// 대여 신청내역 조회 AJAX
-function fetchRentalItemList(filters = {}) {
-    const filterValues = filters || getFilterValues(filterConfig);
-    const modelSearch = $("#model-search").val();
-    const params = {
-        category: filters.category,
-        subCategory: filters.subCategory,
-        model: modelSearch || filters.model || "",
-    };
-
-    // page가 있으면 추가
-    if (filterValues.page) {
-        params.page = filterValues.page;
-    }
+    const params = {};
 
     $.ajax({
-        url: "/api/v1/rental-items/me",
+        url: `/api/v1/rentals/${rentalId}/items`,
         method: "GET",
         data: params,
     }).done(function (response) {
         renderRentalItemList(response.data.content);
-        renderPagination("pagination-container", {
+        renderPagination("pagination", {
             page: response.data.page,
             totalPages: response.data.totalPages,
             first: response.data.first,
             last: response.data.last
         }, (newPage) => {
-            fetchRentalItemList({...filterValues, page: newPage});
+            fetchRentalItemList({page: newPage});
         });
     }).fail(function (xhr) {
         handleServerError(xhr)
@@ -184,14 +43,9 @@ function renderRentalItemList(data) {
     let row = $('<div class="row"></div>');
 
     data.forEach((r, index) => {
-        const overdueBadge = r.overdue
+        const overdueBadge = r.stats === "OVERDUE"
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
-
-        const thumbnail = r.thumbnailUrl
-            ? `<img src="${r.thumbnailUrl}" class="img-fluid rounded-start" alt="${r.model}" style="width:100px; height:100px; object-fit:cover;">`
-            : `<div class="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light rounded-start" 
-                   style="width:100px; height:100px;">No Image</div>`;
 
         // r.endDate 문자열 → Date 객체
         const [y, m, d] = r.endDate.split("-").map(Number);
@@ -216,7 +70,7 @@ function renderRentalItemList(data) {
                 <div class="card shadow-sm h-100">
                     <div class="row g-0 align-items-center">
                         <div class="col-auto">
-                            ${thumbnail}
+                            <img src="${r.thumbnailUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
                         <div class="col">
                             <div class="card-body p-2">
@@ -224,7 +78,7 @@ function renderRentalItemList(data) {
                                     <p class="d-flex align-items-center mb-1 fw-bold">Rental ${r.rentalId}</p>
                                     <p class="d-flex align-items-center mb-1 fw-bold">
                                       <span>${r.model}</span>
-                                      <span class="text-muted ms-2">[${categoryLabelMap[r.category]} - ${r.subCategory}]</span>
+                                      <span class="text-muted ms-2">[${r.category} - ${r.subCategory}]</span>
                                     </p> 
                                     <i class="mb-0 text-muted">${r.serialName}</i>
                                 </h6>
