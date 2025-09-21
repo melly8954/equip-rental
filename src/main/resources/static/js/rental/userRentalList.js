@@ -225,6 +225,9 @@ function renderRentalList(data) {
                                     상태: ${r.status} <br>
                                     ${r.status === "REJECTED" ? `거절 사유: ${r.rejectReason}` : ""}
                                 </p>
+                                ${r.status === "APPROVED"
+                                ? `<button class="btn btn-sm btn-primary view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
+                                : ""}
                             </div>
                         </div>
                     </div>
