@@ -4,7 +4,6 @@ import com.equip.equiprental.equipment.domain.QEquipmentItemHistory;
 import com.equip.equiprental.equipment.dto.EquipmentItemHistoryDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +18,6 @@ import java.util.List;
 public class EquipmentItemHistoryQRepoImpl implements EquipmentItemHistoryQRepo {
 
     private final JPAQueryFactory queryFactory;
-
 
     @Override
     public Page<EquipmentItemHistoryDto> findHistoriesByEquipmentItemId(Long equipmentItemId, Pageable pageable) {
@@ -36,11 +34,15 @@ public class EquipmentItemHistoryQRepoImpl implements EquipmentItemHistoryQRepo 
                         h.oldStatus.stringValue(),
                         h.newStatus.stringValue(),
                         h.changedBy.name,
-                        Expressions.constant(""),
-                        Expressions.constant(""),
+                        h.rentedUser.name,
+                        h.rentedUser.department.departmentName,
+                        h.rentalStartDate,
+                        h.actualReturnDate,
                         h.createdAt
                 ))
                 .from(h)
+                .leftJoin(h.rentedUser)
+                .leftJoin(h.rentedUser.department)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
