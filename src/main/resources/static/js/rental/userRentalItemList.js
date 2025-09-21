@@ -47,6 +47,11 @@ function renderRentalItemList(data) {
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
 
+        // 연장 여부 배지
+        const extendedBadge = r.extended
+            ? `<span class="badge bg-warning text-dark ms-2">연장됨</span>`
+            : '';
+
         // r.endDate 문자열 → Date 객체
         const [y, m, d] = r.endDate.split("-").map(Number);
         const endDate = new Date(y, m - 1, d); // 월은 0부터 시작
@@ -86,6 +91,7 @@ function renderRentalItemList(data) {
                                     대여기간: ${r.startDate} ~ ${r.endDate} 
                                     ${r.actualReturnDate ? `(반납: ${r.actualReturnDate})` : ''}
                                     ${overdueBadge}
+                                    ${extendedBadge}
                                 </p>
                             </div>
                         </div>
