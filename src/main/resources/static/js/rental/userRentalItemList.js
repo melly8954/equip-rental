@@ -43,7 +43,7 @@ function renderRentalItemList(data) {
     let row = $('<div class="row"></div>');
 
     data.forEach((r, index) => {
-        const overdueBadge = r.stats === "OVERDUE"
+        const overdueBadge = r.status === "OVERDUE"
             ? `<span class="badge bg-danger ms-2">연체</span>`
             : '';
 
@@ -60,15 +60,20 @@ function renderRentalItemList(data) {
         const now = new Date();
         now.setHours(0,0,0,0); // 시간 제거
 
-        // 연장 버튼 생성 여부
-        const showExtendBtn = !r.extended && endDate >= now;
+        let actionHtml = '';
 
-        // 카드 내부에서 버튼 조건부 생성
-        const extendBtnHtml = showExtendBtn
-            ? `<button class="btn btn-sm btn-outline-primary extend-btn" data-id="${r.rentalItemId}">
-                    대여 연장
-                </button>`
-            : ''; // 조건에 맞지 않으면 빈 문자열 → 버튼 없음
+        if (r.status === "RETURNED") {
+            // 반납 완료: 연장 버튼 대신 배지
+            actionHtml = `<span class="badge bg-success">반납 완료</span>`;
+        } else if (!r.extended && r.status !== "RETURNED" && endDate >= now) {
+            // 연장 가능: 버튼 표시
+            actionHtml = `<button class="btn btn-sm btn-outline-primary extend-btn" data-id="${r.rentalItemId}">
+                        대여 연장
+                     </button>`;
+        } else if (r.extended) {
+            // 연장됨 배지는 이미 위에서 표시되므로 버튼 자리는 비워둠
+            actionHtml = '';
+        }
 
         const card = $(`
             <div class="col-md-6 mb-3">
@@ -96,7 +101,7 @@ function renderRentalItemList(data) {
                             </div>
                         </div>
                         <div class="col-auto pe-2">
-                            ${extendBtnHtml}           
+                            ${actionHtml}           
                         </div>
                     </div>
                 </div>
