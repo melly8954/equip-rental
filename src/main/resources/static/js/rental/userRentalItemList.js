@@ -50,26 +50,28 @@ function renderRentalItemList(data) {
 
         // 각 배지 초기화
         let badgesHtml = '';
-
-        // 연체
-        if (r.status === "OVERDUE") {
-            badgesHtml += `<span class="badge bg-danger mb-1 d-block">연체</span>`;
-        }
-
-        // 연장됨
-        if (r.extended) {
-            badgesHtml += `<span class="badge bg-warning text-dark mb-1 d-block">연장됨</span>`;
-        }
-
-        // action 버튼/배지
         let actionHtml = '';
+        
+        // 배지 추가 
         if (r.status === "RETURNED") {
-            actionHtml = `<span class="badge bg-success mb-1 d-block">반납 완료</span>`;
+            // 반납 완료
+            badgesHtml = `<span class="badge bg-success mb-1 d-block">반납 완료</span>`;
             if (r.actualReturnDate) {
-                actionHtml += `<small>(반납: ${r.actualReturnDate})</small>`;
+                badgesHtml += `<small>(반납: ${r.actualReturnDate})</small>`;
             }
-        } else if (!r.extended && r.status !== "RETURNED" && endDate >= now) {
-            actionHtml = `<button class="btn btn-sm btn-outline-primary extend-btn" data-id="${r.rentalItemId}">대여 연장</button>`;
+        } else {
+            // 반납이 아닐 때만 연체/연장 판단
+            if (r.status === "OVERDUE") {
+                badgesHtml += `<span class="badge bg-danger mb-1 d-block">연체</span>`;
+            }
+            if (r.extended) {
+                badgesHtml += `<span class="badge bg-warning text-dark mb-1 d-block">연장됨</span>`;
+            }
+
+            // 버튼은 대여중일 때만
+            if (!r.extended && endDate >= now) {
+                actionHtml = `<button class="btn btn-sm btn-outline-primary extend-btn" data-id="${r.rentalItemId}">대여 연장</button>`;
+            }
         }
 
         // 오른쪽 컬럼에 모든 배지/버튼 표시
