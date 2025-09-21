@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 @Service
@@ -191,5 +192,36 @@ public class RentalServiceImpl implements RentalService{
                         .build())
                 .toList();
         equipmentItemHistoryRepository.saveAll(histories);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<UserRentalItemDto> getUserRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId) {
+        Pageable pageable = paramDto.getPageable();
+
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+
+        if(!Objects.equals(rental.getMember().getMemberId(), memberId)){
+            throw new CustomException(ErrorType.RENTAL_ACCESS_DENIED);
+        }
+
+        if(rental.getStatus() != RentalStatus.APPROVED){
+            throw new CustomException(ErrorType.RENTAL_NOT_APPROVED);
+        }
+
+        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(paramDto, pageable, rentalId, memberId);
+
+        return PageResponseDto.<UserRentalItemDto>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
+                .build();
     }
 }
