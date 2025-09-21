@@ -10,11 +10,11 @@ import com.equip.equiprental.member.domain.QDepartment;
 import com.equip.equiprental.member.domain.QMember;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.QRentalItem;
+import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -115,42 +115,38 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     }
 
     @Override
-    public Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long memberId) {
+    public Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
         QRentalItem i = QRentalItem.rentalItem;
+        QEquipment e = QEquipment.equipment;
+        QSubCategory sc = QSubCategory.subCategory;
+        QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
 
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(i.rental.member.memberId.eq(memberId));
-
-        if (paramDto.getCategoryId() != null) {
-            builder.and(i.rental.equipment.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
-        }
-
-        if (paramDto.getSubCategoryId() != null) {
-            builder.and(i.rental.equipment.subCategory.subCategoryId.eq(paramDto.getSubCategoryId()));
-        }
-
-        if (paramDto.getModel() != null && !paramDto.getModel().isEmpty()) {
-            builder.and(i.rental.equipment.model.containsIgnoreCase(paramDto.getModel()));
-        }
+        builder.and(i.rental.rentalId.eq(rentalId));
+        builder.and(i.rental.status.eq(RentalStatus.APPROVED));
 
         List<UserRentalItemDto> results = queryFactory
                 .select(Projections.constructor(UserRentalItemDto.class,
                         i.rentalItemId,
                         i.rental.rentalId,
                         f.filePath,
-                        i.rental.equipment.subCategory.category.label,
-                        i.rental.equipment.subCategory.label,
-                        i.rental.equipment.model,
+                        c.label,
+                        sc.label,
+                        e.model,
                         i.equipmentItem.serialNumber,
                         i.startDate,
                         i.endDate,
                         i.actualReturnDate,
-                        Expressions.constant(false),
+                        i.status,
                         i.isExtended
                 ))
                 .from(i)
+                .join(i.rental.equipment, e)
+                .leftJoin(e.subCategory, sc)
+                .leftJoin(sc.category, c)
                 .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(i.rental.equipment.equipmentId)))
                 .where(builder)
                 .offset(pageable.getOffset())
@@ -162,6 +158,9 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
         Long total = queryFactory
                 .select(i.count())
                 .from(i)
+                .join(i.rental.equipment, e)
+                .leftJoin(e.subCategory, sc)
+                .leftJoin(sc.category, c)
                 .where(builder)
                 .fetchOne();
         total = total == null ? 0 : total;

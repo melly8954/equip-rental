@@ -8,5 +8,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface RentalItemQRepo {
     Page<AdminRentalItemDto> findAdminRentalItems(SearchParamDto paramDto, Pageable pageable);
-    Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long memberId);
+    Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId);
 }
