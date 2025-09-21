@@ -217,7 +217,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
     $(`#sub-category-filters input[value=""]`).prop("checked", true);
 }
 
-// 대여 신청내역 조회 AJAX
+// 대여 신청내역 조회 
 function fetchRentalItemList(filters = {}) {
     const filterValues = filters || getFilterValues(filterConfig);
     const memberSearch = $("#member-search").val();
@@ -253,7 +253,7 @@ function fetchRentalItemList(filters = {}) {
     })
 }
 
-// div 리스트 렌더링
+// 조회 렌더링
 function renderRentalItemList(data) {
     const container = $("#rental-item-list");
     container.empty();
@@ -319,15 +319,21 @@ function renderRentalItemList(data) {
             row = $('<div class="row"></div>');
         }
     });
-
-    // 반납 처리 버튼 이벤트 바인딩
-    $(".return-btn").off("click").on("click", function() {
-        const rentalItemId = $(this).data("id");
-        handleReturn(rentalItemId, $(this));
-    });
 }
 
-// 반납 처리 예시 함수
+// 반납 이벤트 위임
+$(document).on("click", ".return-btn", function() {
+    const rentalItemId = $(this).data("id");
+
+    // confirm 창
+    if (!confirm("정말 반납 처리하시겠습니까?")) {
+        return; // 취소 시 아무 동작 안 함
+    }
+
+    handleReturn(rentalItemId, $(this));
+});
+
+// 반납 처리
 function handleReturn(rentalItemId, button) {
     $.ajax({
         url: `/api/v1/rental-items/${rentalItemId}`,
