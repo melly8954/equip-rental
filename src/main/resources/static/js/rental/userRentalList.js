@@ -243,16 +243,9 @@ function renderRentalList(data) {
             row = $('<div class="row"></div>');
         }
     });
-
-    // 반납 처리 버튼 이벤트 바인딩
-    $(".return-btn").off("click").on("click", function() {
-        const rentalItemId = $(this).data("id");
-        handleReturn(rentalItemId, $(this));
-    });
 }
 
-$(".view-items-btn").off("click").on("click", function() {
+$(document).on("click", ".view-items-btn", function() {
     const rentalId = $(this).data("id");
-    // rentalId 기준 상세 페이지로 이동
     window.location.href = `/rental/${rentalId}/item`;
 });
