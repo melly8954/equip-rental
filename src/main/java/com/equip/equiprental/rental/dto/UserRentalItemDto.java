@@ -1,10 +1,10 @@
 package com.equip.equiprental.rental.dto;
 
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -28,7 +28,6 @@ public class UserRentalItemDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate actualReturnDate;
 
-    @Setter
-    private boolean overdue;
+    private RentalItemStatus status;
     private boolean isExtended;
 }
