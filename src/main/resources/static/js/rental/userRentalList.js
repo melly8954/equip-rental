@@ -221,13 +221,15 @@ function renderRentalList(data) {
                                 <p class="card-text mb-1">
                                     신청 ID: ${r.rentalId} <br>
                                     수량: ${r.quantity} <br>
-                                    대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br>
                                     상태: ${r.status} <br>
-                                    ${r.status === "REJECTED" ? `거절 사유: ${r.rejectReason}` : ""}
+                                    ${
+                                    r.status === "APPROVED"
+                                        ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
+                                        : r.status === "REJECTED"
+                                            ? `거절 사유: ${r.rejectReason}`
+                                            : `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}`
+                                    }
                                 </p>
-                                ${r.status === "APPROVED"
-                                ? `<button class="btn btn-sm btn-primary view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
-                                : ""}
                             </div>
                         </div>
                     </div>
