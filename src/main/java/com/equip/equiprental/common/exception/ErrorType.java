@@ -58,6 +58,10 @@ public enum ErrorType {
     EQUIPMENT_ITEM_INSUFFICIENT_STOCK("equipment_item_insufficient_stock", "해당 장비 모델의 대여 가능 재고가 부족합니다.", HttpStatus.CONFLICT),
     PARTIAL_UPDATE("partial_update", "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.", HttpStatus.CONFLICT),
 
+    // 대여 현황
+    RENTAL_ACCESS_DENIED("rental_access_denied","해당 대여 내역을 조회할 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
+    RENTAL_NOT_APPROVED("rental_not_approved", "해당 장비는 아직 대여 승인이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
+
     // 대여 연장
     ALREADY_EXTENDED("already_extended", "이미 연장된 대여건입니다.", HttpStatus.CONFLICT),
     ALREADY_RETURNED("already_returned", "이미 반납된 대여건은 연장할 수 없습니다.", HttpStatus.CONFLICT),
