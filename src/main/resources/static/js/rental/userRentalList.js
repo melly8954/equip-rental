@@ -251,3 +251,8 @@ function renderRentalList(data) {
     });
 }
 
+$(".view-items-btn").off("click").on("click", function() {
+    const rentalId = $(this).data("id");
+    // rentalId 기준 상세 페이지로 이동
+    window.location.href = `/rental/${rentalId}/item`;
+});
