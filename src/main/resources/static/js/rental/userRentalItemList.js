@@ -1,7 +1,7 @@
-$(document).ready(function() {
-    const pathParts = window.location.pathname.split("/"); // ["", "rental", "60", "item"]
-    const rentalId = pathParts[2]; // "60"
+const pathParts = window.location.pathname.split("/"); // ["", "rental", "60", "item"]
+const rentalId = pathParts[2]; // "60"
 
+$(document).ready(function() {
     // 초기 데이터 로딩
     fetchRentalItemList(rentalId);
 });
@@ -52,7 +52,7 @@ function renderRentalItemList(data) {
         let badgesHtml = '';
         let actionHtml = '';
         
-        // 배지 추가 
+        // 배지 추가
         if (r.status === "RETURNED") {
             // 반납 완료
             badgesHtml = `<span class="badge bg-success mb-1 d-block">반납 완료</span>`;
@@ -132,8 +132,7 @@ $(document).on("click", ".extend-btn", function() {
         })
     }).done(function(response) {
         alert(response.message);
-        const currentValues = getFilterValues(filterConfig);
-        fetchRentalItemList(currentValues);
+        fetchRentalItemList(rentalId)
     }).fail(function(xhr) {
         handleServerError(xhr);
     });
