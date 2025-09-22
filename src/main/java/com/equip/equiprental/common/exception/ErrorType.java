@@ -65,6 +65,8 @@ public enum ErrorType {
     // 대여 연장
     ALREADY_EXTENDED("already_extended", "이미 연장된 대여건입니다.", HttpStatus.CONFLICT),
     ALREADY_RETURNED("already_returned", "이미 반납된 대여건은 연장할 수 없습니다.", HttpStatus.CONFLICT),
+    CANNOT_EXTEND_OVERDUE("cannot_extend_overdue","이미 연체된 대여건은 연장할 수 없습니다.",HttpStatus.CONFLICT),
+
 
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
