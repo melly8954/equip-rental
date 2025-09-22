@@ -5,7 +5,8 @@ let filterConfig;
 const rentalStatusMap = {
     PENDING: { label: "대기 중", class: "text-warning" },    // 주황
     APPROVED: { label: "대여 승인", class: "text-success" },  // 초록
-    REJECTED: { label: "대여 거절", class: "text-danger" }   // 빨강
+    REJECTED: { label: "대여 거절", class: "text-danger" },   // 빨강
+    COMPLETED: { label: "반납 완료", class: "text-success" },
 };
 
 $(document).ready(function() {
@@ -32,7 +33,8 @@ window.addEventListener("pageshow", async function (event) {
             options: [
                 { id: "PENDING", label: "대기 중", default: true },
                 { id: "APPROVED", label: "대여 승인" },
-                { id: "REJECTED", label: "대여 거절" }
+                { id: "REJECTED", label: "대여 거절" },
+                { id: "COMPLETED", label: "반납 완료" },
             ]
         }
     };
