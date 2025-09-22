@@ -33,13 +33,23 @@ public class AllViewController {
             }
         }
 
-        return "userHome";  // 일반 사용자 페이지
+        return "equipment/equipmentList";  // 일반 사용자 페이지
     }
 
     // 사용자 접근
     @GetMapping("/equipment/list")
     public String equipmentList() {
         return "equipment/equipmentList";
+    }
+
+    @GetMapping("/rental/list")
+    public String userRentalList() {
+        return "rental/rentalList";
+    }
+
+    @GetMapping("/rental/{rentalId}/item")
+    public String userRentalItemList() {
+        return "rental/rentalItemList";
     }
 
     // 관리자 접근
@@ -68,6 +78,16 @@ public class AllViewController {
     @GetMapping("/admin/equipment/{equipmentId}/item/{itemId}/history")
     public String equipmentItemHistory() {
         return "equipment/admin/equipmentItemHistory";
+    }
+
+    @GetMapping("/admin/rental/list")
+    public String adminRentalList() {
+        return "rental/admin/adminRentalList";
+    }
+
+    @GetMapping("/admin/rental/item/list")
+    public String adminRentalItemList() {
+        return "rental/admin/adminRentalItemList";
     }
 
     // 에러 페이지

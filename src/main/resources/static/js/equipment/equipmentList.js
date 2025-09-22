@@ -1,128 +1,139 @@
-// 필터 설정 예시
-const filterConfig = {
-    category: {
-        label: "카테고리",
-        type: "radio",
-        options: [
-            "전체",
-            "OFFICE_SUPPLIES",
-            "ELECTRONICS",
-            "FURNITURE",
-            "TOOLS",
-            "SAFETY_EQUIPMENT"
-        ]
-    },
-
-    subCategory: {
-        label: "서브카테고리",
-        type: "radio",
-        options: ["전체"] // 초기값은 전체, 카테고리 선택 시 동적으로 바뀜
-    }
-};
-
-
-const categoryLabelMap = {
-    "전체": "전체",
-    "OFFICE_SUPPLIES": "사무용품",
-    "ELECTRONICS": "전자기기",
-    "FURNITURE": "가구",
-    "TOOLS": "공구",
-    "SAFETY_EQUIPMENT": "안전장비"
-};
-
-const subCategoryMap = {
-    OFFICE_SUPPLIES: [
-        "문서 파쇄기",
-        "라벨프린터",
-        "프로젝트 보드"
-    ],
-    ELECTRONICS: [
-        "노트북",
-        "태블릿",
-        "프로젝터",
-        "모니터",
-        "프린터",
-        "카메라/캠코더",
-        "오디오장비(스피커/마이크)",
-        "외장저장장치(SSD/HDD)"
-    ],
-    FURNITURE: [
-        "사무용 의자",
-        "책상/테이블",
-        "서랍장/캐비닛",
-        "이동식 파티션",
-        "화이트보드"
-    ],
-    TOOLS: [
-        "전동공구(드릴, 그라인더)",
-        "수공구(망치, 드라이버)",
-        "측정도구(레이저측정기, 콤파스)",
-        "납땜장비"
-    ],
-    SAFETY_EQUIPMENT: [
-        "안전모",
-        "안전화",
-        "보호안경/귀마개",
-        "방진마스크",
-        "소화기/응급키트"
-    ]
-};
-
-// pageshow 이벤트 활용: 뒤로가기/앞으로가기 시에도 실행
-window.addEventListener("pageshow", function(event) {
-    // 필터 강제 초기화
-    $("input[name='category']").prop("checked", false);
-    $("input[name='category'][value='전체']").prop("checked", true);
-
-    $("input[name='subCategory']").prop("checked", false);
-    $("input[name='subCategory'][value='전체']").prop("checked", true);
-
-    // 검색어 초기화
-    $("#equipment-search").val("");
-
-    // 필터 렌더링
-    renderFilter("equipment-filters", filterConfig, onFilterChange);
-
-    // 초기 장비 리스트 조회
-    fetchEquipment();
-});
-
 $(document).ready(function() {
     // 검색 이벤트
     $("#equipment-search").on("input", function() {
-        fetchEquipment();
+        const currentValues = getFilterValues(filterConfig);
+        fetchEquipment(currentValues);
     });
 });
 
-// 필터 변경 시 동작
-function onFilterChange(values) {
-    // 현재 선택된 카테고리 값
-    const category = getFilterValues(filterConfig).category;
+// 페이지가 보여질 때 초기화
+window.addEventListener("pageshow", async function () {
+    // 필터 초기화
+    $("input[name='category']").prop("checked", false);
+    $("input[name='subCategory']").prop("checked", false);
+    $("#equipment-search").val("");
 
-    // 서브카테고리 갱신
-    updateSubCategoryOptions(category);
+    // 필터 구성 가져오기
+    window.filterConfig = await fetchFilterConfig();
+    if (filterConfig) {
+        // 카테고리만 먼저 렌더링
+        renderFilter("category-filters", { category: filterConfig.category }, onFilterChange);
+        // 서브카테고리는 초기엔 옵션이 없으면 숨김
+        $("#sub-category-filters").hide();
 
-    // 최신 filterConfig 값으로 fetch
-    const filters = getFilterValues(filterConfig);
-    fetchEquipment(filters);
+        fetchEquipment();
+    }
+});
+
+// 필터 구성 가져오기
+async function fetchFilterConfig() {
+    try {
+        const categoryResp = await $.getJSON('/api/v1/categories');
+        const categories = categoryResp.data;
+
+        return {
+            category: {
+                label: "카테고리",
+                type: "radio",
+                options: [
+                    { id: null, label: "전체" }, // 전체 추가
+                    ...categories.map(c => ({ id: c.categoryId, label: c.label }))
+                ]
+            },
+            subCategory: {
+                label: "서브카테고리",
+                type: "radio",
+                options: []
+            }
+        };
+    } catch (e) {
+        console.error("필터 구성 불러오기 실패", e);
+        return null;
+    }
 }
 
+// 필터 렌더링
+function renderFilter(containerId, config, onChange) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    Object.entries(config).forEach(([key, value]) => {
+        if (!value.options || value.options.length === 0) {
+            container.hide();
+            return;
+        } else {
+            container.show();
+        }
+
+        const group = $("<div>").addClass("mb-3");
+
+        const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
+
+        value.options.forEach(opt => {
+            const inputId = key + "-" + (opt.id ?? opt.label);
+            const input = $("<input>")
+                .attr("type", value.type)
+                .addClass("btn-check")
+                .attr("name", key)
+                .attr("id", inputId)
+                .val(opt.id ?? "")
+                .prop("checked", opt.id === null); // 전체 체크
+
+            const button = $("<label>")
+                .addClass("btn btn-outline-primary")
+                .attr("for", inputId)
+                .text(opt.label);
+
+            input.on("change", () => onChange(getFilterValues(filterConfig)));
+
+            btnGroup.append(input, button);
+        });
+
+        group.append(btnGroup);
+        container.append(group);
+    });
+}
+
+// 현재 필터 값 가져오기
+function getFilterValues(config) {
+    const values = {};
+    Object.keys(config).forEach(key => {
+        const selected = $(`input[name="${key}"]:checked`);
+        values[key] = selected.length ? selected.val() : "";
+    });
+    return values;
+}
+
+// 필터 변경 시
+async function onFilterChange() {
+    const categoryId = getFilterValues(filterConfig).category;
+    await updateSubCategoryOptions(categoryId);
+
+    fetchEquipment(getFilterValues(filterConfig));
+}
 
 // 서브카테고리 업데이트
-function updateSubCategoryOptions(parentCategory) {
-    const options = subCategoryMap[parentCategory] || [];
+async function updateSubCategoryOptions(parentCategoryId) {
+    let options = [];
+    if (parentCategoryId) {
+        try {
+            const response = await $.getJSON(`/api/v1/categories/${parentCategoryId}/sub-categories`);
+            options = response.data.map(sc => ({ id: sc.subCategoryId, label: sc.label }));
+            options.unshift({ id: null, label: "전체" });
+        } catch (e) {
+            console.error("서브카테고리 불러오기 실패", e);
+        }
+    }
 
     filterConfig.subCategory.options = options;
 
-    const container = $("#sub-category-filters");
-    container.empty();
-    renderFilter("sub-category-filters", {
-        subCategory: {
-            type: "radio",
-            options: options
-        }
-    }, (values) => {
-        // category 필터도 함께 포함
+    if (options.length > 1) {
+        $("#sub-category-filters").addClass("active"); // 옵션이 있으면 표시
+    } else {
+        $("#sub-category-filters").removeClass("active"); // 옵션 없으면 숨김
+    }
+
+    renderFilter("sub-category-filters", { subCategory: { type: "radio", options } }, (values) => {
         const combinedFilters = {
             category: getFilterValues(filterConfig).category,
             subCategory: values.subCategory
@@ -131,21 +142,18 @@ function updateSubCategoryOptions(parentCategory) {
     });
 }
 
-// 장비 리스트 조회 함수
+// 장비 리스트 조회
 function fetchEquipment(filters={}) {
-    // 필터 통합
     const filterValues = filters || getFilterValues(filterConfig);
     const modelSearch = $("#equipment-search").val();
+
     const params = {
-        category: filterValues.category || null,
-        subCategory: filterValues.subCategory || null,
+        categoryId: filterValues.category || null,
+        subCategoryId: filterValues.subCategory || null,
         model: modelSearch || null
     };
 
-    // page가 있으면 추가
-    if (filterValues.page) {
-        params.page = filterValues.page;
-    }
+    if (filterValues.page) params.page = filterValues.page;
 
     $.ajax({
         url: "/api/v1/equipments",
@@ -164,40 +172,95 @@ function fetchEquipment(filters={}) {
     }).fail(handleServerError);
 }
 
-
 // 장비 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
     container.empty();
 
     if (!list || list.length === 0) {
-        container.append(`<div class="text-center py-3">장비가 없습니다.</div>`);
+        container.append(`<div class="text-center py-3">등록된 장비가 존재하지 않습니다.</div>`);
         return;
     }
 
-    list.forEach(equip => {
+    let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
+
+    list.forEach((equip, index) => {
         const card = $(`
-            <div class="card mb-3">
-                <div class="row g-0 h-100">
-                    <!-- 이미지 영역 고정 -->
-                    <div class="col-md-2 d-flex align-items-center justify-content-center bg-light" style="height: 168px;">
-                        <img src="${equip.imageUrl}"  
-                             style="max-width: 100%; max-height: 100%; object-fit: contain;" 
-                             alt="대표 이미지">
-                    </div>
-            
-                    <!-- 텍스트 영역 -->
-                    <div class="col-md-10 d-flex align-items-center">
-                        <div class="card-body">
-                            <h5 class="card-title">${equip.model}</h5>
-                            <p class="card-text">카테고리: ${equip.category}</p>
-                            <p class="card-text">서브카테고리: ${equip.subCategory || '-'}</p>
-                            <p class="card-text">재고: ${equip.availableStock}</p>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <div class="mb-2 text-center">
+                            <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
+                        </div>
+                        <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
+                        <p class="mb-1 text-muted small">${equip.category} / ${equip.subCategory || '-'}</p>
+                        <p class="mb-2">대여 가능: <span class="fw-bold">${equip.availableStock}</span></p>
+                        
+                        <div class="card-footer p-0 border-0">
+                            <div class="rental-btn w-100 text-center py-2 bg-light"  data-id="${equip.equipmentId}">
+                                <i class="bi bi-box-seam"></i> 대여 신청
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         `);
-        container.append(card);
+
+        row.append(card);
+
+        // 10개 단위(2행 × 5열)마다 끊기
+        if ((index + 1) % 10 === 0 || index === list.length - 1) {
+            container.append(row);
+            row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
+        }
     });
 }
+
+// 모달 이벤트
+$(document).on("click", ".rental-btn", function() {
+    const equipmentId = $(this).data("id");
+    $("#modalEquipmentId").val(equipmentId);
+
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0"); // 0~11
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    const today = `${yyyy}-${mm}-${dd}`;
+    $("#rentalStartDate").val(today);
+    $("#rentalEndDate").val(today);
+
+    new bootstrap.Modal(document.getElementById('rentalModal')).show();
+});
+
+$("#submitRental").on("click", function() {
+    const equipmentId = $("#modalEquipmentId").val();
+    const quantity = parseInt($("#rentalQuantity").val(), 10);
+    const startDate = $("#rentalStartDate").val();
+    const endDate = $("#rentalEndDate").val();
+    const rentalReason = $("#rentalReason").val();
+
+    if (!startDate || !endDate || !rentalReason || quantity <= 0) {
+        showSnackbar("모든 항목을 올바르게 입력해주세요.");
+        return;
+    }
+
+    const payload = { equipmentId: parseInt(equipmentId, 10), quantity, startDate, endDate, rentalReason };
+
+    $.ajax({
+        url: "/api/v1/rentals",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload)
+    }).done(function(response) {
+        showSnackbar(response.message);
+        $("#rentalModal").modal("hide");
+
+        fetchEquipment(getFilterValues(filterConfig));
+    }).fail(handleServerError);
+});
+
+$("#rentalModal").on("hidden.bs.modal", function () {
+    $("#rentalForm")[0].reset();
+    $("#modalEquipmentId").val("");
+});

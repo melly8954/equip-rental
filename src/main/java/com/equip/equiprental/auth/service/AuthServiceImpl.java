@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
                     .memberId(member.getMemberId())
                     .username(member.getUsername())
                     .name(member.getName())
-                    .department(member.getDepartment())
+                    .department(member.getDepartment().getDepartmentName())
                     .email(member.getEmail())
                     .role(member.getRole().name())
                     .status(member.getStatus().name())

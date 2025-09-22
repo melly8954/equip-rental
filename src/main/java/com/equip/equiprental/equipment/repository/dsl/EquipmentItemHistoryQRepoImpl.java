@@ -19,7 +19,6 @@ public class EquipmentItemHistoryQRepoImpl implements EquipmentItemHistoryQRepo 
 
     private final JPAQueryFactory queryFactory;
 
-
     @Override
     public Page<EquipmentItemHistoryDto> findHistoriesByEquipmentItemId(Long equipmentItemId, Pageable pageable) {
         QEquipmentItemHistory h = QEquipmentItemHistory.equipmentItemHistory;
@@ -31,12 +30,19 @@ public class EquipmentItemHistoryQRepoImpl implements EquipmentItemHistoryQRepo 
 
         List<EquipmentItemHistoryDto> content = queryFactory
                 .select(Projections.constructor(EquipmentItemHistoryDto.class,
-                        h.oldStatus.stringValue(), // enum → String
+                        h.item.equipmentItemId,
+                        h.oldStatus.stringValue(),
                         h.newStatus.stringValue(),
-                        h.changedBy.name,          // Member → String
+                        h.changedBy.name,
+                        h.rentedUser.name,
+                        h.rentedUser.department.departmentName,
+                        h.rentalStartDate,
+                        h.actualReturnDate,
                         h.createdAt
                 ))
                 .from(h)
+                .leftJoin(h.rentedUser)
+                .leftJoin(h.rentedUser.department)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

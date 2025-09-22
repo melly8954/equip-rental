@@ -3,7 +3,7 @@ function login(){
     const password = $('#password').val().trim();
 
     if (!username || !password) {
-        alert('아이디와 비밀번호를 모두 입력해주세요.');
+        showSnackbar('아이디와 비밀번호를 모두 입력해주세요.');
         return;
     }
 
@@ -16,8 +16,7 @@ function login(){
             password: password,
         })
     }).done(function(response) {
-        console.log(response);
-        alert(response.message);
+        showSnackbar(response.message);
         window.location.href = "/home";
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);

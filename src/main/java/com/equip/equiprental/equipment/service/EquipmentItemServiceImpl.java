@@ -12,6 +12,8 @@ import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.rental.domain.RentalItem;
+import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
 
     private final EquipmentItemRepository equipmentItemRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
+    private final RentalItemRepository rentalItemRepository;
 
     @Override
     @Transactional
@@ -34,6 +37,11 @@ public class EquipmentItemServiceImpl implements EquipmentItemService{
                 .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
 
         EquipmentStatus oldStatus = item.getStatus();
+
+        // 대여 중인 장비는 상태 변경 불가
+        if (oldStatus == EquipmentStatus.RENTED) {
+            throw new CustomException(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+        }
 
         // 상태 변경
         item.updateStatus(newStatus);

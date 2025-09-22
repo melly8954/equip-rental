@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name="equipment_item_history_tbl")
 @Getter
@@ -35,4 +37,14 @@ public class EquipmentItemHistory extends BaseEntity {
     @Column(name="new_status")
     @Enumerated(EnumType.STRING)
     private EquipmentStatus newStatus;
+
+    @Column(name="rental_start_date")
+    private LocalDate rentalStartDate;
+
+    @Column(name="actual_return_date")
+    private LocalDate actualReturnDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="rented_user_id")
+    private Member rentedUser;
 }

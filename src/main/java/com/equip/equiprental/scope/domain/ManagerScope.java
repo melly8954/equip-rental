@@ -1,6 +1,7 @@
 package com.equip.equiprental.scope.domain;
 
-import com.equip.equiprental.equipment.domain.EquipmentCategory;
+import com.equip.equiprental.equipment.domain.Category;
+import com.equip.equiprental.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="manager_scope_tbl")
-@IdClass(ManagerScopeId.class)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,9 +17,18 @@ import lombok.NoArgsConstructor;
 public class ManagerScope {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="manager_id")
-    private Long managerId;
+    @Column(name="scope_id")
+    private Long scopeId;
 
-    @Id
-    private String  category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="manager_id")
+    private Member manager;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="category_id")
+    private Category category;
+
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
 }

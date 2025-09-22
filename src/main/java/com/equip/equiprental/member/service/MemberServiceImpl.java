@@ -4,11 +4,15 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.equipment.domain.Category;
+import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
+import com.equip.equiprental.member.repository.DepartmentRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
+    private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ManagerScopeRepository managerScopeRepository;
 
     @Override
     @Transactional
@@ -39,11 +46,14 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorType.PASSWORD_MISMATCH);
         }
 
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+
         Member member = Member.builder()
                 .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
-                .department(dto.getDepartment())
+                .department(department)
                 .email(dto.getEmail())
                 .role(MemberRole.USER)
                 .status(MemberStatus.PENDING)
@@ -54,7 +64,7 @@ public class MemberServiceImpl implements MemberService {
                 .memberId(member.getMemberId())
                 .username(member.getUsername())
                 .name(member.getName())
-                .department(member.getDepartment())
+                .department(department.getDepartmentName())
                 .email(member.getEmail())
                 .createdAt(member.getCreatedAt())
                 .build();
@@ -82,7 +92,18 @@ public class MemberServiceImpl implements MemberService {
 
         List<MemberDto> content = page.getContent()
                 .stream()
-                .map(MemberDto::new)
+                .map(member -> {
+                    List<String> categories = null;
+                    if(member.getRole() == MemberRole.MANAGER) {
+                        // 매니저의 카테고리 스코프 찾기
+                        categories = managerScopeRepository.findCategoriesByManager(member.getMemberId())
+                                .stream()
+                                .map(Category::getCategoryId) // 또는 getLabel
+                                .map(String::valueOf)
+                                .toList();
+                    }
+                    return new MemberDto(member, categories);
+                })
                 .toList();
 
         return PageResponseDto.<MemberDto>builder()

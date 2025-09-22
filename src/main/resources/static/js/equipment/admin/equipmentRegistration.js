@@ -1,53 +1,26 @@
-const subCategoryMap = {
-    OFFICE_SUPPLIES: [
-        "문서 파쇄기",
-        "라벨프린터",
-        "프로젝트 보드"
-    ],
-    ELECTRONICS: [
-        "노트북",
-        "태블릿",
-        "프로젝터",
-        "모니터",
-        "프린터",
-        "카메라/캠코더",
-        "오디오장비(스피커/마이크)",
-        "외장저장장치(SSD/HDD)"
-    ],
-    FURNITURE: [
-        "사무용 의자",
-        "책상/테이블",
-        "서랍장/캐비닛",
-        "이동식 파티션",
-        "화이트보드"
-    ],
-    TOOLS: [
-        "전동공구(드릴, 그라인더)",
-        "수공구(망치, 드라이버)",
-        "측정도구(레이저측정기, 콤파스)",
-        "납땜장비"
-    ],
-    SAFETY_EQUIPMENT: [
-        "안전모",
-        "안전화",
-        "보호안경/귀마개",
-        "방진마스크",
-        "소화기/응급키트"
-    ]
-};
-
 $(document).ready(function () {
-    // 카테고리 변경 시 서브카테고리 옵션 갱신
-    $('#equipmentCategory').on('change', function() {
-        const category = $(this).val();
-        const $subCategory = $('#equipmentSubCategory');
-        $subCategory.empty().append('<option value="">선택</option>');
+    const category = $('#equipmentCategory');
+    const subCategory = $('#equipmentSubCategory');
 
-        if (category && subCategoryMap[category]) {
-            subCategoryMap[category].forEach(sub => {
-                $subCategory.append(`<option value="${sub}">${sub}</option>`);
+    // 카테고리 전체 조회
+    $.getJSON('/api/v1/categories', function(categories) {
+        categories.data.forEach(cat => {
+            category.append(`<option value="${cat.categoryId}">${cat.label}</option>`);
+        });
+    });
+
+    // 카테고리 변경 시 서브카테고리 조회
+    category.on('change', function() {
+        const categoryId = $(this).val();
+        subCategory.empty().append('<option value="">선택</option>');
+
+        if (!categoryId) return;
+
+        $.getJSON(`/api/v1/categories/${categoryId}/sub-categories`, function(subCategories) {
+            subCategories.data.forEach(sub => {
+                subCategory.append(`<option value="${sub.subCategoryId}">${sub.label}</option>`);
             });
-        }
+        });
     });
 
     // 파일 선택 시 미리보기 리스트 렌더링
@@ -95,14 +68,13 @@ $(document).ready(function () {
 });
 
 function registerEquipment() {
-    const $category = $('#equipmentCategory');
-    const $subCategory = $('#equipmentSubCategory');
-    const $model = $('#model');
-    const $stock = $('#stock');
+    const subCategoryId = $('#equipmentSubCategory').val();
+    const model = $('#model').val();
+    const stock = $('#stock').val();
     const $files = $('#files');
 
-    if (!$category.val() || !$subCategory.val() || !$model.val() || !$stock.val()) {
-        alert('모든 필드를 입력해주세요.');
+    if (!subCategoryId || !model || !stock) {
+        showSnackbar('모든 필드를 입력해주세요.');
         return;
     }
 
@@ -110,12 +82,11 @@ function registerEquipment() {
 
     // JSON 데이터
     const data = {
-        category: $category.val(),
-        subCategory: $subCategory.val(),
-        model: $model.val(),
-        stock: $stock.val()
+        subCategoryId: subCategoryId,
+        model: model,
+        stock: stock
     };
-
+    console.log(data);
     // JSON을 Blob으로 만들어서 FormData에 추가
     const jsonBlob = new Blob([JSON.stringify(data)], { type: "application/json" });
     formData.append("data", jsonBlob);
@@ -134,7 +105,7 @@ function registerEquipment() {
         processData: false,
         contentType: false
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         window.location.href = '/admin/equipment/list';
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);

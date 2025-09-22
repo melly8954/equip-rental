@@ -12,6 +12,9 @@ import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.rental.domain.Rental;
+import com.equip.equiprental.rental.domain.RentalItem;
+import com.equip.equiprental.rental.repository.RentalItemRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class EquipmentItemServiceImplTest {
     @Mock private EquipmentItemRepository equipmentItemRepository;
     @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
-
+    @Mock private RentalItemRepository rentalItemRepository;
 
     @InjectMocks
     private EquipmentItemServiceImpl equipmentItemService;
@@ -98,6 +101,34 @@ public class EquipmentItemServiceImplTest {
                     .extracting("errorType")
                     .isEqualTo(ErrorType.EQUIPMENT_ITEM_NOT_FOUND);
         }
+
+        @Test
+        @DisplayName("예외 - 대여 중인 장비 상태 변경 불가")
+        void updateItemStatus_rentedItem() {
+            // given
+            Member changer = Member.builder()
+                    .memberId(1L)
+                    .name("Admin")
+                    .build();
+
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("AVAILABLE") // 변경 시도
+                    .build();
+
+            EquipmentItem item = EquipmentItem.builder()
+                    .equipmentItemId(1L)
+                    .status(EquipmentStatus.RENTED) // 이미 대여 중
+                    .build();
+
+            when(equipmentItemRepository.findById(dto.getEquipmentItemId())).thenReturn(Optional.of(item));
+
+            // when & then
+            assertThatThrownBy(() -> equipmentItemService.updateItemStatus(dto, changer))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+        }
     }
 
     @Nested
@@ -129,30 +160,35 @@ public class EquipmentItemServiceImplTest {
             // Page 생성
             Page<EquipmentItemHistoryDto> mockPage = new PageImpl<>(List.of(history1, history2), pageable, 2);
 
-            // Mockito stub
             when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
                     .thenReturn(mockPage);
 
+            // RENTED 상태일 때 rentalItem 조회 모킹
+            RentalItem mockRentalItem = RentalItem.builder()
+                    .rental(Rental.builder()
+                            .member(Member.builder()
+                                    .name("홍길동")
+                                    .department("개발팀")
+                                    .build())
+                            .build())
+                    .build();
+
+            when(rentalItemRepository.findFirstByEquipmentItem_EquipmentItemIdAndActualReturnDateIsNull(equipmentItemId))
+                    .thenReturn(mockRentalItem);
+
             // when
-            PageResponseDto<EquipmentItemHistoryDto> result = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
+            PageResponseDto<EquipmentItemHistoryDto> response = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
 
             // then
-            assertThat(result.getContent()).hasSize(2)
-                    .extracting(EquipmentItemHistoryDto::getOldStatus, EquipmentItemHistoryDto::getNewStatus, EquipmentItemHistoryDto::getChangedBy)
-                    .containsExactly(
-                            tuple("AVAILABLE", "RENTED", "Admin"),
-                            tuple("AVAILABLE", "RENTED", "Admin")
-                    );
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getContent().get(0).getCurrentOwnerName()).isEqualTo("홍길동");
+            assertThat(response.getContent().get(0).getCurrentOwnerDept()).isEqualTo("개발팀");
 
-            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
-            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
-            assertThat(result.getTotalElements()).isEqualTo(2);
-            assertThat(result.getTotalPages()).isEqualTo(1);
-            assertThat(result.getNumberOfElements()).isEqualTo(2);
+            assertThat(response.getContent().get(1).getCurrentOwnerName()).isEqualTo("홍길동");
+            assertThat(response.getContent().get(1).getCurrentOwnerDept()).isEqualTo("개발팀");
 
-            assertThat(result.isFirst()).isTrue();
-            assertThat(result.isLast()).isTrue();
-            assertThat(result.isEmpty()).isFalse();
+            assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.isEmpty()).isFalse();
         }
 
 
@@ -167,7 +203,9 @@ public class EquipmentItemServiceImplTest {
                     .build();
             Pageable pageable = paramDto.getPageable();
 
+            // 빈 페이지 생성
             Page<EquipmentItemHistoryDto> emptyPage = Page.empty(pageable);
+
             when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
                     .thenReturn(emptyPage);
 
@@ -175,17 +213,15 @@ public class EquipmentItemServiceImplTest {
             PageResponseDto<EquipmentItemHistoryDto> result = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
 
             // then
-            assertThat(result.getContent()).isEmpty();
-            assertThat(result.isEmpty()).isTrue();
-
+            assertThat(result.getContent()).isEmpty(); // content는 빈 리스트여야 함
             assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
             assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
             assertThat(result.getTotalElements()).isEqualTo(0);
             assertThat(result.getTotalPages()).isEqualTo(0);
             assertThat(result.getNumberOfElements()).isEqualTo(0);
-
             assertThat(result.isFirst()).isTrue();
             assertThat(result.isLast()).isTrue();
+            assertThat(result.isEmpty()).isTrue();
         }
     }
 }

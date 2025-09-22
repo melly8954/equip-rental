@@ -1,0 +1,20 @@
+.filter-card {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+#equipment-list {
+    padding-top: 40px;
+    margin-top: 20px;
+}
+
+.rental-btn {
+    cursor: pointer;
+    border-top: 3px solid #ced4da;
+    transition: background 0.2s;
+}
+
+.rental-btn:hover {
+    background-color: #dee2e6 !important;
+}
