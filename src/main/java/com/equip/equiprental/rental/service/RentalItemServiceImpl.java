@@ -13,7 +13,6 @@ import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
-import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
