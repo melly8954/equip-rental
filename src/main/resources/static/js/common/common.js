@@ -59,17 +59,6 @@ function renderPagination(containerId, pageInfo, onPageChange) {
     container.append(pagination);
 }
 
-// function getFilterValues(config) {
-//     // values 라는 빈 객체 생성
-//     const values = {};
-//     $.each(config, function(key) {
-//         const selected = $(`input[name="${key}"]:checked`);
-//         values[key] = selected.length ? selected.val() : "";
-//     });
-//     // 빈 객체에 config key/value 담아서 반환
-//     return values;
-// }
-
 function getCurrentPage(containerId) {
     const activeLink = $(`#${containerId} .page-item.active a`);
     if (activeLink.length) {
