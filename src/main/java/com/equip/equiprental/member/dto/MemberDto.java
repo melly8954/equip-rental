@@ -19,11 +19,12 @@ public class MemberDto {
     private String email;
     private String status;
     private String role;
+    private String category;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private LocalDateTime createdAt;
 
-    public MemberDto(Member member) {
+    public MemberDto(Member member, String category) {
         this.memberId = member.getMemberId();
         this.username = member.getUsername();
         this.name = member.getName();
@@ -31,6 +32,7 @@ public class MemberDto {
         this.email = member.getEmail();
         this.status = member.getStatus().name(); // Enum이면 name()으로 String 변환
         this.role = member.getRole().name();
+        this.category = category;
         this.createdAt = member.getCreatedAt();
     }
 }
