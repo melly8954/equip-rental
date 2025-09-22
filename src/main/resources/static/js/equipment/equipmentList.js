@@ -221,7 +221,12 @@ $(document).on("click", ".rental-btn", function() {
     const equipmentId = $(this).data("id");
     $("#modalEquipmentId").val(equipmentId);
 
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0"); // 0~11
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    const today = `${yyyy}-${mm}-${dd}`;
     $("#rentalStartDate").val(today);
     $("#rentalEndDate").val(today);
 
