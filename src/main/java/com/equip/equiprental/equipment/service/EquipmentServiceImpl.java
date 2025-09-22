@@ -13,7 +13,6 @@ import com.equip.equiprental.equipment.dto.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.repository.SubCategoryRepository;
-import com.equip.equiprental.equipment.util.ModelCodeGenerator;
 import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.FileService;
@@ -36,7 +35,6 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final SubCategoryRepository subCategoryRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentItemRepository equipmentItemRepository;
-    private final ModelCodeGenerator modelCodeGenerator;
     private final FileRepository fileRepository;
     private final FileService fileService;
 
@@ -51,12 +49,14 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new CustomException(ErrorType.EXIST_EQUIPMENT_MODEL_CODE);
         }
         // 없으면 새 장비 생성
-        String modelCode = modelCodeGenerator.generate(subCategory.getCategory().getCategoryCode(), subCategory.getLabel());
+        String categoryCode = subCategory.getCategory().getCategoryCode().substring(0, 2).toUpperCase();
+        long modelSeq = equipmentRepository.findMaxModelSequence(subCategory.getSubCategoryId()).orElse(0L) + 1;
 
         Equipment equipment = Equipment.builder()
                 .subCategory(subCategory)
                 .model(dto.getModel())
-                .modelCode(modelCode)
+                .modelCode(categoryCode + "-" + subCategory.getSubCategoryCode() + "-" + modelSeq)
+                .modelSequence(modelSeq)
                 .stock(dto.getStock())
                 .build();
         equipmentRepository.save(equipment);
