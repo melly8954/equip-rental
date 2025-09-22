@@ -15,4 +15,7 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
 
     @Query("SELECT e.subCategory.category FROM Equipment e WHERE e.equipmentId = :equipmentId")
     Category findCategoryByEquipmentId(@Param("equipmentId") Long equipmentId);
+
+    @Query("SELECT COALESCE(MAX(e.modelSequence), 0) FROM Equipment e WHERE e.subCategory.subCategoryId = :subCategoryId")
+    Optional<Long> findMaxModelSequence(@Param("subCategoryId") Long subCategoryId);
 }
