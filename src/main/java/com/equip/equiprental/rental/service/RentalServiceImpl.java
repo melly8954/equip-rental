@@ -144,6 +144,11 @@ public class RentalServiceImpl implements RentalService{
             return;
         }
 
+        if (dto.getRentalStatusEnum() == RentalStatus.CANCELLED) {
+            rental.updateStatus(RentalStatus.CANCELLED);
+            return;
+        }
+
         // 승인(APPROVED) 처리
         Pageable limit = PageRequest.of(0, rental.getQuantity());
 
