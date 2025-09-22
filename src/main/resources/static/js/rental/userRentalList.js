@@ -223,7 +223,15 @@ function renderRentalList(data) {
                         <div class="col">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">
-                                    <p class="mb-0 fw-bold">${r.model}</p>
+                                    <p class="mb-0 fw-bold">
+                                        ${r.model}
+                                        ${
+                                            r.status === "PENDING"
+                                                ? `<button class="btn btn-sm btn-danger ms-2 cancel-rental-btn"
+                                                    data-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">취소</button>`
+                                                : ""
+                                        }
+                                    </p>
                                     <p class="mb-0 text-muted">
                                         ${r.category} / ${r.subCategory}
                                     </p>
@@ -262,4 +270,24 @@ function renderRentalList(data) {
 $(document).on("click", ".view-items-btn", function() {
     const rentalId = $(this).data("id");
     window.location.href = `/rental/${rentalId}/item`;
+});
+
+$(document).on("click", ".cancel-rental-btn", function() {
+    const rentalId = $(this).data("id");
+    const equipmentId = $(this).data("equipment-id");
+
+    if (!confirm("정말 이 대여 신청을 취소하시겠습니까?")) return;
+
+    $.ajax({
+        url: `/api/v1/rentals/${rentalId}`,
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            equipmentId: equipmentId,
+            newStatus: "CANCELLED"
+        })
+    }).done(function(response) {
+        showSnackbar("대여 신청이 취소되었습니다.");
+        fetchRentalList(getFilterValues(filterConfig)); // 목록 갱신
+    }).fail(handleServerError);
 });
