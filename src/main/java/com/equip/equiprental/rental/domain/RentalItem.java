@@ -55,6 +55,9 @@ public class RentalItem extends BaseEntity {
         if (this.actualReturnDate != null) {
             throw new CustomException(ErrorType.ALREADY_RETURNED);
         }
+        if (this.endDate.isBefore(LocalDate.now())) {
+            throw new CustomException(ErrorType.CANNOT_EXTEND_OVERDUE);
+        }
         this.endDate = newEndDate;
         this.isExtended = true;
     }
