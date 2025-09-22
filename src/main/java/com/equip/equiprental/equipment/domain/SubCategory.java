@@ -24,4 +24,8 @@ public class SubCategory extends BaseEntity {
     private Category category;
 
     private String label;
+
+    @Column(name="sub_category_code")
+    private String subCategoryCode;
 }
+
