@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,15 +93,16 @@ public class MemberServiceImpl implements MemberService {
         List<MemberDto> content = page.getContent()
                 .stream()
                 .map(member -> {
-                    String categoryLabel = null;
+                    List<String> categories = null;
                     if(member.getRole() == MemberRole.MANAGER) {
                         // 매니저의 카테고리 스코프 찾기
-                        Category category = managerScopeRepository.findCategoryByManager(member.getMemberId());
-                        if (category != null) {
-                            categoryLabel = category.getLabel();
-                        }
+                        categories = managerScopeRepository.findCategoriesByManager(member.getMemberId())
+                                .stream()
+                                .map(Category::getCategoryId) // 또는 getLabel
+                                .map(String::valueOf)
+                                .toList();
                     }
-                    return new MemberDto(member, categoryLabel);
+                    return new MemberDto(member, categories);
                 })
                 .toList();
 
