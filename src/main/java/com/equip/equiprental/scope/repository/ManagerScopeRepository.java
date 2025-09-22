@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ManagerScopeRepository extends JpaRepository<ManagerScope, Integer> {
     boolean existsByManager_MemberIdAndCategory_CategoryId(Long managerId, Long categoryId);
 
-    @Query("SELECT m.category FROM ManagerScope m WHERE m.manager.memberId = :memberId")
-    Category findCategoryByManager(@Param("memberId") Long memberId);
+    @Query("SELECT ms.category FROM ManagerScope ms WHERE ms.manager.memberId = :managerId")
+    List<Category> findCategoriesByManager(@Param("managerId") Long managerId);
 
-    Optional<ManagerScope> findByManager(Member manager);
+    List<ManagerScope> findAllByManager(Member manager);
 }
