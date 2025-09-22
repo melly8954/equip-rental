@@ -149,3 +149,54 @@ function updateMember(memberId, type, value, currentFilters = {}) {
         handleServerError(jqXHR);
     })
 }
+
+// 필터 UI 렌더링
+function renderFilter(containerId, filterConfig, onChangeCallback) {
+    const $container = $("#" + containerId);
+    $container.empty();
+
+    for (const key in filterConfig) {
+        const config = filterConfig[key];
+        const $filterGroup = $(`
+            <div class="mb-2">
+                <label class="form-label fw-bold">${config.label}</label>
+                <div id="filter-${key}" class="d-flex gap-2"></div>
+            </div>
+        `);
+
+        const $optionsContainer = $filterGroup.find(`#filter-${key}`);
+
+        if (config.type === "radio") {
+            config.options.forEach(option => {
+                const id = `filter-${key}-${option}`;
+                const $radio = $(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="${key}" id="${id}" value="${option}" ${option === "전체" ? "checked" : ""}>
+                        <label class="form-check-label" for="${id}">${option}</label>
+                    </div>
+                `);
+                $optionsContainer.append($radio);
+            });
+
+            // 변경 이벤트
+            $optionsContainer.on("change", "input", function () {
+                const values = getFilterValues(filterConfig);
+                onChangeCallback(values);
+            });
+        }
+
+        $container.append($filterGroup);
+    }
+}
+
+// 현재 필터 UI에서 선택된 값 가져오기
+function getFilterValues(filterConfig) {
+    const values = {};
+    for (const key in filterConfig) {
+        const selected = $(`input[name="${key}"]:checked`).val();
+        if (selected && selected !== "전체") {
+            values[key] = selected;
+        }
+    }
+    return values;
+}
