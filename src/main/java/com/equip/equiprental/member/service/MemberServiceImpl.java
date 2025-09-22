@@ -4,6 +4,7 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
@@ -11,6 +12,7 @@ import com.equip.equiprental.member.repository.DepartmentRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ManagerScopeRepository managerScopeRepository;
 
     @Override
     @Transactional
@@ -88,7 +91,17 @@ public class MemberServiceImpl implements MemberService {
 
         List<MemberDto> content = page.getContent()
                 .stream()
-                .map(MemberDto::new)
+                .map(member -> {
+                    String categoryLabel = null;
+                    if(member.getRole() == MemberRole.MANAGER) {
+                        // 매니저의 카테고리 스코프 찾기
+                        Category category = managerScopeRepository.findCategoryByManager(member.getMemberId());
+                        if (category != null) {
+                            categoryLabel = category.getLabel();
+                        }
+                    }
+                    return new MemberDto(member, categoryLabel);
+                })
                 .toList();
 
         return PageResponseDto.<MemberDto>builder()
