@@ -14,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,38 +27,34 @@ public class ManagerScopeService {
     private final ManagerScopeRepository managerScopeRepository;
 
     @Transactional
-    public void setScope(Long managerId, Long categoryId) {
+    public void setScope(Long managerId, List<Long> categoryIds) {
         Member manager = memberRepository.findById(managerId)
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
 
-        Optional<ManagerScope> existingScope = managerScopeRepository.findByManager(manager);
+        List<ManagerScope> existingScopes = managerScopeRepository.findAllByManager(manager);
+        Set<Long> existingCategoryIds = existingScopes.stream()
+                .map(scope -> scope.getCategory().getCategoryId())
+                .collect(Collectors.toSet());
 
-        if (categoryId == null) {
-            // 미지정 선택 → 기존 scope 삭제
-            existingScope.ifPresent(managerScopeRepository::delete);
-            return;
-        }
+        Set<Long> newCategoryIds = categoryIds == null ? Collections.emptySet() : new HashSet<>(categoryIds);
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CustomException(ErrorType.INVALID_CATEGORY_REQUEST));
+        // 삭제할 것: 기존에 있고, 새 선택에는 없는 것
+        existingScopes.stream()
+                .filter(scope -> !newCategoryIds.contains(scope.getCategory().getCategoryId()))
+                .forEach(managerScopeRepository::delete);
 
-        if (existingScope.isPresent()) {
-            // 기존 레코드 업데이트
-            ManagerScope scope = existingScope.get();
-            scope = ManagerScope.builder()
-                    .scopeId(scope.getScopeId())
-                    .manager(manager)
-                    .category(category)
-                    .build();
-            managerScopeRepository.save(scope);
-        } else {
-            // 새로 생성
-            ManagerScope scope = ManagerScope.builder()
-                    .manager(manager)
-                    .category(category)
-                    .build();
-            managerScopeRepository.save(scope);
-        }
+        // 추가할 것: 새 선택에 있고, 기존에는 없는 것
+        newCategoryIds.stream()
+                .filter(catId -> !existingCategoryIds.contains(catId))
+                .forEach(catId -> {
+                    Category category = categoryRepository.findById(catId)
+                            .orElseThrow(() -> new CustomException(ErrorType.INVALID_CATEGORY_REQUEST));
+                    ManagerScope scope = ManagerScope.builder()
+                            .manager(manager)
+                            .category(category)
+                            .build();
+                    managerScopeRepository.save(scope);
+                });
     }
 
     /**
