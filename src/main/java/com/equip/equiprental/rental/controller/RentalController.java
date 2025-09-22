@@ -66,7 +66,7 @@ public class RentalController implements ResponseController {
     }
 
     @PatchMapping("/{rentalId}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ResponseDto<Void>> updateRentalStatus(@PathVariable Long rentalId,
                                                                 @RequestBody UpdateRentalStatusDto dto,
                                                                 @AuthenticationPrincipal PrincipalDetails principal) {
