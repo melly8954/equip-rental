@@ -23,7 +23,18 @@ const roleLabelMap = {
     ADMIN: "관리자"
 };
 
+let categoryList = []; // 전역으로 선언
+
 $(document).ready(function () {
+    // 카테고리 가져오기
+    $.getJSON("/api/v1/categories")
+        .done(function(response) {
+            categoryList = response.data;
+        })
+        .fail(function(jqXHR) {
+            handleServerError(jqXHR);
+        });
+
     renderFilter("filter-container", filterConfig, (filters) => {
         loadMembers(filters);
     });
@@ -70,7 +81,7 @@ function renderMemberList(response, filters = {}) {
     }
 
     memberList.forEach(member => {
-        let statusSelect, roleSelect;
+        let statusSelect, roleSelect, scopeSelect;
 
         if (member.role === 'ADMIN') {
             // admin 계정은 수정 불가 (조회만 가능)
@@ -101,17 +112,34 @@ function renderMemberList(response, filters = {}) {
             `;
         }
 
+        // Scope 드롭다운 (관리자만)
+        if (member.role === 'MANAGER') {
+            // categoryList는 서버에서 API로 가져온 모든 카테고리 배열이라고 가정
+            scopeSelect = `
+            <select class="form-select manager-scope" data-id="${member.memberId}">
+                <option value="">미지정</option>
+                ${categoryList.map(cat => `
+                    <option value="${cat.categoryId}" ${member.category  === cat.label  ? 'selected' : ''}>
+                        ${cat.label}
+                    </option>
+                `).join('')}
+            </select>
+        `;
+        } else {
+            scopeSelect = `<span>-</span>`; // 일반 사용자/ADMIN은 표시 안함
+        }
+
         const row = $(`
             <div class="d-flex border-bottom py-2 text-center">
                 <div class="col-1">${member.memberId}</div>
                 <div class="col-2">${member.name}</div>
                 <div class="col-2">${member.department}</div>
                 <div class="col-3">${member.email}</div>
-                <div class="col-2">${statusSelect}</div>
-                <div class="col-2">${roleSelect}</div>
+                <div class="col-1">${statusSelect}</div>
+                <div class="col-1">${roleSelect}</div>
+                <div class="col-2">${scopeSelect}</div> 
             </div>
         `);
-
         $container.append(row);
     });
 
@@ -148,6 +176,29 @@ function updateMember(memberId, type, value, currentFilters = {}) {
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })
+}
+
+$(document).on("change", ".manager-scope", function() {
+    const memberId = $(this).data("id");
+    const categoryId = $(this).val(); // 선택한 카테고리 ID
+    updateManagerScope(memberId, categoryId);
+});
+
+function updateManagerScope(memberId, categoryId) {
+    $.ajax({
+        url: `/api/v1/manager-scopes`,
+        type: "POST", // 처음 등록 시에는 POST, 기존에 있으면 서버에서 처리 가능
+        contentType: "application/json",
+        data: JSON.stringify({
+            managerId: memberId,
+            categoryId: categoryId }
+        ),
+    }).done(function(response) {
+        showSnackbar("스코프가 변경되었습니다.");
+        loadMembers(getFilterValues(filterConfig)); // 갱신
+    }).fail(function(jqXHR) {
+        handleServerError(jqXHR);
+    });
 }
 
 // 필터 UI 렌더링
