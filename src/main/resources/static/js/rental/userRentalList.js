@@ -238,7 +238,7 @@ function renderRentalList(data) {
                                     r.status === "APPROVED"
                                         ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
                                         : r.status === "REJECTED"
-                                            ? `거절 사유: ${r.rejectReason}`
+                                            ? `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br> 거절 사유: ${r.rejectReason}`
                                             : `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}`
                                     }
                                 </p>
