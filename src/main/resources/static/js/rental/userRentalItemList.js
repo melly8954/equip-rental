@@ -134,7 +134,7 @@ $(document).on("click", ".extend-btn", function() {
             days: 7
         })
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         fetchRentalItemList(rentalId)
     }).fail(function(xhr) {
         handleServerError(xhr);

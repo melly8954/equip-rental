@@ -74,7 +74,7 @@ function registerEquipment() {
     const $files = $('#files');
 
     if (!subCategoryId || !model || !stock) {
-        alert('모든 필드를 입력해주세요.');
+        showSnackbar('모든 필드를 입력해주세요.');
         return;
     }
 
@@ -105,7 +105,7 @@ function registerEquipment() {
         processData: false,
         contentType: false
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         window.location.href = '/admin/equipment/list';
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);

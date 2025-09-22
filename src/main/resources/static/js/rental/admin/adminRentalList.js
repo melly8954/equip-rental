@@ -273,7 +273,7 @@ $(document).on("click", ".btn-approve", function () {
         contentType: "application/json",
         data: JSON.stringify({ equipmentId, newStatus: "APPROVED" })
     }).done(resp => {
-        alert(resp.message);
+        showSnackbar(resp.message);
         fetchRentalList(getFilterValues());
     }).fail(xhr => handleServerError(xhr));
 });
@@ -293,7 +293,7 @@ $("#confirm-reject").on("click", function () {
     const reasonText = $("#reject-reason-text").val();
     const rejectReason = reasonSelect === "기타" ? reasonText : reasonSelect;
 
-    if (!rejectReason) return alert("거절 사유를 입력해주세요.");
+    if (!rejectReason) return showSnackbar("거절 사유를 입력해주세요.");
 
     $.ajax({
         url: `/api/v1/rentals/${selectedRentalId}`,
@@ -301,7 +301,7 @@ $("#confirm-reject").on("click", function () {
         contentType: "application/json",
         data: JSON.stringify({ equipmentId: selectedEquipmentId, newStatus: "REJECTED", rejectReason })
     }).done(resp => {
-        alert(resp.message);
+        showSnackbar(resp.message);
         fetchRentalList(getFilterValues());
 
         const modal = bootstrap.Modal.getInstance(document.getElementById("rejectReasonModal"));

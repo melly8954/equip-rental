@@ -251,13 +251,13 @@ $(document).on("click", ".item-list-btn", function () {
         if (response.data) {
             window.location.href = `/admin/equipment/${equipmentId}/item`;
         } else {
-            alert("접근 권한이 없습니다.");
+            showSnackbar("접근 권한이 없습니다.");
         }
     }).fail(function(xhr) {
         if (xhr.status === 403) {
-            alert("접근 권한이 없습니다.");
+            showSnackbar("접근 권한이 없습니다.");
         } else {
-            alert("서버 오류가 발생했습니다.");
+            showSnackbar("서버 오류가 발생했습니다.");
         }
     });
 });
@@ -274,13 +274,13 @@ $(document).on("click", ".stock-increase-btn", function() {
             $("#stockAmount").val(1);
             $("#stockIncreaseModal").modal("show");
         } else {
-            alert("접근 권한이 없습니다.");
+            showSnackbar("접근 권한이 없습니다.");
         }
     }).fail(function(xhr) {
         if (xhr.status === 403) {
-            alert("접근 권한이 없습니다.");
+            showSnackbar("접근 권한이 없습니다.");
         } else {
-            alert("서버 오류가 발생했습니다.");
+            showSnackbar("서버 오류가 발생했습니다.");
         }
     });
 });
@@ -295,7 +295,7 @@ $("#confirmStockIncrease").on("click", function() {
         contentType: "application/json",
         data: JSON.stringify({ amount })
     }).done(function(response) {
-        alert(response.message)
+        showSnackbar(response.message)
         $("#stockIncreaseModal").modal("hide");
 
         // 현재 필터와 검색어 상태 가져오기

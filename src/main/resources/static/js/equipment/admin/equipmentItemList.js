@@ -201,7 +201,7 @@ function updateItemStatus(itemId, newStatus, filters, page) {
             newStatus: newStatus
         })
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         fetchEquipmentItems(equipmentId, filters, page);
     }).fail(function(xhr) {
         handleServerError(xhr);
@@ -232,7 +232,7 @@ $(document).on("change", "#image-input", function() {
         processData: false,
         contentType: false
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         fetchEquipmentItems(equipmentId, {}, 1); // 새로고침 없이 데이터 다시 불러오기
     }).fail(function(xhr) {
         handleServerError(xhr);

@@ -29,7 +29,7 @@ function signUp(){
 
     // 간단한 검증
     if (!username || !password || !confirmPassword || !name || !departmentId || !email) {
-        alert("모든 항목을 입력해주세요.");
+        showSnackbar("모든 항목을 입력해주세요.");
         return;
     }
 
@@ -47,7 +47,7 @@ function signUp(){
         })
     }).done(function(response) {
         console.log(response);
-        alert(response.message);
+        showSnackbar(response.message);
         window.location.href = "/";
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);

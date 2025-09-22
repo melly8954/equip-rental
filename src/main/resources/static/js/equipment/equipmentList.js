@@ -236,7 +236,7 @@ $("#submitRental").on("click", function() {
     const rentalReason = $("#rentalReason").val();
 
     if (!startDate || !endDate || !rentalReason || quantity <= 0) {
-        alert("모든 항목을 올바르게 입력해주세요.");
+        showSnackbar("모든 항목을 올바르게 입력해주세요.");
         return;
     }
 
@@ -248,7 +248,7 @@ $("#submitRental").on("click", function() {
         contentType: "application/json",
         data: JSON.stringify(payload)
     }).done(function(response) {
-        alert(response.message);
+        showSnackbar(response.message);
         $("#rentalModal").modal("hide");
 
         fetchEquipment(getFilterValues(filterConfig));

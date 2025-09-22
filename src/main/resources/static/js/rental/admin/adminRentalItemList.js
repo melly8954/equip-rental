@@ -338,7 +338,8 @@ function handleReturn(rentalItemId, button) {
     $.ajax({
         url: `/api/v1/rental-items/${rentalItemId}`,
         method: "PATCH",
-    }).done(() => {
+    }).done(function (response) {
+        showSnackbar(response.message);
         button.replaceWith(`<span class="text-success small">반납완료</span>`);
         fetchRentalItemList(getFilterValues());
     }).fail(xhr => {
