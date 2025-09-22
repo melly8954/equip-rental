@@ -147,3 +147,7 @@ nav.sidebar .user-info span {
     from { bottom: 30px; opacity: 1; }
     to { bottom: 0; opacity: 0; }
 }
+
+.pagination .page-item {
+    margin: 0 4px; /* 좌우 여백 */
+}
