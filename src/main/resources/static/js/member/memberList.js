@@ -24,6 +24,7 @@ const roleLabelMap = {
 };
 
 let categoryList = []; // 전역으로 선언
+let memberData = [];
 
 $(document).ready(function () {
     // 카테고리 가져오기
@@ -57,6 +58,57 @@ $(document).ready(function () {
     });
 });
 
+// 필터 UI 렌더링
+function renderFilter(containerId, filterConfig, onChangeCallback) {
+    const $container = $("#" + containerId);
+    $container.empty();
+
+    for (const key in filterConfig) {
+        const config = filterConfig[key];
+        const $filterGroup = $(`
+            <div class="mb-2">
+                <label class="form-label fw-bold">${config.label}</label>
+                <div id="filter-${key}" class="d-flex gap-2"></div>
+            </div>
+        `);
+
+        const $optionsContainer = $filterGroup.find(`#filter-${key}`);
+
+        if (config.type === "radio") {
+            config.options.forEach(option => {
+                const id = `filter-${key}-${option}`;
+                const $radio = $(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="${key}" id="${id}" value="${option}" ${option === "전체" ? "checked" : ""}>
+                        <label class="form-check-label" for="${id}">${option}</label>
+                    </div>
+                `);
+                $optionsContainer.append($radio);
+            });
+
+            // 변경 이벤트
+            $optionsContainer.on("change", "input", function () {
+                const values = getFilterValues(filterConfig);
+                onChangeCallback(values);
+            });
+        }
+
+        $container.append($filterGroup);
+    }
+}
+
+// 현재 필터 UI에서 선택된 값 가져오기
+function getFilterValues(filterConfig) {
+    const values = {};
+    for (const key in filterConfig) {
+        const selected = $(`input[name="${key}"]:checked`).val();
+        if (selected && selected !== "전체") {
+            values[key] = selected;
+        }
+    }
+    return values;
+}
+
 function loadMembers(filters = {}) {
     $.ajax({
         url: "/api/v1/members",
@@ -71,6 +123,7 @@ function loadMembers(filters = {}) {
 }
 
 function renderMemberList(response, filters = {}) {
+    memberData = response.data.content;
     const memberList = response.data.content;
     const $container = $("#member-list");
     $container.empty(); // 기존 내용 초기화
@@ -112,21 +165,10 @@ function renderMemberList(response, filters = {}) {
             `;
         }
 
-        // Scope 드롭다운 (관리자만)
         if (member.role === 'MANAGER') {
-            // categoryList는 서버에서 API로 가져온 모든 카테고리 배열이라고 가정
-            scopeSelect = `
-            <select class="form-select manager-scope" data-id="${member.memberId}">
-                <option value="">미지정</option>
-                ${categoryList.map(cat => `
-                    <option value="${cat.categoryId}" ${member.category  === cat.label  ? 'selected' : ''}>
-                        ${cat.label}
-                    </option>
-                `).join('')}
-            </select>
-        `;
+            scopeSelect = `<button class="btn btn-sm btn-primary edit-scope" data-id="${member.memberId}">접근 범위 관리</button>`;
         } else {
-            scopeSelect = `<span>-</span>`; // 일반 사용자/ADMIN은 표시 안함
+            scopeSelect = `<span>-</span>`;
         }
 
         const row = $(`
@@ -178,76 +220,48 @@ function updateMember(memberId, type, value, currentFilters = {}) {
     })
 }
 
-$(document).on("change", ".manager-scope", function() {
+$(document).on("click", ".edit-scope", function() {
     const memberId = $(this).data("id");
-    const categoryId = $(this).val(); // 선택한 카테고리 ID
-    updateManagerScope(memberId, categoryId);
+    const member = memberData.find(m => m.memberId === memberId); // 현재 멤버 정보
+    const modalBody = $("#scopeModalBody");
+    modalBody.empty();
+
+    categoryList.forEach(cat => {
+        const checked = member.categories?.includes(String(cat.categoryId)) ? 'checked' : '';
+        modalBody.append(`
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="${cat.categoryId}" ${checked}>
+                <label class="form-check-label">${cat.label}</label>
+            </div>
+        `);
+    });
+
+    $("#saveScopeBtn").data("id", memberId);
+    const modal = new bootstrap.Modal(document.getElementById('scopeModal'));
+    modal.show();
 });
 
-function updateManagerScope(memberId, categoryId) {
+$("#saveScopeBtn").on("click", function() {
+    const memberId = $(this).data("id");
+    const categoryIds = $("#scopeModalBody input:checked").map((i, el) => $(el).val()).get();
+
+    updateManagerScope(memberId, categoryIds);
+    bootstrap.Modal.getInstance(document.getElementById('scopeModal')).hide();
+});
+
+function updateManagerScope(memberId, categoryIds) {
     $.ajax({
         url: `/api/v1/manager-scopes`,
         type: "POST", // 처음 등록 시에는 POST, 기존에 있으면 서버에서 처리 가능
         contentType: "application/json",
         data: JSON.stringify({
             managerId: memberId,
-            categoryId: categoryId }
-        ),
+            categoryIds : categoryIds
+        }),
     }).done(function(response) {
         showSnackbar("스코프가 변경되었습니다.");
         loadMembers(getFilterValues(filterConfig)); // 갱신
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     });
-}
-
-// 필터 UI 렌더링
-function renderFilter(containerId, filterConfig, onChangeCallback) {
-    const $container = $("#" + containerId);
-    $container.empty();
-
-    for (const key in filterConfig) {
-        const config = filterConfig[key];
-        const $filterGroup = $(`
-            <div class="mb-2">
-                <label class="form-label fw-bold">${config.label}</label>
-                <div id="filter-${key}" class="d-flex gap-2"></div>
-            </div>
-        `);
-
-        const $optionsContainer = $filterGroup.find(`#filter-${key}`);
-
-        if (config.type === "radio") {
-            config.options.forEach(option => {
-                const id = `filter-${key}-${option}`;
-                const $radio = $(`
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="${key}" id="${id}" value="${option}" ${option === "전체" ? "checked" : ""}>
-                        <label class="form-check-label" for="${id}">${option}</label>
-                    </div>
-                `);
-                $optionsContainer.append($radio);
-            });
-
-            // 변경 이벤트
-            $optionsContainer.on("change", "input", function () {
-                const values = getFilterValues(filterConfig);
-                onChangeCallback(values);
-            });
-        }
-
-        $container.append($filterGroup);
-    }
-}
-
-// 현재 필터 UI에서 선택된 값 가져오기
-function getFilterValues(filterConfig) {
-    const values = {};
-    for (const key in filterConfig) {
-        const selected = $(`input[name="${key}"]:checked`).val();
-        if (selected && selected !== "전체") {
-            values[key] = selected;
-        }
-    }
-    return values;
 }
