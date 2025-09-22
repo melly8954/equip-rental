@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class UserRentalDto {
     private Long rentalId;
+    private Long equipmentId;
     private String model;
     private String category;
     private String subCategory;

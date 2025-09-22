@@ -122,6 +122,7 @@ public class RentalQRepoImpl implements RentalQRepo{
         List<UserRentalDto> content = queryFactory
                 .select(Projections.constructor(UserRentalDto.class,
                         r.rentalId,
+                        r.equipment.equipmentId,
                         r.equipment.model,
                         c.label,
                         sc.label,
