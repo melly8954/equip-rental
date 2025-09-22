@@ -26,7 +26,7 @@ public class ManagerScopeController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[매니저 스코프 변경 요청 API] TraceId={}", traceId);
 
-        managerScopeService.setScope(dto.getManagerId(), dto.getCategoryId());
+        managerScopeService.setScope(dto.getManagerId(), dto.getCategoryIds());
         return makeResponseEntity(traceId, HttpStatus.OK, null, "접근 범위가 업데이트되었습니다.", null);
     }
 
