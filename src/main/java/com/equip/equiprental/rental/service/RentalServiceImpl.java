@@ -57,16 +57,16 @@ public class RentalServiceImpl implements RentalService{
         // 대여 날짜 검증
         LocalDate today = LocalDate.now();
         if (dto.getStartDate().isBefore(today)) {
-            throw new CustomException(ErrorType.INVALID_RENTAL_START_DATE);
+            throw new CustomException(ErrorType.RENTAL_START_DATE_INVALID);
         }
 
         if (dto.getEndDate().isBefore(dto.getStartDate())) {
-            throw new CustomException(ErrorType.INVALID_RENTAL_END_DATE);
+            throw new CustomException(ErrorType.RENTAL_END_DATE_INVALID);
         }
 
         // 수량 검증
         if (dto.getQuantity() <= 0 || dto.getQuantity() > availableStock) {
-            throw new CustomException(ErrorType.INVALID_RENTAL_QUANTITY);
+            throw new CustomException(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK);
         }
 
         Rental rental = Rental.builder()
@@ -148,6 +148,10 @@ public class RentalServiceImpl implements RentalService{
         Pageable limit = PageRequest.of(0, rental.getQuantity());
 
         List<EquipmentItem> equipmentItems = equipmentItemRepository.findAvailableItemsForUpdate(dto.getEquipmentId(),limit);
+
+        if (rental.getRequestStartDate().isBefore(LocalDate.now())) {
+            throw new CustomException(ErrorType.RENTAL_START_DATE_PASSED);
+        }
 
         if (equipmentItems.size() < rental.getQuantity()) {
             throw new CustomException(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK);
