@@ -73,7 +73,6 @@ public class EquipmentServiceImplTest {
 
             List<MultipartFile> files = List.of(file);
             when(equipmentRepository.findByModel("MODEL_Y")).thenReturn(Optional.empty());
-            when(modelCodeGenerator.generate(request.getCategory(), request.getSubCategory())).thenReturn("MCODE456");
 
             when(equipmentRepository.save(any()))
                     .thenAnswer(invocation -> {
