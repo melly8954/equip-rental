@@ -50,11 +50,12 @@ public enum ErrorType {
     INVALID_DATE_FORMAT("invalid_date_format", "날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식으로 입력해주세요.", HttpStatus.BAD_REQUEST),
 
     // 장비 대여 신청 에러
-    INVALID_RENTAL_START_DATE("invalid_rental_start_date", "대여 시작일은 오늘날 이후여야 합니다.", HttpStatus.BAD_REQUEST),
-    INVALID_RENTAL_END_DATE("invalid_rental_end_date", "대여 종료일은 대여 시작일과 같거나 이후여야 합니다.", HttpStatus.BAD_REQUEST),
-    INVALID_RENTAL_QUANTITY("invalid_rental_quantity", "대여 수량이 남은 재고보다 많습니다.", HttpStatus.BAD_REQUEST),
+    RENTAL_START_DATE_INVALID("rental_start_date_invalid", "대여 시작일은 오늘 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+    RENTAL_END_DATE_INVALID("invalid_rental_end_date", "대여 종료일은 대여 시작일과 같거나 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+    RENTAL_QUANTITY_EXCEEDS_STOCK("rental_quantity_exceeds_stock", "대여 수량이 남은 재고보다 많습니다.", HttpStatus.BAD_REQUEST),
 
     // 장비 대여 승인
+    RENTAL_START_DATE_PASSED("rental_start_date_passed", "대여 시작일이 이미 지나 승인할 수 없습니다.", HttpStatus.CONFLICT),
     EQUIPMENT_ITEM_INSUFFICIENT_STOCK("equipment_item_insufficient_stock", "해당 장비 모델의 대여 가능 재고가 부족합니다.", HttpStatus.CONFLICT),
     PARTIAL_UPDATE("partial_update", "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.", HttpStatus.CONFLICT),
 
