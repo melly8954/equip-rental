@@ -10,7 +10,10 @@ import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItem;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
+import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -69,12 +73,23 @@ public class RentalItemServiceImpl implements RentalItemService{
                 .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
 
         EquipmentItem equipmentItem = item.getEquipmentItem();
+        Rental rental = item.getRental();
 
         EquipmentStatus oldStatus = equipmentItem.getStatus();
 
         // 장비 상태 변경(사용 가능) + 실 반납일 저장
         equipmentItem.updateStatus(EquipmentStatus.AVAILABLE);
         item.returnItem(LocalDate.now());
+
+        // 모든 아이템이 반납되었으면 Rental 상태 변경
+        List<RentalItem> rentalItems = rentalItemRepository.findByRental_RentalId(rental.getRentalId());
+
+        boolean allReturned = rentalItems.stream()
+                .allMatch(i -> i.getStatus() == RentalItemStatus.RETURNED);
+
+        if (allReturned) {
+            rental.updateStatus(RentalStatus.COMPLETED);
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
