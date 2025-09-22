@@ -30,6 +30,9 @@ public class Equipment extends BaseEntity {
     @Column(name="model_code")
     private String modelCode;
 
+    @Column(name="model_sequence")
+    private Long modelSequence;
+
     private Integer stock;
 
     public void increaseStock(int amount) {
