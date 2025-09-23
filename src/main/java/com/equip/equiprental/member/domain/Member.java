@@ -42,7 +42,7 @@ public class Member extends BaseEntity {
         this.role = newRole;
     }
 
-    public boolean isAdmin() {
-        return this.role == MemberRole.ADMIN;
+    public boolean isAdminOrManager() {
+        return this.role == MemberRole.ADMIN || this.role == MemberRole.MANAGER;
     }
 }
