@@ -1,10 +1,13 @@
 package com.equip.equiprental.common.route;
 
+import com.equip.equiprental.auth.security.PrincipalDetails;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -50,6 +53,15 @@ public class AllViewController {
     @GetMapping("/rental/{rentalId}/item")
     public String userRentalItemList() {
         return "rental/rentalItemList";
+    }
+
+    @GetMapping("/board/list")
+    public String boardList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        boolean isAdmin = principal.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
+        return "board/boardList";
     }
 
     // 관리자 접근
