@@ -1,5 +1,6 @@
 package com.equip.equiprental.common.dto;
 
+import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
@@ -35,6 +36,8 @@ public class SearchParamDto {
 
     private String memberName;
     private Long departmentId;
+
+    private BoardType boardType;
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());

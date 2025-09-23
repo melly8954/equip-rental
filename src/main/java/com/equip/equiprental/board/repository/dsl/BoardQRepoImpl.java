@@ -1,8 +1,10 @@
 package com.equip.equiprental.board.repository.dsl;
 
 import com.equip.equiprental.board.domain.Board;
+import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.QBoard;
 import com.equip.equiprental.board.dto.BoardListResponse;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,12 @@ public class BoardQRepoImpl implements BoardQRepo{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<BoardListResponse> findBoardList(Pageable pageable) {
+    public Page<BoardListResponse> findBoardList(Pageable pageable, BoardType type) {
         QBoard b = QBoard.board;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(b.boardType.eq(type));
 
         List<BoardListResponse> contents = queryFactory
                 .select(Projections.constructor(BoardListResponse.class,
@@ -30,6 +36,7 @@ public class BoardQRepoImpl implements BoardQRepo{
                         b.title,
                         b.createdAt))
                 .from(b)
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(b.createdAt.desc())
@@ -38,6 +45,7 @@ public class BoardQRepoImpl implements BoardQRepo{
         Long total = queryFactory
                 .select(b.count())
                 .from(b)
+                .where(builder)
                 .fetchOne();
         total = total == null ? 0 : total;
 
