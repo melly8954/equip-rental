@@ -53,14 +53,15 @@ public class BoardServiceImpl implements BoardService {
 
         if(files != null && !files.isEmpty()) {
             int fileOrder = 0;
-            List<String> fileUrls = fileService.saveFiles(files, "board");
+            String typeKey = "board_" + boardType.name().toLowerCase();
+            List<String> fileUrls = fileService.saveFiles(files, typeKey);
 
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
                 String url = fileUrls.get(i); // fileService에서 생성한 접근 URL
 
                 FileMeta meta = FileMeta.builder()
-                        .relatedType("board_"+boardType.name().toLowerCase())
+                        .relatedType(typeKey)
                         .relatedId(board.getBoardId())
                         .originalName(file.getOriginalFilename())
                         .uniqueName(url.substring(url.lastIndexOf("/") + 1)) // URL 에서 uniqueName 추출
