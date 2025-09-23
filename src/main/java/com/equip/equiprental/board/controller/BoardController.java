@@ -3,9 +3,12 @@ package com.equip.equiprental.board.controller;
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.BoardCreateRequest;
 import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.dto.BoardListResponse;
 import com.equip.equiprental.board.service.BoardService;
 import com.equip.equiprental.common.controller.ResponseController;
+import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +32,22 @@ public class BoardController implements ResponseController {
                                                                         @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                                                         @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 추가 요청 API] TraceId={}", traceId);
+        log.info("게시글 등록 요청 API] TraceId={}", traceId);
 
         Long writerId = principal.getMember().getMemberId();
 
         BoardCreateResponse result = boardService.createBoard(boardCreateRequest, files, writerId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 추가 요청 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 등록 요청 성공", result);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute SearchParamDto paramDto) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("게시글 조회 요청 API] TraceId={}", traceId);
+
+        PageResponseDto<BoardListResponse> result = boardService.getBoardList(paramDto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 조회 성공", result);
     }
 }

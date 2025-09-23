@@ -5,7 +5,10 @@ import com.equip.equiprental.board.domain.BoardStatus;
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.dto.BoardCreateRequest;
 import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.dto.BoardListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.filestorage.domain.FileMeta;
@@ -14,6 +17,8 @@ import com.equip.equiprental.filestorage.service.FileService;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,6 +99,26 @@ public class BoardServiceImpl implements BoardService {
                                 .fileSize(f.getFileSize())
                                 .build())
                         .toList())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<BoardListResponse> dtosPage = boardRepository.findBoardList(pageable);
+
+        return PageResponseDto.<BoardListResponse>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
                 .build();
     }
 }
