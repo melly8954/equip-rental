@@ -1,0 +1,98 @@
+package com.equip.equiprental.board.service;
+
+import com.equip.equiprental.board.domain.Board;
+import com.equip.equiprental.board.domain.BoardStatus;
+import com.equip.equiprental.board.domain.BoardType;
+import com.equip.equiprental.board.dto.BoardCreateRequest;
+import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.repository.BoardRepository;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.filestorage.domain.FileMeta;
+import com.equip.equiprental.filestorage.repository.FileRepository;
+import com.equip.equiprental.filestorage.service.FileService;
+import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class BoardServiceImpl implements BoardService {
+    private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
+    private final FileRepository fileRepository;
+    private final FileService fileService;
+
+    @Override
+    @Transactional
+    public BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long writerId) {
+        Member writer = memberRepository.findById(writerId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
+        BoardType boardType = dto.getBoardType();
+        if (!writer.isAdmin() && boardType != BoardType.SUGGESTION) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
+
+        Board board = Board.builder()
+                .writer(writer)
+                .boardType(boardType)
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .status(BoardStatus.PENDING)
+                .build();
+        boardRepository.save(board);
+
+        List<FileMeta> savedFiles = new ArrayList<>();
+
+        if(files != null && !files.isEmpty()) {
+            int fileOrder = 0;
+            List<String> fileUrls = fileService.saveFiles(files, "board");
+
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                String url = fileUrls.get(i); // fileService에서 생성한 접근 URL
+
+                FileMeta meta = FileMeta.builder()
+                        .relatedType("board_"+boardType.name().toLowerCase())
+                        .relatedId(board.getBoardId())
+                        .originalName(file.getOriginalFilename())
+                        .uniqueName(url.substring(url.lastIndexOf("/") + 1)) // URL 에서 uniqueName 추출
+                        .fileOrder(fileOrder++)
+                        .fileType(file.getContentType())
+                        .filePath(url) // 접근 URL
+                        .fileSize(file.getSize())
+                        .build();
+
+                savedFiles.add(meta);
+            }
+
+            fileRepository.saveAll(savedFiles);
+        }
+
+        return BoardCreateResponse.builder()
+                .boardId(board.getBoardId())
+                .boardType(board.getBoardType().name())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .status(board.getStatus().name())
+                .createdAt(board.getCreatedAt())
+                .files(savedFiles.stream()
+                        .map(f -> BoardCreateResponse.BoardFile.builder()
+                                .fileId(f.getFileId())
+                                .originalName(f.getOriginalName())
+                                .url(f.getFilePath())
+                                .fileOrder(f.getFileOrder())
+                                .fileType(f.getFileType())
+                                .fileSize(f.getFileSize())
+                                .build())
+                        .toList())
+                .build();
+    }
+}
