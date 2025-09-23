@@ -10,4 +10,4 @@ file:
   storage-path: C:/equip_rental/files/
   directories:
     equipment: equipment
-    rental: rental
+    board: board
