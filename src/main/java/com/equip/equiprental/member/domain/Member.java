@@ -41,4 +41,8 @@ public class Member extends BaseEntity {
     public void updateRole(MemberRole newRole) {
         this.role = newRole;
     }
+
+    public boolean isAdmin() {
+        return this.role == MemberRole.ADMIN;
+    }
 }
