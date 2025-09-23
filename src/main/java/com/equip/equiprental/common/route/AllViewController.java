@@ -57,11 +57,16 @@ public class AllViewController {
 
     @GetMapping("/board/list")
     public String boardList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
-        boolean isAdmin = principal.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
 
         return "board/boardList";
+    }
+
+    @GetMapping("/board/registration")
+    public String boardRegistration(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardRegistration";
     }
 
     // 관리자 접근

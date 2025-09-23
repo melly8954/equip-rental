@@ -36,7 +36,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
 
         BoardType boardType = dto.getBoardType();
-        if (!writer.isAdmin() && boardType != BoardType.SUGGESTION) {
+        if (!writer.isAdminOrManager() && boardType != BoardType.SUGGESTION) {
             throw new CustomException(ErrorType.FORBIDDEN);
         }
 
