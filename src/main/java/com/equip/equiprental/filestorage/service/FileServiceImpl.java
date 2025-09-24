@@ -33,7 +33,7 @@ public class FileServiceImpl implements FileService {
     private List<String> generateAccessUrl(List<StoredFile> savedFilenames, String typeKey) {
         String baseUrl = fileProperties.getAccessUrlBase().replaceAll("/+$", ""); // 끝의 슬래시 모두 제거
         return savedFilenames.stream()
-                .map(file -> String.format("%s/%s/%s", baseUrl, typeKey, file.getLocalFileName()))
+                .map(file -> String.format("%s/%s/%s", baseUrl, typeKey.replace("_","/"), file.getLocalFileName()))
                 .toList();
     }
 }
