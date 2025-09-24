@@ -69,6 +69,13 @@ public class AllViewController {
         return "board/boardRegistration";
     }
 
+    @GetMapping("/board/{boardId}")
+    public String boardDetail(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardDetail";
+    }
+
     // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")

@@ -5,6 +5,7 @@ import com.equip.equiprental.board.domain.BoardStatus;
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.dto.BoardCreateRequest;
 import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.dto.BoardDetailDto;
 import com.equip.equiprental.board.dto.BoardListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.common.dto.PageResponseDto;
@@ -126,5 +127,27 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public List<BoardListResponse> getLatestNotices(int limit) {
         return boardRepository.findLatestNotices(limit);
+    }
+
+    @Override
+    @Transactional
+    public BoardDetailDto getBoardDetail(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+        String relatedType = "board_" + board.getBoardType().name().toLowerCase();
+
+        List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
+                .stream()
+                .map(FileMeta::getFilePath)
+                .toList();
+
+        return BoardDetailDto.builder()
+                .boardId(boardId)
+                .boardType(board.getBoardType())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .createdAt(board.getCreatedAt())
+                .filePath(paths)
+                .build();
     }
 }

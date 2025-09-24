@@ -3,6 +3,7 @@ package com.equip.equiprental.board.controller;
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.BoardCreateRequest;
 import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.dto.BoardDetailDto;
 import com.equip.equiprental.board.dto.BoardListResponse;
 import com.equip.equiprental.board.service.BoardService;
 import com.equip.equiprental.common.controller.ResponseController;
@@ -59,5 +60,15 @@ public class BoardController implements ResponseController {
         List<BoardListResponse> result = boardService.getLatestNotices(5);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "공지글 조회 성공", result);
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<ResponseDto<BoardDetailDto>> getBoardDetail(@PathVariable Long boardId) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("게시글 상세 조회 요청 API] TraceId={}", traceId);
+
+        BoardDetailDto result = boardService.getBoardDetail(boardId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 상세 조회 성공", result);
     }
 }
