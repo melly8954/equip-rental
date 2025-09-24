@@ -34,6 +34,11 @@ $(document).ready(function () {
         const content = $('#content').val();
         const files = $('#files')[0].files;
 
+        if (!boardType || !title || !content) {
+            showSnackbar('모든 필드를 입력해주세요.');
+            return;
+        }
+
         // FormData 객체 생성
         const formData = new FormData();
         const data = JSON.stringify({ boardType, title, content });
