@@ -41,9 +41,13 @@ function renderBoardDetail(board) {
         }
     }
 
+    const updateBtnHtml = board.isOwner
+        ? `<button id="update-board-btn" class="btn btn-primary ms-2" data-board-id="${board.boardId}">글 수정</button>`
+        : '';
+    
     // 삭제 버튼 조건부 생성
     const deleteBtnHtml = board.isOwner
-        ? `<button id="delete-board-btn" class="btn btn-danger ms-2" data-board-id="${board.boardId}">삭제하기</button>`
+        ? `<button id="delete-board-btn" class="btn btn-danger ms-2" data-board-id="${board.boardId}">글 삭제</button>`
         : '';
 
     const html = `
@@ -60,12 +64,21 @@ function renderBoardDetail(board) {
                 작성일: ${new Date(board.createdAt).toLocaleString()}
             </div>
         </div>
-        <a href="/board" class="btn btn-secondary">목록으로</a>
+        <a href="/board" class="btn btn-secondary">목록 이동</a>
+        ${updateBtnHtml}
         ${deleteBtnHtml}
     `;
 
     container.html(html);
 }
+
+$(document).on("click", "#update-board-btn", function() {
+    const boardId = $(this).data("board-id");
+
+    if (confirm("글 수정 화면 이동 하시겠습니까?")) {
+        window.location.href = `/board/${boardId}/update`;
+    }
+});
 
 $(document).on("click", "#delete-board-btn", function() {
     const boardId = $(this).data("board-id");

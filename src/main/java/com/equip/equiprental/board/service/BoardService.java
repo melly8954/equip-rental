@@ -1,9 +1,6 @@
 package com.equip.equiprental.board.service;
 
-import com.equip.equiprental.board.dto.BoardCreateRequest;
-import com.equip.equiprental.board.dto.BoardCreateResponse;
-import com.equip.equiprental.board.dto.BoardDetailDto;
-import com.equip.equiprental.board.dto.BoardListResponse;
+import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,4 +16,6 @@ public interface BoardService {
     BoardDetailDto getBoardDetail(Long boardId, Long currentUserId);
 
     void softDeleteBoard(Long boardId);
+
+    BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest boardCreateRequest, List<MultipartFile> files);
 }

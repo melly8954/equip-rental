@@ -1,10 +1,7 @@
 package com.equip.equiprental.board.controller;
 
 import com.equip.equiprental.auth.security.PrincipalDetails;
-import com.equip.equiprental.board.dto.BoardCreateRequest;
-import com.equip.equiprental.board.dto.BoardCreateResponse;
-import com.equip.equiprental.board.dto.BoardDetailDto;
-import com.equip.equiprental.board.dto.BoardListResponse;
+import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.board.service.BoardService;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
@@ -81,5 +78,17 @@ public class BoardController implements ResponseController {
 
         boardService.softDeleteBoard(boardId);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 논리 삭제 성공", null);
+    }
+
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<ResponseDto<BoardUpdateResponse>> updateBoard(@PathVariable Long boardId,
+                                                                        @RequestPart(value = "data") BoardUpdateRequest boardCreateRequest,
+                                                                        @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("게시글 수정 요청 API] TraceId={}", traceId);
+
+        BoardUpdateResponse result = boardService.updateBoard(boardId, boardCreateRequest, files);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 수정 성공", result);
     }
 }

@@ -1,5 +1,6 @@
 package com.equip.equiprental.board.domain;
 
+import com.equip.equiprental.board.dto.BoardUpdateRequest;
 import com.equip.equiprental.common.domain.BaseEntity;
 import com.equip.equiprental.member.domain.Member;
 import jakarta.persistence.*;
@@ -45,5 +46,11 @@ public class Board extends BaseEntity {
     public void softDelete() {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void updateBoard(BoardUpdateRequest dto) {
+        this.boardType = dto.getBoardType();
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
     }
 }

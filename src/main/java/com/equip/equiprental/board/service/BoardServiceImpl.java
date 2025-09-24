@@ -3,10 +3,7 @@ package com.equip.equiprental.board.service;
 import com.equip.equiprental.board.domain.Board;
 import com.equip.equiprental.board.domain.BoardStatus;
 import com.equip.equiprental.board.domain.BoardType;
-import com.equip.equiprental.board.dto.BoardCreateRequest;
-import com.equip.equiprental.board.dto.BoardCreateResponse;
-import com.equip.equiprental.board.dto.BoardDetailDto;
-import com.equip.equiprental.board.dto.BoardListResponse;
+import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
@@ -105,7 +102,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
 
@@ -125,22 +122,20 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BoardListResponse> getLatestNotices(int limit) {
         return boardRepository.findLatestNotices(limit);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BoardDetailDto getBoardDetail(Long boardId, Long currentUserId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
 
-        String relatedType = "board_" + board.getBoardType().name().toLowerCase();
-
         boolean isOwner = board.getWriter().getMemberId().equals(currentUserId);
 
-
+        String relatedType = "board_" + board.getBoardType().name().toLowerCase();
         List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
                 .stream()
                 .map(FileMeta::getFilePath)
@@ -168,5 +163,56 @@ public class BoardServiceImpl implements BoardService {
         }
 
         board.softDelete();
+    }
+
+    @Override
+    @Transactional
+    public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest boardCreateRequest, List<MultipartFile> files) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+
+        board.updateBoard(boardCreateRequest);
+
+        List<FileMeta> savedFiles = new ArrayList<>();
+
+        if(files != null && !files.isEmpty()) {
+            int fileOrder = 0;
+            String typeKey = "board_" + boardCreateRequest.getBoardType().name().toLowerCase();
+            List<String> fileUrls = fileService.saveFiles(files, typeKey);
+
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                String url = fileUrls.get(i); // fileService에서 생성한 접근 URL
+
+                FileMeta meta = FileMeta.builder()
+                        .relatedType(typeKey)
+                        .relatedId(board.getBoardId())
+                        .originalName(file.getOriginalFilename())
+                        .uniqueName(url.substring(url.lastIndexOf("/") + 1)) // URL 에서 uniqueName 추출
+                        .fileOrder(fileOrder++)
+                        .fileType(file.getContentType())
+                        .filePath(url) // 접근 URL
+                        .fileSize(file.getSize())
+                        .build();
+
+                savedFiles.add(meta);
+            }
+
+            fileRepository.saveAll(savedFiles);
+        }
+
+        String relatedType = "board_" + board.getBoardType().name().toLowerCase();
+        List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
+                .stream()
+                .map(FileMeta::getFilePath)
+                .toList();
+
+        return BoardUpdateResponse.builder()
+                .boardId(board.getBoardId())
+                .boardType(board.getBoardType())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .filePaths(paths)
+                .build();
     }
 }

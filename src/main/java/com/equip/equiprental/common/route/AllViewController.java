@@ -76,6 +76,13 @@ public class AllViewController {
         return "board/boardDetail";
     }
 
+    @GetMapping("/board/{boardId}/update")
+    public String boardUpdate(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardUpdate";
+    }
+
     // 관리자 접근
     @GetMapping("/member")
     @PreAuthorize("hasRole('ADMIN')")
