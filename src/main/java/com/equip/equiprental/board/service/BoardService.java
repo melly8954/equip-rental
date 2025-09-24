@@ -13,4 +13,5 @@ public interface BoardService {
     BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long writerId);
 
     PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto);
+    List<BoardListResponse> getLatestNotices(int i);
 }

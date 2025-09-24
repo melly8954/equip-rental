@@ -50,4 +50,14 @@ public class BoardController implements ResponseController {
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 조회 성공", result);
     }
+
+    @GetMapping("/notices")
+    public ResponseEntity<ResponseDto<List<BoardListResponse>>> getNotices() {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("공지글 최신 5개 조회 요청 API] TraceId={}", traceId);
+
+        List<BoardListResponse> result = boardService.getLatestNotices(5);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "공지글 조회 성공", result);
+    }
 }

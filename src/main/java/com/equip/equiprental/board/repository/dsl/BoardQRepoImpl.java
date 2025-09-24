@@ -26,7 +26,9 @@ public class BoardQRepoImpl implements BoardQRepo{
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        builder.and(b.boardType.eq(type));
+        if (type != null) {
+            builder.and(b.boardType.eq(type));
+        }
 
         List<BoardListResponse> contents = queryFactory
                 .select(Projections.constructor(BoardListResponse.class,
@@ -50,5 +52,23 @@ public class BoardQRepoImpl implements BoardQRepo{
         total = total == null ? 0 : total;
 
         return new PageImpl<>(contents, pageable, total);
+    }
+
+    @Override
+    public List<BoardListResponse> findLatestNotices(int limit) {
+        QBoard b = QBoard.board;
+
+        return queryFactory
+                .select(Projections.constructor(BoardListResponse.class,
+                        b.boardId,
+                        b.boardType,
+                        b.writer.name,
+                        b.title,
+                        b.createdAt))
+                .from(b)
+                .where(b.boardType.eq(BoardType.NOTICE))
+                .orderBy(b.createdAt.desc())
+                .limit(limit)
+                .fetch();
     }
 }

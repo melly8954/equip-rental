@@ -121,4 +121,10 @@ public class BoardServiceImpl implements BoardService {
                 .empty(dtosPage.isEmpty())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public List<BoardListResponse> getLatestNotices(int limit) {
+        return boardRepository.findLatestNotices(limit);
+    }
 }
