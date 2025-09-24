@@ -1,6 +1,5 @@
 package com.equip.equiprental.board.repository.dsl;
 
-import com.equip.equiprental.board.domain.Board;
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.QBoard;
 import com.equip.equiprental.board.dto.BoardListResponse;
