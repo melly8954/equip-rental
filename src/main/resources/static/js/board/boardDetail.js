@@ -26,18 +26,20 @@ function renderBoardDetail(board) {
 
     let imageHtml = '';
 
-    if (board.filePath && board.filePath.length > 0) {
-        const images = board.filePath.filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f));
+    if (board.files && board.files.length > 0) {
+        const images = board.files
+            .map(f => f.filePath)
+            .filter(path => /\.(jpg|jpeg|png|gif)$/i.test(path));
 
         if (images.length > 0) {
             imageHtml = `
-                <div class="mt-3">
-                    <strong>이미지 첨부:</strong>
-                    <div class="d-flex flex-wrap">
-                        ${images.map(f => `<img src="${f}" class="img-thumbnail me-2 mb-2" style="max-width:150px;">`).join('')}
-                    </div>
+            <div class="mt-3">
+                <strong>이미지 첨부:</strong>
+                <div class="d-flex flex-wrap">
+                    ${images.map(p => `<img src="${p}" class="img-thumbnail me-2 mb-2" style="max-width:150px;">`).join('')}
                 </div>
-            `;
+            </div>
+        `;
         }
     }
 

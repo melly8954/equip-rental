@@ -136,9 +136,13 @@ public class BoardServiceImpl implements BoardService {
         boolean isOwner = board.getWriter().getMemberId().equals(currentUserId);
 
         String relatedType = "board_" + board.getBoardType().name().toLowerCase();
-        List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
+        List<BoardFileDto> files = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
                 .stream()
-                .map(FileMeta::getFilePath)
+                .map(file -> BoardFileDto.builder()
+                        .fileId(file.getFileId())
+                        .originalName(file.getOriginalName())
+                        .filePath(file.getFilePath())
+                        .build())
                 .toList();
 
         return BoardDetailDto.builder()
@@ -147,7 +151,7 @@ public class BoardServiceImpl implements BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .createdAt(board.getCreatedAt())
-                .filePath(paths)
+                .files(files)
                 .owner(isOwner)
                 .build();
     }
