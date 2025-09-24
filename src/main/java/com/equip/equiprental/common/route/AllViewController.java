@@ -55,7 +55,7 @@ public class AllViewController {
         return "rental/rentalItemList";
     }
 
-    @GetMapping("/board/list")
+    @GetMapping("/board")
     public String boardList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
         model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
 
