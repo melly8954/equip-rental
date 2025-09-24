@@ -12,9 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
     private final RequestTraceIdInterceptor requestTraceIdInterceptor;
-
-    @Value("${file.storage-path}")
-    private String fileStoragePath;
+    private final FileProperties fileProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -24,6 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/files/**")
-                .addResourceLocations("file:" + fileStoragePath); // C:/equip_rental/files/
+                .addResourceLocations("file:" + fileProperties.getStoragePath() + "/"); // C:/equip_rental/files/~
     }
 }
