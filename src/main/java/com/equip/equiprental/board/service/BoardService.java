@@ -16,5 +16,7 @@ public interface BoardService {
     PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto);
     List<BoardListResponse> getLatestNotices(int i);
 
-    BoardDetailDto getBoardDetail(Long boardId);
+    BoardDetailDto getBoardDetail(Long boardId, Long currentUserId);
+
+    void softDeleteBoard(Long boardId);
 }

@@ -29,6 +29,8 @@ public class BoardQRepoImpl implements BoardQRepo{
             builder.and(b.boardType.eq(type));
         }
 
+        builder.and(b.isDeleted.eq(false));
+
         List<BoardListResponse> contents = queryFactory
                 .select(Projections.constructor(BoardListResponse.class,
                         b.boardId,
@@ -65,7 +67,8 @@ public class BoardQRepoImpl implements BoardQRepo{
                         b.title,
                         b.createdAt))
                 .from(b)
-                .where(b.boardType.eq(BoardType.NOTICE))
+                .where(b.boardType.eq(BoardType.NOTICE)
+                        .and(b.isDeleted.eq(false)))
                 .orderBy(b.createdAt.desc())
                 .limit(limit)
                 .fetch();

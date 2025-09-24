@@ -1,6 +1,7 @@
 package com.equip.equiprental.board.dto;
 
 import com.equip.equiprental.board.domain.BoardType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +19,6 @@ public class BoardDetailDto {
     private String content;
     private LocalDateTime createdAt;
     private List<String> filePath;
+    @JsonProperty("isOwner")
+    private boolean owner;
 }

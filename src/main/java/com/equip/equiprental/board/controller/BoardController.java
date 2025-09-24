@@ -63,12 +63,23 @@ public class BoardController implements ResponseController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardDetailDto>> getBoardDetail(@PathVariable Long boardId) {
+    public ResponseEntity<ResponseDto<BoardDetailDto>> getBoardDetail(@PathVariable Long boardId,
+                                                                      @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("게시글 상세 조회 요청 API] TraceId={}", traceId);
 
-        BoardDetailDto result = boardService.getBoardDetail(boardId);
+        Long currentUserId = principal.getMember().getMemberId();
+        BoardDetailDto result = boardService.getBoardDetail(boardId, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 상세 조회 성공", result);
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<ResponseDto<Void>> softDeleteBoard(@PathVariable Long boardId) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("게시글 논리 삭제 요청 API] TraceId={}", traceId);
+
+        boardService.softDeleteBoard(boardId);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 논리 삭제 성공", null);
     }
 }

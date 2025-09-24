@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="board_tbl")
 @Getter
@@ -33,4 +35,15 @@ public class Board extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private BoardStatus status;
+
+    @Column(name="is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name="deleted_at")
+    private LocalDateTime deletedAt;
+
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

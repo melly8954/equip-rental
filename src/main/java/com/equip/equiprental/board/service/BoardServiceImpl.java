@@ -131,10 +131,14 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardDetailDto getBoardDetail(Long boardId) {
+    public BoardDetailDto getBoardDetail(Long boardId, Long currentUserId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+
         String relatedType = "board_" + board.getBoardType().name().toLowerCase();
+
+        boolean isOwner = board.getWriter().getMemberId().equals(currentUserId);
+
 
         List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
                 .stream()
@@ -148,6 +152,20 @@ public class BoardServiceImpl implements BoardService {
                 .content(board.getContent())
                 .createdAt(board.getCreatedAt())
                 .filePath(paths)
+                .owner(isOwner)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+
+        if (board.getIsDeleted()) {
+            throw new CustomException(ErrorType.ALREADY_DELETED);
+        }
+
+        board.softDelete();
     }
 }

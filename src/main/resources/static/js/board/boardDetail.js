@@ -24,7 +24,6 @@ function renderBoardDetail(board) {
     const typeBadge = board.boardType === 'NOTICE' ? 'danger' : 'primary';
     const typeText = board.boardType === 'NOTICE' ? '공지사항' : '건의/문의';
 
-    let fileHtml = '';
     let imageHtml = '';
 
     if (board.filePath && board.filePath.length > 0) {
@@ -42,6 +41,11 @@ function renderBoardDetail(board) {
         }
     }
 
+    // 삭제 버튼 조건부 생성
+    const deleteBtnHtml = board.isOwner
+        ? `<button id="delete-board-btn" class="btn btn-danger ms-2" data-board-id="${board.boardId}">삭제하기</button>`
+        : '';
+
     const html = `
         <div class="card mb-3">
             <div class="card-header">
@@ -57,7 +61,26 @@ function renderBoardDetail(board) {
             </div>
         </div>
         <a href="/board" class="btn btn-secondary">목록으로</a>
+        ${deleteBtnHtml}
     `;
 
     container.html(html);
+}
+
+$(document).on("click", "#delete-board-btn", function() {
+    const boardId = $(this).data("board-id");
+
+    if (confirm("정말 삭제하시겠습니까?")) {
+        deleteBoard(boardId);
+    }
+});
+
+function deleteBoard(boardId) {
+    $.ajax({
+        url: `/api/v1/boards/${boardId}`,
+        type: "DELETE"
+    }).done(() => {
+        alert("게시글이 삭제되었습니다.");
+        window.location.href = "/board";
+    }).fail(handleServerError);
 }
