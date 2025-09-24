@@ -52,6 +52,7 @@ public class BoardServiceImpl implements BoardService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .status(BoardStatus.PENDING)
+                .isDeleted(false)
                 .build();
         boardRepository.save(board);
 
