@@ -54,7 +54,7 @@ $(document).ready(function () {
             contentType: false,  // multipart/form-data로 전송
         }).done(function(response) {
             showSnackbar(response.message);
-            window.location.href = '/board/list';
+            window.location.href = '/board';
         }).fail(function(jqXHR) {
             handleServerError(jqXHR);
         })
