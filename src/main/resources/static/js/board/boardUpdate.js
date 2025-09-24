@@ -6,6 +6,48 @@ $(document).ready(function() {
 
     fetchBoardDetail(boardId);
 
+    // 새 파일 선택 시 미리보기 추가
+    $('#files').on('change', function() {
+        const files = Array.from(this.files);
+        const $previewList = $('#filePreviewList');
+
+        files.forEach(file => {
+            // 리스트 아이템 생성
+            const listItem = $('<li>')
+                .addClass('list-group-item d-flex justify-content-between align-items-center');
+
+            // 파일 이름
+            const fileNameSpan = $('<span>').text(file.name);
+
+            // "신규" 배지
+            const newBadge = $('<span>')
+                .addClass('badge bg-success ms-2') // 초록색, margin-left
+                .css('font-size', '0.75rem')      // 작게
+                .text('신규');
+
+            fileNameSpan.append(newBadge);
+
+            // 삭제 버튼
+            const removeBtn = $('<button>')
+                .addClass('btn btn-sm btn-danger')
+                .text('삭제')
+                .on('click', function() {
+                    const dt = new DataTransfer();
+                    Array.from($('#files')[0].files)
+                        .filter(f => f.name !== file.name)
+                        .forEach(f => dt.items.add(f));
+                    $('#files')[0].files = dt.files;
+
+                    listItem.remove();
+                });
+
+            listItem.append(fileNameSpan);
+            listItem.append(removeBtn);
+            $previewList.append(listItem);
+        });
+    });
+
+
     $("#submitBtn").on("click", function() {
         updateBoard(boardId);
     });
@@ -34,7 +76,7 @@ function fetchBoardDetail(boardId) {
                 .addClass('btn btn-sm btn-danger')
                 .text('삭제')
                 .on('click', function() {
-                    deletedFileIds.push(file.id); // 삭제 목록에 추가
+                    deletedFileIds.push(file.fileId); // 삭제 목록에 추가
                     listItem.remove();
                 });
 

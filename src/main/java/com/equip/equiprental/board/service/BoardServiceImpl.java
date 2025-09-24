@@ -171,17 +171,29 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest boardCreateRequest, List<MultipartFile> files) {
+    public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest request, List<MultipartFile> files) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
 
-        board.updateBoard(boardCreateRequest);
+        board.updateBoard(request);
+
+        // 파일 제거 처리
+        if (request.getDeletedFileIds() != null && !request.getDeletedFileIds().isEmpty()) {
+            List<FileMeta> filesToDelete = fileRepository.findAllById(request.getDeletedFileIds());
+
+            String typeKey = "board_" + board.getBoardType().name().toLowerCase();
+
+            filesToDelete.forEach(file -> {
+                fileRepository.delete(file); // DB 삭제
+                fileService.deleteFile(file.getFilePath(), typeKey); // 실제 저장소 파일 삭제
+            });
+        }
 
         List<FileMeta> savedFiles = new ArrayList<>();
 
         if(files != null && !files.isEmpty()) {
             int fileOrder = 0;
-            String typeKey = "board_" + boardCreateRequest.getBoardType().name().toLowerCase();
+            String typeKey = "board_" + request.getBoardType().name().toLowerCase();
             List<String> fileUrls = fileService.saveFiles(files, typeKey);
 
             for (int i = 0; i < files.size(); i++) {
@@ -206,9 +218,13 @@ public class BoardServiceImpl implements BoardService {
         }
 
         String relatedType = "board_" + board.getBoardType().name().toLowerCase();
-        List<String> paths = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
+        List<BoardFileDto> dto = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
                 .stream()
-                .map(FileMeta::getFilePath)
+                .map(file -> BoardFileDto.builder()
+                        .fileId(file.getFileId())
+                        .originalName(file.getOriginalName())
+                        .filePath(file.getFilePath())
+                        .build())
                 .toList();
 
         return BoardUpdateResponse.builder()
@@ -216,7 +232,7 @@ public class BoardServiceImpl implements BoardService {
                 .boardType(board.getBoardType())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .filePaths(paths)
+                .files(dto)
                 .build();
     }
 }

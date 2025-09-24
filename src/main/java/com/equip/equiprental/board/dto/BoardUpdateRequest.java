@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 @Builder
@@ -12,4 +14,5 @@ public class BoardUpdateRequest {
     private BoardType boardType;
     private String title;
     private String content;
+    private List<Long> deletedFileIds;
 }

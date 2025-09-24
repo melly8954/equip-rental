@@ -15,5 +15,5 @@ public class BoardUpdateResponse {
     private BoardType boardType;
     private String title;
     private String content;
-    private List<String> filePaths;
+    private List<BoardFileDto> files;
 }

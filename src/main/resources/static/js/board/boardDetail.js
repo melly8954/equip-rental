@@ -29,7 +29,7 @@ function renderBoardDetail(board) {
     if (board.files && board.files.length > 0) {
         const images = board.files
             .map(f => f.filePath)
-            .filter(path => /\.(jpg|jpeg|png|gif)$/i.test(path));
+            .filter(path => /\.(jpg|jpeg|png|gif|webp)$/i.test(path));
 
         if (images.length > 0) {
             imageHtml = `
