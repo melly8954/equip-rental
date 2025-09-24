@@ -39,6 +39,8 @@ public class SearchParamDto {
 
     private BoardType boardType;
 
+    private Long boardId;
+
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
     }

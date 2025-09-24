@@ -3,19 +3,19 @@ package com.equip.equiprental.board.controller;
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
+import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.service.CommentService;
 import com.equip.equiprental.common.controller.ResponseController;
+import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -35,5 +35,15 @@ public class CommentController implements ResponseController {
         CommentCreateResponse result = commentService.createComment(dto, writerId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 등록 성공", result);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute SearchParamDto paramDto) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("댓글 조회 요청 API] TraceId={}", traceId);
+
+        PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 조회 성공", result);
     }
 }

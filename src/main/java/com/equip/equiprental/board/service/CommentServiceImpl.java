@@ -4,13 +4,18 @@ import com.equip.equiprental.board.domain.Board;
 import com.equip.equiprental.board.domain.Comment;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
+import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.repository.CommentRepository;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +51,26 @@ public class CommentServiceImpl implements CommentService{
                 .writerId(comment.getWriter().getMemberId())
                 .isOfficial(comment.getIsOfficial())
                 .content(comment.getContent())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId());
+
+        return PageResponseDto.<CommentListResponse>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
                 .build();
     }
 }
