@@ -18,6 +18,6 @@ public class FileProperties {
     private Map<String, String> directories; // 서브 디렉토리 구분 (equipment, rental 등)
 
     public String getFullPath(String typeKey) {
-        return Paths.get(storagePath, directories.get(typeKey)).toString();
+        return Paths.get(storagePath, directories.getOrDefault(typeKey.split("_")[0], typeKey.split("_")[0]), typeKey.split("_")[1]).toString();
     }
 }

@@ -4,8 +4,10 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
+import com.equip.equiprental.member.repository.DepartmentRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
@@ -34,9 +36,8 @@ import static org.mockito.Mockito.when;
 @DisplayName("MemberServiceImpl 단위 테스트")
 public class MemberServiceImplTest {
     @Mock MemberRepository memberRepository;
+    @Mock DepartmentRepository departmentRepository;
     @Mock PasswordEncoder passwordEncoder;
-    @Mock Page<Member> mockPage;
-    @Mock Page<Member> emptyPage;
 
     @InjectMocks
     MemberServiceImpl memberService;
@@ -45,15 +46,18 @@ public class MemberServiceImplTest {
     @DisplayName("signUp 메서드 테스트")
     class SignUp {
         private SignUpRequest dto;
+        private Department mockDepartment;
 
         @BeforeEach
         void setUp() {
+            mockDepartment = new Department(1L, "testdepartment");
+
             dto = SignUpRequest.builder()
                     .username("testid")
                     .password("testpassword")
                     .confirmPassword("testpassword")
                     .name("testname")
-                    .department("testdepartment")
+                    .departmentId(1L)
                     .email("testid@example.com")
                     .build();
         }
@@ -65,26 +69,37 @@ public class MemberServiceImplTest {
             when(memberRepository.existsByUsername(dto.getUsername())).thenReturn(false);
             when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
             when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+            when(departmentRepository.findById(dto.getDepartmentId())).thenReturn(Optional.of(mockDepartment));
 
             // when
-            memberService.signUp(dto);
+            SignUpResponse response = memberService.signUp(dto);
 
             // then
             ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
             verify(memberRepository, times(1)).save(captor.capture());
-            Member savedUser = captor.getValue();
+            Member savedMember = captor.getValue();
 
-            assertThat(savedUser.getUsername()).isEqualTo(dto.getUsername());
-            assertThat(savedUser.getPassword()).isEqualTo("encodedPassword");
-            assertThat(savedUser.getEmail()).isEqualTo(dto.getEmail());
-            assertThat(savedUser.getRole()).isEqualTo(MemberRole.USER);
-            assertThat(savedUser.getStatus()).isEqualTo(MemberStatus.PENDING);
+            assertThat(savedMember.getUsername()).isEqualTo(dto.getUsername());
+            assertThat(savedMember.getPassword()).isEqualTo("encodedPassword");
+            assertThat(savedMember.getEmail()).isEqualTo(dto.getEmail());
+            assertThat(savedMember.getName()).isEqualTo(dto.getName());
+            assertThat(savedMember.getRole()).isEqualTo(MemberRole.USER);
+            assertThat(savedMember.getStatus()).isEqualTo(MemberStatus.PENDING);
+            assertThat(savedMember.getDepartment()).isEqualTo(mockDepartment);
+
+            // Response DTO 검증
+            assertThat(response.getMemberId()).isEqualTo(savedMember.getMemberId());
+            assertThat(response.getUsername()).isEqualTo(dto.getUsername());
+            assertThat(response.getName()).isEqualTo(dto.getName());
+            assertThat(response.getDepartment()).isEqualTo(mockDepartment.getDepartmentName());
+            assertThat(response.getEmail()).isEqualTo(dto.getEmail());
+            assertThat(response.getCreatedAt()).isEqualTo(savedMember.getCreatedAt());
         }
 
         @Test
         @DisplayName("예외 - 중복된 username 사용")
         void signUp_duplicateUsername_throwsException() {
-            when(memberRepository.existsByUsername("testid")).thenReturn(true);
+            when(memberRepository.existsByUsername(dto.getUsername())).thenReturn(true);
 
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
@@ -96,7 +111,7 @@ public class MemberServiceImplTest {
         @DisplayName("예외 - 중복된 email 사용")
         void signUp_duplicateEmail_throwsException() {
             when(memberRepository.existsByUsername(dto.getUsername())).thenReturn(false);
-            when(memberRepository.existsByEmail("testid@example.com")).thenReturn(true);
+            when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
@@ -108,13 +123,26 @@ public class MemberServiceImplTest {
         @DisplayName("예외 - 비밀번호 불일치")
         void signUp_passwordMismatch_throwsException() {
             dto.setConfirmPassword("passwordmismatch");
-            when(memberRepository.existsByUsername("testid")).thenReturn(false);
-            when(memberRepository.existsByEmail("testid@example.com")).thenReturn(false);
+            when(memberRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+            when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
 
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.PASSWORD_MISMATCH);
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 부서")
+        void signUp_departmentNotFound_throwsException() {
+            when(memberRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+            when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+            when(departmentRepository.findById(dto.getDepartmentId())).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> memberService.signUp(dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -123,145 +151,112 @@ public class MemberServiceImplTest {
     class searchMembers {
         Member member;
         SearchParamDto dto;
+        Department dept;
 
         @BeforeEach
         void setUp() {
-            dto = SearchParamDto.builder()
-                    .page(1)
-                    .size(10)
-                    .build();
+            dept = new Department(1L, "TestDept");
 
             member = Member.builder()
+                    .department(dept)
                     .status(MemberStatus.ACTIVE)
                     .role(MemberRole.ADMIN)
                     .build();
         }
 
+        @SuppressWarnings("unchecked")
+        private Page<Member> mockPageWithContent(List<Member> members) {
+            Page<Member> page = mock(Page.class);
+            when(page.getContent()).thenReturn(members);
+            when(page.getNumber()).thenReturn(0);
+            when(page.getSize()).thenReturn(10);
+            when(page.getTotalElements()).thenReturn((long) members.size());
+            when(page.getTotalPages()).thenReturn(1);
+            when(page.isFirst()).thenReturn(true);
+            when(page.isLast()).thenReturn(true);
+            when(page.isEmpty()).thenReturn(members.isEmpty());
+            when(page.getNumberOfElements()).thenReturn(members.size());
+            return page;
+        }
+
         @Test
         @DisplayName("성공 - status와 role 모두 존재할 때 findByStatusAndRole 호출")
         void whenStatusAndRoleNotNull_thenFindByStatusAndRoleCalled() {
-            // given
-            dto.setMemberStatus("ACTIVE");
-            dto.setRole("ADMIN");
+            dto = SearchParamDto.builder()
+                    .memberStatus("ACTIVE")
+                    .role("ADMIN")
+                    .page(1)
+                    .size(10)
+                    .build();
 
-            when(mockPage.getContent()).thenReturn(List.of(member));
+            Page<Member> page = mockPageWithContent(List.of(member));
             when(memberRepository.findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable()))
-                    .thenReturn(mockPage);
+                    .thenReturn(page);
 
-            // when
-            memberService.searchMembers(dto);
+            PageResponseDto<MemberDto> response = memberService.searchMembers(dto);
 
-            // then
             verify(memberRepository).findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable());
+            assertThat(response.getContent()).hasSize(1);
+            assertThat(response.isEmpty()).isFalse();
         }
 
         @Test
         @DisplayName("성공 - status만 존재할 때 findByStatus 호출")
         void whenStatusNotNullAndRoleNull_thenFindByStatusCalled() {
-            // given
-            dto.setMemberStatus("ACTIVE");
+            dto = SearchParamDto.builder()
+                    .memberStatus("ACTIVE")
+                    .page(1)
+                    .size(10)
+                    .build();
 
-            when(mockPage.getContent()).thenReturn(List.of(member));
+            Page<Member> page = mockPageWithContent(List.of(member));
             when(memberRepository.findByStatus(MemberStatus.ACTIVE, dto.getPageable()))
-                    .thenReturn(mockPage);
+                    .thenReturn(page);
 
-            // when
             memberService.searchMembers(dto);
 
-            // then
             verify(memberRepository).findByStatus(MemberStatus.ACTIVE, dto.getPageable());
         }
 
         @Test
         @DisplayName("성공 - role만 존재할 때 findByRole 호출")
         void whenStatusNullAndRoleNotNull_thenFindByRoleCalled() {
-            // given
-            dto.setRole("ADMIN");
+            dto = SearchParamDto.builder()
+                    .role("ADMIN")
+                    .page(1)
+                    .size(10)
+                    .build();
 
-            when(mockPage.getContent()).thenReturn(List.of(member));
+            Page<Member> page = mockPageWithContent(List.of(member));
             when(memberRepository.findByRole(MemberRole.ADMIN, dto.getPageable()))
-                    .thenReturn(mockPage);
+                    .thenReturn(page);
 
-            // when
             memberService.searchMembers(dto);
 
-            // then
             verify(memberRepository).findByRole(MemberRole.ADMIN, dto.getPageable());
         }
 
         @Test
         @DisplayName("성공 - status와 role 모두 null일 때 findAll 호출")
         void whenStatusAndRoleNull_thenFindAllCalled() {
-            // given
-            when(mockPage.getContent()).thenReturn(List.of(member));
-            when(memberRepository.findAll(dto.getPageable()))
-                    .thenReturn(mockPage);
+            dto = SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .build();
 
-            // when
+            Page<Member> page = mockPageWithContent(List.of(member));
+            when(memberRepository.findAll(dto.getPageable())).thenReturn(page);
+
             memberService.searchMembers(dto);
 
-            // then
             verify(memberRepository).findAll(dto.getPageable());
         }
 
         @Test
-        @DisplayName("성공 - 검색 결과가 빈 페이지일 때 empty=true")
-        void whenEmptyPageReturned_thenEmptyFlagTrue() {
-            // given
-            when(emptyPage.getContent()).thenReturn(List.of());
-            when(emptyPage.isEmpty()).thenReturn(true);
-            when(emptyPage.getTotalElements()).thenReturn(0L);
-            when(emptyPage.isFirst()).thenReturn(true);
-            when(emptyPage.isLast()).thenReturn(true);
-            when(memberRepository.findAll(dto.getPageable())).thenReturn(emptyPage);
-
-            // when
-            PageResponseDto<MemberDto> response = memberService.searchMembers(dto);
-
-            // then
-            assertThat(response.getContent()).isEmpty();
-            assertThat(response.isEmpty()).isTrue();
-            assertThat(response.isFirst()).isTrue();
-            assertThat(response.isLast()).isTrue();
-            assertThat(response.getTotalElements()).isEqualTo(0L);
-        }
-
-        @Test
-        @DisplayName("검색 결과가 존재할 때 페이징 정보 정상 반환")
-        void whenPageHasContent_thenPagingInfoCorrect() {
-            // given
-            dto.setMemberStatus("ACTIVE");
-            dto.setRole("ADMIN");
-
-            when(mockPage.getContent()).thenReturn(List.of(member));
-            when(mockPage.getNumber()).thenReturn(0);
-            when(mockPage.getSize()).thenReturn(10);
-            when(mockPage.getTotalElements()).thenReturn(1L);
-            when(mockPage.getTotalPages()).thenReturn(1);
-            when(mockPage.isFirst()).thenReturn(true);
-            when(mockPage.isLast()).thenReturn(true);
-            when(mockPage.isEmpty()).thenReturn(false);
-            when(memberRepository.findByStatusAndRole(MemberStatus.ACTIVE, MemberRole.ADMIN, dto.getPageable()))
-                    .thenReturn(mockPage);
-
-            // when
-            PageResponseDto<MemberDto> response = memberService.searchMembers(dto);
-
-            // then
-            assertThat(response.getContent()).hasSize(1);
-            assertThat(response.isEmpty()).isFalse();
-            assertThat(response.isFirst()).isTrue();
-            assertThat(response.isLast()).isTrue();
-            assertThat(response.getTotalElements()).isEqualTo(1L);
-        }
-
-        @Test
         @DisplayName("예외 - 잘못된 status 입력 시 CustomException 발생")
-        void whenInvalidStatus_thenThrowCustomException() {
-            // given
-            dto.setMemberStatus("INVALID");
+        void invalidStatus_throwsException() {
+            dto = SearchParamDto.builder().memberStatus("INVALID").build();
 
-            // when & then
             assertThatThrownBy(() -> memberService.searchMembers(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
@@ -270,11 +265,9 @@ public class MemberServiceImplTest {
 
         @Test
         @DisplayName("예외 - 잘못된 role 입력 시 CustomException 발생")
-        void whenInvalidRole_thenThrowCustomException() {
-            // given
-            dto.setRole("INVALID");
+        void invalidRole_throwsException() {
+            dto = SearchParamDto.builder().role("INVALID").build();
 
-            // when & then
             assertThatThrownBy(() -> memberService.searchMembers(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")

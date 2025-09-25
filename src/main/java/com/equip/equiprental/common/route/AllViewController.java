@@ -1,10 +1,13 @@
 package com.equip.equiprental.common.route;
 
+import com.equip.equiprental.auth.security.PrincipalDetails;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -50,6 +53,34 @@ public class AllViewController {
     @GetMapping("/rental/{rentalId}/item")
     public String userRentalItemList() {
         return "rental/rentalItemList";
+    }
+
+    @GetMapping("/board")
+    public String boardList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardList";
+    }
+
+    @GetMapping("/board/registration")
+    public String boardRegistration(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardRegistration";
+    }
+
+    @GetMapping("/board/{boardId}")
+    public String boardDetail(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardDetail";
+    }
+
+    @GetMapping("/board/{boardId}/update")
+    public String boardUpdate(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "board/boardUpdate";
     }
 
     // 관리자 접근

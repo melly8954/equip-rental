@@ -4,6 +4,7 @@ import com.equip.equiprental.auth.service.AuthServiceImpl;
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,16 +51,24 @@ public class AuthServiceImplTest {
     @Nested
     @DisplayName("login() 메서드 테스트")
     class login {
+        private Department mockDepartment;
+
+        @BeforeEach
+        void setUp() {
+            mockDepartment = new Department(1L, "testdepartment");
+        }
+
         @Test
         @DisplayName("성공 - 로그인 성공")
         void login_success() {
             // given
+
             LoginRequestDto dto = new LoginRequestDto("testUser", "password");
             Member member = Member.builder()
                     .memberId(1L)
                     .username("testUser")
                     .name("테스트")
-                    .department("개발")
+                    .department(mockDepartment)
                     .email("test@example.com")
                     .role(MemberRole.USER)
                     .status(MemberStatus.ACTIVE) // 여기 주의: ACTIVE로 세팅
@@ -77,7 +87,7 @@ public class AuthServiceImplTest {
             assertThat(response.getMemberId()).isEqualTo(1L);
             assertThat(response.getUsername()).isEqualTo("testUser");
             assertThat(response.getName()).isEqualTo("테스트");
-            assertThat(response.getDepartment()).isEqualTo("개발");
+            assertThat(response.getDepartment()).isEqualTo("testdepartment");
             assertThat(response.getEmail()).isEqualTo("test@example.com");
             assertThat(response.getRole()).isEqualTo("USER");
             assertThat(response.getStatus()).isEqualTo("ACTIVE");

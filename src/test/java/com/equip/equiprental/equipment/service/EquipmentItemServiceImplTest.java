@@ -27,6 +27,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,94 +136,97 @@ public class EquipmentItemServiceImplTest {
     @Nested
     @DisplayName("getItemHistory 메서드 테스트")
     class getItemHistory {
-        @Test
-        @DisplayName("성공 - 장비 아이템 히스토리 조회")
-        void getItemHistory_success() {
-            // given
-            Long equipmentItemId = 1L;
-            SearchParamDto paramDto = SearchParamDto.builder()
+        private SearchParamDto createParamDto() {
+            return SearchParamDto.builder()
                     .page(1)
                     .size(10)
                     .build();
-            Pageable pageable = paramDto.getPageable();
-
-            EquipmentItemHistoryDto history1 = EquipmentItemHistoryDto.builder()
-                    .oldStatus("AVAILABLE")
-                    .newStatus("RENTED")
-                    .changedBy("Admin")
-                    .build();
-
-            EquipmentItemHistoryDto history2 = EquipmentItemHistoryDto.builder()
-                    .oldStatus("AVAILABLE")
-                    .newStatus("RENTED")
-                    .changedBy("Admin")
-                    .build();
-
-            // Page 생성
-            Page<EquipmentItemHistoryDto> mockPage = new PageImpl<>(List.of(history1, history2), pageable, 2);
-
-            when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
-                    .thenReturn(mockPage);
-
-            // RENTED 상태일 때 rentalItem 조회 모킹
-            RentalItem mockRentalItem = RentalItem.builder()
-                    .rental(Rental.builder()
-                            .member(Member.builder()
-                                    .name("홍길동")
-                                    .department("개발팀")
-                                    .build())
-                            .build())
-                    .build();
-
-            when(rentalItemRepository.findFirstByEquipmentItem_EquipmentItemIdAndActualReturnDateIsNull(equipmentItemId))
-                    .thenReturn(mockRentalItem);
-
-            // when
-            PageResponseDto<EquipmentItemHistoryDto> response = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
-
-            // then
-            assertThat(response.getContent()).hasSize(2);
-            assertThat(response.getContent().get(0).getCurrentOwnerName()).isEqualTo("홍길동");
-            assertThat(response.getContent().get(0).getCurrentOwnerDept()).isEqualTo("개발팀");
-
-            assertThat(response.getContent().get(1).getCurrentOwnerName()).isEqualTo("홍길동");
-            assertThat(response.getContent().get(1).getCurrentOwnerDept()).isEqualTo("개발팀");
-
-            assertThat(response.getTotalElements()).isEqualTo(2);
-            assertThat(response.isEmpty()).isFalse();
         }
 
+        private EquipmentItemHistoryDto createHistory(Long equipmentItemId, String oldStatus, String newStatus, String changedBy) {
+            return EquipmentItemHistoryDto.builder()
+                    .equipmentItemId(equipmentItemId)
+                    .oldStatus(oldStatus)
+                    .newStatus(newStatus)
+                    .changedBy(changedBy)
+                    .rentedUserName("user" + equipmentItemId)
+                    .rentedUserDept("dept" + equipmentItemId)
+                    .rentalStartDate(LocalDate.of(2025, 1, 1))
+                    .actualReturnDate(LocalDate.of(2025, 1, 5))
+                    .createdAt(LocalDateTime.of(2025, 1, 1, 12, 0))
+                    .build();
+        }
 
         @Test
-        @DisplayName("성공 - 히스토리 없음 (빈 페이지)")
-        void getItemHistory_empty() {
+        @DisplayName("성공 - 장비 아이템 히스토리 조회 성공")
+        void whenHistoriesExist_thenReturnPagedResult() {
             // given
             Long equipmentItemId = 1L;
-            SearchParamDto paramDto = SearchParamDto.builder()
-                    .page(1)
-                    .size(10)
-                    .build();
+            SearchParamDto paramDto = createParamDto();
             Pageable pageable = paramDto.getPageable();
 
-            // 빈 페이지 생성
-            Page<EquipmentItemHistoryDto> emptyPage = Page.empty(pageable);
+            EquipmentItemHistoryDto history1 = createHistory(1L, "AVAILABLE", "RENTED", "admin1");
+            EquipmentItemHistoryDto history2 = createHistory(2L, "RENTED", "RETURNED", "admin2");
 
+            Page<EquipmentItemHistoryDto> mockPage = new PageImpl<>(List.of(history1, history2), pageable, 2);
             when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
-                    .thenReturn(emptyPage);
+                    .thenReturn(mockPage);
 
             // when
             PageResponseDto<EquipmentItemHistoryDto> result = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
 
             // then
-            assertThat(result.getContent()).isEmpty(); // content는 빈 리스트여야 함
-            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
-            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+            assertThat(result).isNotNull();
+            assertThat(result.getContent())
+                    .extracting(EquipmentItemHistoryDto::getEquipmentItemId,
+                            EquipmentItemHistoryDto::getOldStatus,
+                            EquipmentItemHistoryDto::getNewStatus,
+                            EquipmentItemHistoryDto::getChangedBy)
+                    .containsExactly(
+                            tuple(1L, "AVAILABLE", "RENTED", "admin1"),
+                            tuple(2L, "RENTED", "RETURNED", "admin2")
+                    );
+
+            assertThat(result.getPage()).isEqualTo(1);
+            assertThat(result.getSize()).isEqualTo(10);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getNumberOfElements()).isEqualTo(2);
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
+            assertThat(result.isEmpty()).isFalse();
+
+            verify(equipmentItemHistoryRepository).findHistoriesByEquipmentItemId(equipmentItemId, pageable);
+        }
+
+        @Test
+        @DisplayName("성공 - 히스토리 없음 (빈 페이지)")
+        void whenNoHistoriesExist_thenReturnEmptyPage() {
+            // given
+            Long equipmentItemId = 1L;
+            SearchParamDto paramDto = createParamDto();
+            Pageable pageable = paramDto.getPageable();
+
+            when(equipmentItemHistoryRepository.findHistoriesByEquipmentItemId(equipmentItemId, pageable))
+                    .thenReturn(Page.empty(pageable));
+
+            // when
+            PageResponseDto<EquipmentItemHistoryDto> result = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.isEmpty()).isTrue();
+
+            assertThat(result.getPage()).isEqualTo(1);
+            assertThat(result.getSize()).isEqualTo(10);
             assertThat(result.getTotalElements()).isEqualTo(0);
             assertThat(result.getTotalPages()).isEqualTo(0);
             assertThat(result.getNumberOfElements()).isEqualTo(0);
             assertThat(result.isFirst()).isTrue();
             assertThat(result.isLast()).isTrue();
-            assertThat(result.isEmpty()).isTrue();
+
+            verify(equipmentItemHistoryRepository).findHistoriesByEquipmentItemId(equipmentItemId, pageable);
         }
     }
 }
