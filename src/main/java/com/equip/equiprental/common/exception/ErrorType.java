@@ -71,6 +71,7 @@ public enum ErrorType {
     // 게시판
     BOARD_NOT_FOUND("board_not_found","해당 게시글은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     ALREADY_DELETED("already_deleted", "이미 논리 삭제된 게시글입니다.", HttpStatus.CONFLICT),
+    COMMENT_NOT_FOUND("comment_not_found", "해당 댓글은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     // 파일 관련
     FILE_NOT_FOUND("file_not_found", "파일을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

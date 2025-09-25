@@ -5,7 +5,6 @@ import com.equip.equiprental.board.domain.QComment;
 import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.dto.QCommentListResponse;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -74,24 +72,35 @@ public class CommentQRepoImpl implements CommentQRepo {
 
             // 부모 댓글 DTO에 대댓글 매핑
             contents.forEach(parent -> {
-                List<CommentListResponse> children = childComments.stream()
-                        .filter(child -> child.getParent().getCommentId().equals(parent.getCommentId()))
-                        .map(child -> new CommentListResponse(
-                                child.getCommentId(),
-                                child.getWriter().getMemberId(),
-                                child.getWriter().getName(),
-                                child.getContent(),
-                                child.getIsOfficial(),
-                                child.getCreatedAt(),
-                                child.getUpdatedAt(),
-                                new ArrayList<>()
-                        ))
-                        .toList();
-                parent.getChildren().addAll(children);
+                parent.getChildren().addAll(fetchChildren(parent.getCommentId()));
             });
         }
 
         // 최종 Page 반환
         return new PageImpl<>(contents, pageable, total);
+    }
+
+    // 재귀적으로 children 채우기
+    private List<CommentListResponse> fetchChildren(Long parentId) {
+        QComment c = QComment.comment;
+
+        List<Comment> childComments = queryFactory
+                .selectFrom(c)
+                .where(c.parent.commentId.eq(parentId))
+                .orderBy(c.createdAt.asc())
+                .fetch();
+
+        return childComments.stream()
+                .map(child -> new CommentListResponse(
+                        child.getCommentId(),
+                        child.getWriter().getMemberId(),
+                        child.getWriter().getName(),
+                        child.getContent(),
+                        child.getIsOfficial(),
+                        child.getCreatedAt(),
+                        child.getUpdatedAt(),
+                        fetchChildren(child.getCommentId()) // 재귀
+                ))
+                .toList();
     }
 }

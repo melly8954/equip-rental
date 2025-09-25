@@ -35,11 +35,19 @@ public class CommentServiceImpl implements CommentService{
         Board board = boardRepository.findById(dto.getBoardId())
                 .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
 
+        // parentCommentId가 있으면 찾아오기
+        Comment parent = null;
+        if (dto.getParentCommentId() != null) {
+            parent = commentRepository.findById(dto.getParentCommentId())
+                    .orElseThrow(() -> new CustomException(ErrorType.COMMENT_NOT_FOUND));
+        }
+
         boolean isOfficial = writer.isAdminOrManager();
 
         Comment comment = Comment.builder()
                 .board(board)
                 .writer(writer)
+                .parent(parent)
                 .isOfficial(isOfficial)
                 .content(dto.getContent())
                 .build();

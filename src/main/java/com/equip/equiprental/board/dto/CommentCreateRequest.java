@@ -9,5 +9,6 @@ import lombok.Getter;
 @Builder
 public class CommentCreateRequest {
     private Long boardId;
+    private Long parentCommentId;
     private String content;
 }

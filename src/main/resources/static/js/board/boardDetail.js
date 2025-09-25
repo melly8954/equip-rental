@@ -5,6 +5,7 @@ $(document).ready(function() {
 
     // 게시글 상세 조회
     fetchBoardDetail(boardId);
+    fetchComments(boardId);
 });
 
 function fetchBoardDetail(boardId) {
@@ -53,7 +54,7 @@ function renderBoardDetail(board) {
         : '';
 
     const html = `
-        <div class="card mb-3">
+        <div id="board-detail-content" data-board-id="${board.boardId}" class="card mb-3">
             <div class="card-header">
                 <span class="badge bg-${typeBadge} me-2">${typeText}</span>
                 ${board.title}
@@ -99,3 +100,110 @@ function deleteBoard(boardId) {
         window.location.href = "/board";
     }).fail(handleServerError);
 }
+
+$(document).on("click", "#submit-comment", function() {
+    const boardId = $("#board-detail-content").data("board-id");
+    const content = $("#comment-content").val().trim();
+    if (!content) {
+        alert("댓글 내용을 입력해주세요.");
+        return;
+    }
+
+    $.ajax({
+        url: "/api/v1/comments",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            boardId: boardId,
+            content: content
+        })
+    }).done(function(response) {
+        $("#comment-content").val("");
+        showSnackbar(response.message);
+        fetchComments(boardId); // 등록 후 다시 목록 조회
+    }).fail(handleServerError);
+});
+
+function fetchComments(boardId) {
+    $.ajax({
+        url: `/api/v1/comments?boardId=${boardId}&page=1&size=10`, // 페이지네이션 필요시
+        type: "GET"
+    }).done(function(response) {
+        renderCommentList(response.data.content); // PageResponseDto.content
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    });
+}
+
+// 댓글 + 답글 재귀 렌더링
+function renderCommentList(comments, container = $("#comment-list"), level = 0) {
+    if (!comments || comments.length === 0) {
+        if (level === 0) container.html("<p class='text-muted'>등록된 댓글이 없습니다.</p>");
+        return;
+    }
+
+    let html = level === 0 ? `<ul class="list-group">` : `<ul class="list-group ms-${level * 3}">`;
+
+    comments.forEach(c => {
+        console.log(c);
+        html += `
+          <li class="list-group-item mt-2" data-comment-id="${c.commentId}">
+            <strong>${c.writerName}</strong> 
+            <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
+            <p>${c.content}</p>
+            
+            <button class="btn btn-sm btn-link reply-toggle">답글 달기</button>
+
+            <div class="reply-section mt-2" style="display:none;">
+                <textarea class="form-control mb-1 reply-content" rows="2" placeholder="답글을 입력하세요."></textarea>
+                <button class="btn btn-sm btn-secondary submit-reply">등록</button>
+            </div>
+        `;
+
+        if (c.children && c.children.length > 0) {
+            html += renderCommentList(c.children, null, level + 1); // 재귀 호출
+        }
+
+        html += `</li>`;
+    });
+
+    html += `</ul>`;
+
+    if (level === 0) container.html(html); // 최상위 호출에서만 container에 반영
+    else return html; // 재귀 호출에서는 html 반환
+}
+
+// 답글 입력창 토글
+$(document).on("click", ".reply-toggle", function() {
+    const replySection = $(this).siblings(".reply-section");
+    replySection.toggle();
+});
+
+// 답글 등록
+$(document).on("click", ".submit-reply", function() {
+    const commentLi = $(this).closest("li[data-comment-id]");
+    const commentId = commentLi.data("comment-id");
+    const boardId = $("#board-detail-content").data("board-id");
+    const content = commentLi.find(".reply-content").val().trim();
+
+    if (!content) {
+        alert("답글 내용을 입력해주세요.");
+        return;
+    }
+
+    $.ajax({
+        url: "/api/v1/comments", // 필요시 /reply로 분리
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            boardId: boardId,
+            parentCommentId: commentId,
+            content: content
+        })
+    }).done(function(response) {
+        commentLi.find(".reply-content").val(""); // 입력창 초기화
+        commentLi.find(".reply-section").hide(); // 입력창 숨김
+        showSnackbar(response.message);
+        fetchComments(boardId); // 등록 후 전체 댓글/답글 다시 조회
+    }).fail(handleServerError);
+});
