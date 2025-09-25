@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -49,7 +48,7 @@ public class Comment extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "parent")
-    private List<Comment> children = new ArrayList<>();
+    private List<Comment> children;
 
     public void softDelete() {
         this.isDeleted = true;
