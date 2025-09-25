@@ -1,4 +1,4 @@
-package com.equip.equiprental.auth.service;
+package com.equip.equiprental.auth.service.iface;
 
 import com.equip.equiprental.auth.dto.LoginRequestDto;
 import com.equip.equiprental.auth.dto.LoginResponseDto;

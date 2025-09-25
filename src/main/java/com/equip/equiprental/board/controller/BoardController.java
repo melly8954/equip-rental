@@ -2,7 +2,7 @@ package com.equip.equiprental.board.controller;
 
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.*;
-import com.equip.equiprental.board.service.BoardService;
+import com.equip.equiprental.board.service.iface.BoardService;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;

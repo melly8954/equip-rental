@@ -20,6 +20,7 @@ import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
+import com.equip.equiprental.rental.service.iface.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +35,7 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-public class RentalServiceImpl implements RentalService{
+public class RentalServiceImpl implements RentalService {
 
     private final MemberRepository memberRepository;
     private final EquipmentRepository equipmentRepository;

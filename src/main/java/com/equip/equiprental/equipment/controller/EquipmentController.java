@@ -9,7 +9,7 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.equipment.dto.*;
-import com.equip.equiprental.equipment.service.EquipmentService;
+import com.equip.equiprental.equipment.service.iface.EquipmentService;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.scope.service.ManagerScopeService;
 import lombok.RequiredArgsConstructor;

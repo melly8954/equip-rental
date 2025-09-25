@@ -1,4 +1,4 @@
-package com.equip.equiprental.equipment.service;
+package com.equip.equiprental.equipment.service.iface;
 
 import com.equip.equiprental.equipment.dto.CategoryDto;
 import com.equip.equiprental.equipment.dto.SubCategoryDto;

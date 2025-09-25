@@ -5,7 +5,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.auth.dto.LoginRequestDto;
 import com.equip.equiprental.auth.dto.LoginResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
-import com.equip.equiprental.auth.service.AuthService;
+import com.equip.equiprental.auth.service.iface.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

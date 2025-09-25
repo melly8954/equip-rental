@@ -7,6 +7,7 @@ import com.equip.equiprental.board.dto.CommentCreateResponse;
 import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.repository.CommentRepository;
+import com.equip.equiprental.board.service.iface.CommentService;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;

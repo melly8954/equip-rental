@@ -10,7 +10,7 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.rental.dto.*;
-import com.equip.equiprental.rental.service.RentalService;
+import com.equip.equiprental.rental.service.iface.RentalService;
 import com.equip.equiprental.scope.service.ManagerScopeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

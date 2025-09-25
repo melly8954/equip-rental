@@ -1,5 +1,6 @@
 package com.equip.equiprental.rental.service;
 
+import com.equip.equiprental.rental.service.iface.RentalItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

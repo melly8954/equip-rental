@@ -4,7 +4,7 @@ import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
 import com.equip.equiprental.board.dto.CommentListResponse;
-import com.equip.equiprental.board.service.CommentService;
+import com.equip.equiprental.board.service.iface.CommentService;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;

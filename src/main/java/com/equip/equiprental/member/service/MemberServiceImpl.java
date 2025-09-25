@@ -12,6 +12,7 @@ import com.equip.equiprental.member.repository.DepartmentRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.member.service.iface.MemberService;
 import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

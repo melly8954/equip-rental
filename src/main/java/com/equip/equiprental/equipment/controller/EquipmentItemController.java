@@ -11,7 +11,7 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.equipment.dto.EquipmentItemHistoryDto;
 import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
-import com.equip.equiprental.equipment.service.EquipmentItemService;
+import com.equip.equiprental.equipment.service.iface.EquipmentItemService;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.scope.service.ManagerScopeService;
 import lombok.RequiredArgsConstructor;
