@@ -5,6 +5,8 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
+import com.equip.equiprental.equipment.domain.EquipmentItem;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.domain.SubCategory;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
@@ -13,10 +15,7 @@ import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalStatus;
-import com.equip.equiprental.rental.dto.AdminRentalDto;
-import com.equip.equiprental.rental.dto.RentalRequestDto;
-import com.equip.equiprental.rental.dto.RentalResponseDto;
-import com.equip.equiprental.rental.dto.UserRentalDto;
+import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import com.equip.equiprental.rental.service.RentalServiceImpl;
@@ -39,7 +38,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RentalServiceImpl 단위 테스트")
@@ -368,4 +368,181 @@ public class RentalServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("updateRentalStatus 메서드 테스트")
+    class updateRentalStatus {
+        private Member member;
+        private Rental rental;
+        private Equipment equipment;
+        private List<EquipmentItem> equipmentItems;
+
+        @BeforeEach
+        void setUp() {
+            member = Member.builder()
+                    .memberId(1L)
+                    .name("TestUser")
+                    .build();
+
+            equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .stock(5)
+                    .build();
+
+            rental = Rental.builder()
+                    .rentalId(1L)
+                    .member(member)
+                    .equipment(equipment)
+                    .requestStartDate(LocalDate.now().plusDays(1))
+                    .requestEndDate(LocalDate.now().plusDays(3))
+                    .quantity(2)
+                    .status(RentalStatus.PENDING)
+                    .build();
+
+            equipmentItems = List.of(
+                    EquipmentItem.builder().equipmentItemId(101L).status(EquipmentStatus.AVAILABLE).build(),
+                    EquipmentItem.builder().equipmentItemId(102L).status(EquipmentStatus.AVAILABLE).build()
+            );
+        }
+        // 헬퍼 메서드
+        private UpdateRentalStatusDto buildDto(String status, String rejectReason) {
+            return UpdateRentalStatusDto.builder()
+                    .equipmentId(equipment.getEquipmentId())
+                    .newStatus(status)
+                    .rejectReason(rejectReason)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("성공 - APPROVED 상태 업데이트")
+        void approved() {
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
+            when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
+                    .thenReturn(equipmentItems);
+            when(equipmentItemRepository.approveRental(anyList())).thenReturn(equipmentItems.size());
+            when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
+
+            rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId());
+
+            assertThat(rental.getStatus()).isEqualTo(RentalStatus.APPROVED);
+
+            verify(equipmentItemRepository).approveRental(anyList());
+            verify(rentalItemRepository).saveAll(anyList());
+            verify(equipmentItemHistoryRepository).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("성공 - CANCELLED 상태 업데이트")
+        void cancelled() {
+            UpdateRentalStatusDto dto = buildDto("CANCELLED", null);
+
+            when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
+
+            rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId());
+
+            assertThat(rental.getStatus()).isEqualTo(RentalStatus.CANCELLED);
+
+            verify(equipmentItemRepository, never()).approveRental(anyList());
+            verify(rentalItemRepository, never()).saveAll(anyList());
+            verify(equipmentItemHistoryRepository, never()).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("성공 - REJECTED 상태 업데이트")
+        void rejected() {
+            UpdateRentalStatusDto dto = buildDto("REJECTED", "재고 없음");
+
+            when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
+
+            rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId());
+
+            assertThat(rental.getStatus()).isEqualTo(RentalStatus.REJECTED);
+            assertThat(rental.getRejectReason()).isEqualTo("재고 없음");
+
+            verify(equipmentItemRepository, never()).approveRental(anyList());
+            verify(rentalItemRepository, never()).saveAll(anyList());
+            verify(equipmentItemHistoryRepository, never()).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 rentalId")
+        void rentalNotFound() {
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(999L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, 999L, member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining(ErrorType.RENTAL_NOT_FOUND.getMessage());
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 memberId")
+        void userNotFound() {
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
+            when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
+                    .thenReturn(equipmentItems);
+            when(equipmentItemRepository.approveRental(anyList())).thenReturn(equipmentItems.size());
+            when(memberRepository.findById(999L)).thenReturn(Optional.empty());
+
+
+            assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), 999L))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining(ErrorType.USER_NOT_FOUND.getMessage());
+        }
+
+        @Test
+        @DisplayName("예외 - 대여 시작일 경과")
+        void rentalStartDatePassed() {
+            rental = Rental.builder()
+                    .rentalId(rental.getRentalId())
+                    .member(rental.getMember())
+                    .equipment(rental.getEquipment())
+                    .requestStartDate(LocalDate.now().minusDays(1)) // 오늘 이전 날짜
+                    .requestEndDate(rental.getRequestEndDate())
+                    .quantity(rental.getQuantity())
+                    .status(rental.getStatus())
+                    .build();
+
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
+
+            assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining(ErrorType.RENTAL_START_DATE_PASSED.getMessage());
+        }
+
+        @Test
+        @DisplayName("예외 - 재고 부족")
+        void insufficientStock() {
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
+            when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
+                    .thenReturn(List.of(equipmentItems.get(0))); // 필요한 수량보다 적음, 필요 재고 2개
+
+            assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK.getMessage());
+        }
+
+        @Test
+        @DisplayName("예외 - 승인 수량 mismatch")
+        void partialUpdate() {
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+
+            when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
+            when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
+                    .thenReturn(equipmentItems);
+            when(equipmentItemRepository.approveRental(anyList())).thenReturn(999); // 실제 수량은 2, mismatch
+
+            assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining(ErrorType.PARTIAL_UPDATE.getMessage());
+        }
+    }
 }
