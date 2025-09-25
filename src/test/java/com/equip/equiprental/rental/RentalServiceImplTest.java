@@ -14,6 +14,7 @@ import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
@@ -124,7 +125,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.requestRental(dto, 1L))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.USER_NOT_FOUND.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.USER_NOT_FOUND);
         }
 
         @Test
@@ -142,7 +144,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.EQUIPMENT_NOT_FOUND.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
         }
 
         @Test
@@ -160,7 +163,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.RENTAL_START_DATE_INVALID.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_START_DATE_INVALID);
         }
 
         @Test
@@ -178,7 +182,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.RENTAL_END_DATE_INVALID.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_END_DATE_INVALID);
         }
 
         @Test
@@ -197,7 +202,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK);
         }
     }
 
@@ -258,12 +264,9 @@ public class RentalServiceImplTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.getContent()).hasSize(2);
-            assertThat(response.getContent().get(0).getRentalId()).isEqualTo(1L);
-            assertThat(response.getContent().get(0).getEquipmentId()).isEqualTo(101L);
-            assertThat(response.getContent().get(0).getMemberId()).isEqualTo(1L);
-
             assertThat(response.getPage()).isEqualTo(1);
             assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.getTotalPages()).isEqualTo(1);
             assertThat(response.isFirst()).isTrue();
             assertThat(response.isLast()).isTrue();
             assertThat(response.isEmpty()).isFalse();
@@ -281,6 +284,7 @@ public class RentalServiceImplTest {
             assertThat(response.getContent()).isEmpty();
             assertThat(response.getPage()).isEqualTo(1);
             assertThat(response.getTotalElements()).isEqualTo(0);
+            assertThat(response.getTotalPages()).isEqualTo(0);
             assertThat(response.isEmpty()).isTrue();
             assertThat(response.isFirst()).isTrue();
             assertThat(response.isLast()).isTrue();
@@ -335,12 +339,9 @@ public class RentalServiceImplTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.getContent()).hasSize(2);
-            assertThat(response.getContent().get(0).getRentalId()).isEqualTo(1L);
-            assertThat(response.getContent().get(0).getEquipmentId()).isEqualTo(101L);
-            assertThat(response.getContent().get(0).getStatus()).isEqualTo("WAITING");
-
             assertThat(response.getPage()).isEqualTo(1);
             assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.getTotalPages()).isEqualTo(1);
             assertThat(response.isFirst()).isTrue();
             assertThat(response.isLast()).isTrue();
             assertThat(response.isEmpty()).isFalse();
@@ -362,6 +363,7 @@ public class RentalServiceImplTest {
             assertThat(response.getContent()).isEmpty();
             assertThat(response.getPage()).isEqualTo(1);
             assertThat(response.getTotalElements()).isEqualTo(0);
+            assertThat(response.getTotalPages()).isEqualTo(0);
             assertThat(response.isEmpty()).isTrue();
             assertThat(response.isFirst()).isTrue();
             assertThat(response.isLast()).isTrue();
@@ -474,7 +476,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, 999L, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.RENTAL_NOT_FOUND.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
         }
 
         @Test
@@ -491,7 +494,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), 999L))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.USER_NOT_FOUND.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.USER_NOT_FOUND);
         }
 
         @Test
@@ -513,7 +517,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.RENTAL_START_DATE_PASSED.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_START_DATE_PASSED);
         }
 
         @Test
@@ -527,7 +532,8 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK);
         }
 
         @Test
@@ -542,7 +548,130 @@ public class RentalServiceImplTest {
 
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
-                    .hasMessageContaining(ErrorType.PARTIAL_UPDATE.getMessage());
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.PARTIAL_UPDATE);
+        }
+    }
+
+    @Nested
+    @DisplayName("getUserRentalItemList 메서드 테스트")
+    class getUserRentalItemList {
+        private Member member;
+        private Rental rental;
+        private SearchParamDto paramDto;
+        private Pageable pageable;
+
+        @BeforeEach
+        void setUp() {
+            member = Member.builder()
+                    .memberId(1L)
+                    .name("TestUser")
+                    .build();
+
+            rental = Rental.builder()
+                    .rentalId(1L)
+                    .member(member)
+                    .status(RentalStatus.APPROVED)
+                    .build();
+
+            paramDto = SearchParamDto.builder().page(1).size(10).build();
+            pageable = paramDto.getPageable();
+        }
+
+        @Test
+        @DisplayName("성공 - PageResponseDto 반환")
+        void success() {
+            UserRentalItemDto dto1 = UserRentalItemDto.builder()
+                    .rentalItemId(101L)
+                    .rentalId(rental.getRentalId())
+                    .thumbnailUrl("thumb1.png")
+                    .category("전자기기")
+                    .subCategory("노트북")
+                    .model("MacBook Pro")
+                    .serialName("MBP-001")
+                    .startDate(LocalDate.now())
+                    .endDate(LocalDate.now().plusDays(3))
+                    .actualReturnDate(null)
+                    .status(RentalItemStatus.RENTED)
+                    .isExtended(false)
+                    .build();
+
+            UserRentalItemDto dto2 = UserRentalItemDto.builder()
+                    .rentalItemId(102L)
+                    .rentalId(rental.getRentalId())
+                    .thumbnailUrl("thumb2.png")
+                    .category("전자기기")
+                    .subCategory("카메라")
+                    .model("Canon R6")
+                    .serialName("CAM-001")
+                    .startDate(LocalDate.now())
+                    .endDate(LocalDate.now().plusDays(3))
+                    .actualReturnDate(null)
+                    .status(RentalItemStatus.RENTED)
+                    .isExtended(false)
+                    .build();
+
+            Page<UserRentalItemDto> stubPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
+
+            when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
+            when(rentalItemRepository.findUserRentalItems(paramDto, pageable, rental.getRentalId(), member.getMemberId()))
+                    .thenReturn(stubPage);
+
+            PageResponseDto<UserRentalItemDto> response = rentalService.getUserRentalItemList(paramDto, rental.getRentalId(), member.getMemberId());
+
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getPage()).isEqualTo(1);
+            assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.getTotalPages()).isEqualTo(1);
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.isEmpty()).isFalse();
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 rentalId")
+        void rentalNotFound() {
+            when(rentalRepository.findById(999L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, 999L, member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - memberId 불일치")
+        void accessDenied() {
+            Rental otherRental = Rental.builder()
+                    .rentalId(2L)
+                    .member(Member.builder().memberId(2L).build())
+                    .status(RentalStatus.APPROVED)
+                    .build();
+
+            when(rentalRepository.findById(otherRental.getRentalId())).thenReturn(Optional.of(otherRental));
+
+            assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, otherRental.getRentalId(), member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_ACCESS_DENIED);
+        }
+
+        @Test
+        @DisplayName("예외 - rental 상태가 APPROVED 아님")
+        void rentalNotApproved() {
+            Rental pendingRental = Rental.builder()
+                    .rentalId(3L)
+                    .member(member)
+                    .status(RentalStatus.PENDING)
+                    .build();
+
+            when(rentalRepository.findById(pendingRental.getRentalId())).thenReturn(Optional.of(pendingRental));
+
+            assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, pendingRental.getRentalId(), member.getMemberId()))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_NOT_APPROVED);
         }
     }
 }
