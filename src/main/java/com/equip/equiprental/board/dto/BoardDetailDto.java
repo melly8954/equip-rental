@@ -18,6 +18,7 @@ public class BoardDetailDto {
     private String title;
     private String content;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<BoardFileDto> files;
     @JsonProperty("isOwner")
     private boolean owner;

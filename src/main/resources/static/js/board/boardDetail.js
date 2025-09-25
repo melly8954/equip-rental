@@ -67,6 +67,7 @@ function renderBoardDetail(board) {
             </div>
             <div class="card-footer text-muted">
                 작성일: ${new Date(board.createdAt).toLocaleString()}
+                 ${board.updatedAt ? ' <small class="text-secondary ms-1">수정됨</small>' : ''}
             </div>
         </div>
         <a href="/board" class="btn btn-secondary">목록 이동</a>

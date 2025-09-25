@@ -151,6 +151,7 @@ public class BoardServiceImpl implements BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .createdAt(board.getCreatedAt())
+                .updatedAt(board.getUpdatedAt())
                 .files(files)
                 .owner(isOwner)
                 .build();
