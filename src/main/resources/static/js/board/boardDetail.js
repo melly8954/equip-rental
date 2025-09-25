@@ -137,7 +137,13 @@ function fetchComments(boardId) {
         url: `/api/v1/comments?boardId=${boardId}&page=1&size=10`, // 페이지네이션 필요시
         type: "GET"
     }).done(function(response) {
-        renderCommentList(response.data.content); // PageResponseDto.content
+        renderCommentList(response.data.content);
+
+        // 공식 답변이 있으면 수정 버튼 비활성화
+        const hasOfficial = response.data.content.some(c => checkOfficialRecursively(c));
+        if (hasOfficial) {
+            $("#update-board-btn").prop("disabled", true).text("공식 답변 존재 - 수정 불가");
+        }
     }).fail(function(xhr) {
         handleServerError(xhr);
     });
@@ -154,17 +160,19 @@ function renderCommentList(comments, container = $("#comment-list"), level = 0) 
 
     comments.forEach(c => {
         console.log(c);
+        // 관리자 공식 답변 배지
+        const officialBadge = c.isOfficial ? `<span class="badge bg-info ms-2">관리자</span>` : '';
+
         html += `
           <li class="list-group-item mt-2" data-comment-id="${c.commentId}">
-            <strong>${c.writerName}</strong> 
+            <strong>${c.writerName}</strong> ${officialBadge}
+            <p>${c.content}</p>
             <small class="text-muted">
                 ${new Date(c.createdAt).toLocaleString()}
                 ${c.isOwner ? `
                     <button class="btn btn-sm btn-outline-danger delete-comment">삭제</button>
                 ` : ''}
-            </small>
-            <p>${c.content}</p>
-            
+            </small>         
             <button class="btn btn-sm btn-link reply-toggle">답글 달기</button>
             
             <div class="reply-section mt-2" style="display:none;">
@@ -184,6 +192,15 @@ function renderCommentList(comments, container = $("#comment-list"), level = 0) 
 
     if (level === 0) container.html(html); // 최상위 호출에서만 container에 반영
     else return html; // 재귀 호출에서는 html 반환
+}
+
+// 재귀로 공식 답변 체크
+function checkOfficialRecursively(comment) {
+    if (comment.isOfficial) return true;
+    if (comment.children && comment.children.length > 0) {
+        return comment.children.some(c => checkOfficialRecursively(c));
+    }
+    return false;
 }
 
 // 답글 입력창 토글
