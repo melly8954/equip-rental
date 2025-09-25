@@ -172,100 +172,102 @@ public class EquipmentServiceImplTest {
         }
     }
 
-//    @Nested
-//    @DisplayName("getEquipment 메서드 테스트")
-//    class getEquipment {
-//        @Test
-//        @DisplayName("성공 - 장비 조회 성공")
-//        void getEquipment_success() {
-//            // given
-//            SearchParamDto paramDto = SearchParamDto.builder()
-//                    .page(1)
-//                    .size(10)
-//                    .category("ELECTRONICS")
-//                    .build();
-//            Pageable pageable = paramDto.getPageable();
-//
-//            EquipmentDto equipment1 = EquipmentDto.builder()
-//                    .equipmentId(1L)
-//                    .category("ELECTRONICS")
-//                    .subCategory("Laptop")
-//                    .model("LG Gram")
-//                    .availableStock(5)
-//                    .totalStock(10)
-//                    .imageUrl("url1")
-//                    .build();
-//
-//            EquipmentDto equipment2 = EquipmentDto.builder()
-//                    .equipmentId(2L)
-//                    .category("ELECTRONICS")
-//                    .subCategory("Monitor")
-//                    .model("삼성 오디세이")
-//                    .availableStock(6)
-//                    .totalStock(11)
-//                    .imageUrl("url2")
-//                    .build();
-//
-//            Page<EquipmentDto> mockPage = new PageImpl<>(List.of(equipment1, equipment2), pageable, 2);
-//            when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(mockPage);
-//
-//            // when
-//            PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
-//
-//            // then
-//            assertThat(result).isNotNull();
-//
-//            assertThat(result.getContent()).hasSize(2);
-//            assertThat(result.getContent().get(0).getEquipmentId()).isEqualTo(1L);
-//            assertThat(result.getContent().get(0).getImageUrl()).isEqualTo("url1");
-//            assertThat(result.getContent().get(1).getEquipmentId()).isEqualTo(2L);
-//            assertThat(result.getContent().get(1).getImageUrl()).isEqualTo("url2");
-//
-//            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
-//            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
-//            assertThat(result.getTotalElements()).isEqualTo(2);
-//            assertThat(result.getTotalPages()).isEqualTo(1);
-//            assertThat(result.getNumberOfElements()).isEqualTo(2);
-//
-//            assertThat(result.isFirst()).isTrue();
-//            assertThat(result.isLast()).isTrue();
-//            assertThat(result.isEmpty()).isFalse();
-//        }
-//
-//        @Test
-//        @DisplayName("성공 - 장비 조회 결과 없음")
-//        void getEquipment_empty() {
-//            // given
-//            SearchParamDto paramDto = SearchParamDto.builder()
-//                    .page(1)
-//                    .size(10)
-//                    .category("ELECTRONICS")
-//                    .build();
-//            Pageable pageable = paramDto.getPageable();
-//
-//            Page<EquipmentDto> emptyPage = Page.empty(pageable);
-//            when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(emptyPage);
-//
-//            // when
-//            PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
-//
-//            // then
-//            assertThat(result).isNotNull();
-//
-//            assertThat(result.getContent()).isEmpty();
-//            assertThat(result.isEmpty()).isTrue();
-//
-//            assertThat(result.getPage()).isEqualTo(pageable.getPageNumber() + 1);
-//            assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
-//            assertThat(result.getTotalElements()).isEqualTo(0);
-//            assertThat(result.getTotalPages()).isEqualTo(0);
-//            assertThat(result.getNumberOfElements()).isEqualTo(0);
-//
-//            assertThat(result.isFirst()).isTrue();
-//            assertThat(result.isLast()).isTrue();
-//        }
-//    }
-//
+    @Nested
+    @DisplayName("getEquipment 메서드 테스트")
+    class getEquipment {
+        private SearchParamDto createEquipmentParamDto() {
+            return SearchParamDto.builder()
+                    .page(1)
+                    .size(10)
+                    .categoryId(1L)                // ELECTRONICS 카테고리 id (예시)
+                    .subCategoryId(2L)             // Laptop 서브 카테고리 id (예시)
+                    .model("LG Gram")              // 특정 모델 검색
+                    .equipmentStatus("AVAILABLE")  // 상태 필터링
+                    .build();
+        }
+
+        private EquipmentDto createEquipment(Long id, String category, String subCategory,
+                                             String model, int available, int total, String url) {
+            return EquipmentDto.builder()
+                    .equipmentId(id)
+                    .category(category)
+                    .subCategory(subCategory)
+                    .model(model)
+                    .availableStock(available)
+                    .totalStock(total)
+                    .imageUrl(url)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("성공 - 장비 조회 성공")
+        void whenEquipmentExists_thenReturnPagedResult() {
+            // given
+            SearchParamDto paramDto = createEquipmentParamDto();
+            Pageable pageable = paramDto.getPageable();
+
+            EquipmentDto equipment1 = createEquipment(1L, "ELECTRONICS", "Laptop", "LG Gram", 5, 10, "url1");
+            EquipmentDto equipment2 = createEquipment(2L, "ELECTRONICS", "Monitor", "삼성 오디세이", 6, 11, "url2");
+
+            Page<EquipmentDto> mockPage = new PageImpl<>(List.of(equipment1, equipment2), pageable, 2);
+            when(equipmentRepository.findByFilters(paramDto, pageable)).thenReturn(mockPage);
+
+            // when
+            PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getContent())
+                    .extracting(EquipmentDto::getEquipmentId, EquipmentDto::getImageUrl)
+                    .containsExactly(
+                            tuple(1L, "url1"),
+                            tuple(2L, "url2")
+                    );
+
+            assertThat(result.getPage()).isEqualTo(1);
+            assertThat(result.getSize()).isEqualTo(10);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+            assertThat(result.getNumberOfElements()).isEqualTo(2);
+
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
+            assertThat(result.isEmpty()).isFalse();
+
+            verify(equipmentRepository).findByFilters(paramDto, pageable);
+        }
+
+        @Test
+        @DisplayName("성공 - 장비 조회 결과 없음")
+        void whenNoEquipmentExists_thenReturnEmptyPage() {
+            // given
+            SearchParamDto paramDto = createEquipmentParamDto();
+            Pageable pageable = paramDto.getPageable();
+
+            when(equipmentRepository.findByFilters(paramDto, pageable))
+                    .thenReturn(Page.empty(pageable));
+
+            // when
+            PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.isEmpty()).isTrue();
+
+            assertThat(result.getPage()).isEqualTo(1);
+            assertThat(result.getSize()).isEqualTo(10);
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getTotalPages()).isEqualTo(0);
+            assertThat(result.getNumberOfElements()).isEqualTo(0);
+
+            assertThat(result.isFirst()).isTrue();
+            assertThat(result.isLast()).isTrue();
+
+            verify(equipmentRepository).findByFilters(paramDto, pageable);
+        }
+    }
+
 //    @Nested
 //    @DisplayName("getEquipmentItem 메서드 테스트")
 //    class getEquipmentItem {
@@ -284,7 +286,7 @@ public class EquipmentServiceImplTest {
 //
 //            Equipment equipment = Equipment.builder()
 //                    .equipmentId(equipmentId)
-//                    .category(EquipmentCategory.ELECTRONICS)
+//                    .category(Category.ELECTRONICS)
 //                    .subCategory("Laptop")
 //                    .model("LG Gram")
 //                    .build();
