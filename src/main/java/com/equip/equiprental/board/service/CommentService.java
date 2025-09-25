@@ -10,4 +10,6 @@ public interface CommentService {
     CommentCreateResponse createComment(CommentCreateRequest dto, Long writerId);
 
     PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto, Long writerId);
+
+    void softDeleteComment(Long commentId);
 }

@@ -19,7 +19,6 @@ import java.util.List;
 public class CommentQRepoImpl implements CommentQRepo {
     private final JPAQueryFactory queryFactory;
 
-
     @Override
     public Page<CommentListResponse> findCommentList(Pageable pageable, Long boardId, Long writerId) {
         QComment c = QComment.comment;
@@ -31,6 +30,7 @@ public class CommentQRepoImpl implements CommentQRepo {
         }
 
         builder.and(c.parent.isNull());
+        builder.and(c.isDeleted.eq(false));
 
         List<CommentListResponse> contents = queryFactory
                 .select(new QCommentListResponse(
@@ -87,7 +87,8 @@ public class CommentQRepoImpl implements CommentQRepo {
 
         List<Comment> childComments = queryFactory
                 .selectFrom(c)
-                .where(c.parent.commentId.eq(parentId))
+                .where(c.parent.commentId.eq(parentId)
+                        .and(c.isDeleted.eq(false)))
                 .orderBy(c.createdAt.asc())
                 .fetch();
 

@@ -49,4 +49,13 @@ public class CommentController implements ResponseController {
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 조회 성공", result);
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ResponseDto<Void>> softDeleteComment(@PathVariable Long commentId){
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("댓글 삭제 요청 API] TraceId={}", traceId);
+
+        commentService.softDeleteComment(commentId);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 삭제 성공", null);
+    }
 }

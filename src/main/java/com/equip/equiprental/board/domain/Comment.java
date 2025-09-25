@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,17 @@ public class Comment extends BaseEntity {
     @Column(name="content")
     private String content;
 
+    @Column(name="is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name="deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "parent")
     private List<Comment> children = new ArrayList<>();
+
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

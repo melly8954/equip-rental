@@ -50,6 +50,7 @@ public class CommentServiceImpl implements CommentService{
                 .parent(parent)
                 .isOfficial(isOfficial)
                 .content(dto.getContent())
+                .isDeleted(false)
                 .build();
         commentRepository.save(comment);
 
@@ -80,5 +81,18 @@ public class CommentServiceImpl implements CommentService{
                 .last(dtosPage.isLast())
                 .empty(dtosPage.isEmpty())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorType.COMMENT_NOT_FOUND));
+
+        if (comment.getIsDeleted()) {
+            throw new CustomException(ErrorType.ALREADY_DELETED);
+        }
+
+        comment.softDelete();
     }
 }

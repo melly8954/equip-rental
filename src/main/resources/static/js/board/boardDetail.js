@@ -8,6 +8,7 @@ $(document).ready(function() {
     fetchComments(boardId);
 });
 
+// 게시글 상세 조회 호출
 function fetchBoardDetail(boardId) {
     $.ajax({
         url: `/api/v1/boards/${boardId}`,
@@ -19,6 +20,7 @@ function fetchBoardDetail(boardId) {
     });
 }
 
+// 게시글 상세 조회 렌더링
 function renderBoardDetail(board) {
     const container = $("#board-detail");
 
@@ -75,6 +77,7 @@ function renderBoardDetail(board) {
     container.html(html);
 }
 
+// 게시글 수정
 $(document).on("click", "#update-board-btn", function() {
     const boardId = $(this).data("board-id");
 
@@ -83,6 +86,7 @@ $(document).on("click", "#update-board-btn", function() {
     }
 });
 
+// 게시글 삭제 버튼
 $(document).on("click", "#delete-board-btn", function() {
     const boardId = $(this).data("board-id");
 
@@ -91,6 +95,7 @@ $(document).on("click", "#delete-board-btn", function() {
     }
 });
 
+// 게시글 삭제 api 호출
 function deleteBoard(boardId) {
     $.ajax({
         url: `/api/v1/boards/${boardId}`,
@@ -101,6 +106,7 @@ function deleteBoard(boardId) {
     }).fail(handleServerError);
 }
 
+// 댓글 작성 api 호출
 $(document).on("click", "#submit-comment", function() {
     const boardId = $("#board-detail-content").data("board-id");
     const content = $("#comment-content").val().trim();
@@ -124,6 +130,7 @@ $(document).on("click", "#submit-comment", function() {
     }).fail(handleServerError);
 });
 
+// 댓글 조회 api 호출
 function fetchComments(boardId) {
     $.ajax({
         url: `/api/v1/comments?boardId=${boardId}&page=1&size=10`, // 페이지네이션 필요시
@@ -152,7 +159,6 @@ function renderCommentList(comments, container = $("#comment-list"), level = 0) 
             <small class="text-muted">
                 ${new Date(c.createdAt).toLocaleString()}
                 ${c.isOwner ? `
-                    <button class="btn btn-sm btn-outline-primary edit-comment">수정</button>
                     <button class="btn btn-sm btn-outline-danger delete-comment">삭제</button>
                 ` : ''}
             </small>
@@ -212,4 +218,21 @@ $(document).on("click", ".submit-reply", function() {
         showSnackbar(response.message);
         fetchComments(boardId); // 등록 후 전체 댓글/답글 다시 조회
     }).fail(handleServerError);
+});
+
+// 댓글 삭제 버튼 클릭
+$(document).on("click", ".delete-comment", function() {
+    const commentLi = $(this).closest("li[data-comment-id]");
+    const commentId = commentLi.data("comment-id");
+    const boardId = $("#board-detail-content").data("board-id");
+
+    if (confirm("정말 댓글을 삭제하시겠습니까?")) {
+        $.ajax({
+            url: `/api/v1/comments/${commentId}`, // 논리 삭제 API 엔드포인트
+            type: "DELETE"
+        }).done(function(response) {
+            showSnackbar(response.message || "댓글이 삭제되었습니다.");
+            fetchComments(boardId); // 삭제 후 전체 댓글 다시 조회
+        }).fail(handleServerError);
+    }
 });
