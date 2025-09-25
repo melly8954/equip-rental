@@ -16,6 +16,7 @@ import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
+import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import com.equip.equiprental.rental.service.RentalServiceImpl;
@@ -257,8 +258,10 @@ public class RentalServiceImplTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.getContent()).hasSize(2);
-            assertThat(response.getContent().get(0).getCategory()).isEqualTo("전자기기");
-            assertThat(response.getContent().get(0).getSubCategory()).isEqualTo("노트북");
+            assertThat(response.getContent().get(0).getRentalId()).isEqualTo(1L);
+            assertThat(response.getContent().get(0).getEquipmentId()).isEqualTo(101L);
+            assertThat(response.getContent().get(0).getMemberId()).isEqualTo(1L);
+
             assertThat(response.getPage()).isEqualTo(1);
             assertThat(response.getTotalElements()).isEqualTo(2);
             assertThat(response.isFirst()).isTrue();
@@ -283,4 +286,86 @@ public class RentalServiceImplTest {
             assertThat(response.isLast()).isTrue();
         }
     }
+
+    @Nested
+    @DisplayName("getUserRentalList 메서드 테스트")
+    class getUserRentalList {
+        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        Pageable pageable = paramDto.getPageable();
+        Long memberId = 1L;
+
+        @Test
+        @DisplayName("성공 - PageResponseDto 변환")
+        void getUserRentalList_success() {
+            // given
+            UserRentalDto dto1 = UserRentalDto.builder()
+                    .rentalId(1L)
+                    .equipmentId(101L)
+                    .model("맥북프로")
+                    .category("전자기기")
+                    .subCategory("노트북")
+                    .thumbnailUrl("/images/macbook.jpg")
+                    .requestStartDate(LocalDate.of(2025, 1, 1))
+                    .requestEndDate(LocalDate.of(2025, 1, 10))
+                    .quantity(2)
+                    .status("WAITING")
+                    .rejectReason(null)
+                    .build();
+
+            UserRentalDto dto2 = UserRentalDto.builder()
+                    .rentalId(2L)
+                    .equipmentId(102L)
+                    .model("갤럭시탭")
+                    .category("전자기기")
+                    .subCategory("태블릿")
+                    .thumbnailUrl("/images/galaxy.jpg")
+                    .requestStartDate(LocalDate.of(2025, 2, 1))
+                    .requestEndDate(LocalDate.of(2025, 2, 5))
+                    .quantity(1)
+                    .status("APPROVED")
+                    .rejectReason(null)
+                    .build();
+
+            Page<UserRentalDto> stubPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
+            when(rentalRepository.findUserRentals(paramDto, pageable, memberId)).thenReturn(stubPage);
+
+            // when
+            PageResponseDto<UserRentalDto> response = rentalService.getUserRentalList(paramDto, memberId);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getContent().get(0).getRentalId()).isEqualTo(1L);
+            assertThat(response.getContent().get(0).getEquipmentId()).isEqualTo(101L);
+            assertThat(response.getContent().get(0).getStatus()).isEqualTo("WAITING");
+
+            assertThat(response.getPage()).isEqualTo(1);
+            assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.isEmpty()).isFalse();
+        }
+
+
+        @Test
+        @DisplayName("성공 - 빈 페이지 반환")
+        void getUserRentalList_emptyPage() {
+            // given
+            Page<UserRentalDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+            when(rentalRepository.findUserRentals(paramDto, pageable, memberId)).thenReturn(emptyPage);
+
+            // when
+            PageResponseDto<UserRentalDto> response = rentalService.getUserRentalList(paramDto, memberId);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).isEmpty();
+            assertThat(response.getPage()).isEqualTo(1);
+            assertThat(response.getTotalElements()).isEqualTo(0);
+            assertThat(response.isEmpty()).isTrue();
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+        }
+    }
+
 }
