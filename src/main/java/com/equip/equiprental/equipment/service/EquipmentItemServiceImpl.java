@@ -11,8 +11,8 @@ import com.equip.equiprental.equipment.dto.EquipmentItemHistoryDto;
 import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
+import com.equip.equiprental.equipment.service.iface.EquipmentItemService;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class EquipmentItemServiceImpl implements EquipmentItemService{
+public class EquipmentItemServiceImpl implements EquipmentItemService {
 
     private final EquipmentItemRepository equipmentItemRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;

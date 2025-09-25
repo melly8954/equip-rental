@@ -5,7 +5,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.equipment.dto.CategoryDto;
 import com.equip.equiprental.equipment.dto.SubCategoryDto;
-import com.equip.equiprental.equipment.service.CategoryService;
+import com.equip.equiprental.equipment.service.iface.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

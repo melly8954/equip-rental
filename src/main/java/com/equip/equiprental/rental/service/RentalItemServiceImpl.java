@@ -17,6 +17,7 @@ import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
+import com.equip.equiprental.rental.service.iface.RentalItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RentalItemServiceImpl implements RentalItemService{
+public class RentalItemServiceImpl implements RentalItemService {
 
     private final RentalItemRepository rentalItemRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;

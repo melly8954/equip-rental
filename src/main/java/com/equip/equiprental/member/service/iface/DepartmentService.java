@@ -1,4 +1,4 @@
-package com.equip.equiprental.member.service;
+package com.equip.equiprental.member.service.iface;
 
 import com.equip.equiprental.member.dto.DepartmentDto;
 

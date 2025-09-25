@@ -1,4 +1,4 @@
-package com.equip.equiprental.board.service;
+package com.equip.equiprental.board.service.iface;
 
 import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.common.dto.PageResponseDto;

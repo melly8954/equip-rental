@@ -4,7 +4,7 @@ import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.dto.DepartmentDto;
-import com.equip.equiprental.member.service.DepartmentService;
+import com.equip.equiprental.member.service.iface.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -11,7 +11,7 @@ import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.repository.SubCategoryRepository;
 import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
-import com.equip.equiprental.filestorage.service.FileService;
+import com.equip.equiprental.filestorage.service.iface.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

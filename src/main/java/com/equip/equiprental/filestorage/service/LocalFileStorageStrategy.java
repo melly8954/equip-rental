@@ -2,6 +2,7 @@ package com.equip.equiprental.filestorage.service;
 
 import com.equip.equiprental.common.config.FileProperties;
 import com.equip.equiprental.filestorage.domain.StoredFile;
+import com.equip.equiprental.filestorage.service.iface.FileStorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.equip.equiprental.filestorage.service;
+package com.equip.equiprental.filestorage.service.iface;
 
 import com.equip.equiprental.filestorage.domain.StoredFile;
 import org.springframework.core.io.Resource;

@@ -1,6 +1,7 @@
 package com.equip.equiprental.auth.service;
 
 import com.equip.equiprental.auth.security.PrincipalDetails;
+import com.equip.equiprental.auth.service.iface.AuthService;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;

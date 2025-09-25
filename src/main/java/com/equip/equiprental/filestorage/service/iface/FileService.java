@@ -1,4 +1,4 @@
-package com.equip.equiprental.filestorage.service;
+package com.equip.equiprental.filestorage.service.iface;
 
 import org.springframework.web.multipart.MultipartFile;
 
