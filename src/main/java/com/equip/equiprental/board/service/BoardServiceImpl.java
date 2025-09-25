@@ -106,7 +106,7 @@ public class BoardServiceImpl implements BoardService {
     public PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<BoardListResponse> dtosPage = boardRepository.findBoardList(pageable, paramDto.getBoardType());
+        Page<BoardListResponse> dtosPage = boardRepository.findBoardList(pageable, paramDto);
 
         return PageResponseDto.<BoardListResponse>builder()
                 .content(dtosPage.getContent())

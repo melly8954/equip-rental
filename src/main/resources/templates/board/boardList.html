@@ -40,10 +40,27 @@
                     </div>
                 </div>
 
-                <!-- 글 등록 버튼 -->
-                <div class="d-flex justify-content-end mt-3">
-                    <button id="toggleNoticeBtn" class="btn btn-outline-secondary me-3">공지사항만 보기</button>
-                    <a href="/board/registration" class="btn btn-primary">글 등록</a>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <!-- 좌측: 공지사항 토글 버튼 -->
+                    <div>
+                        <button id="toggleNoticeBtn" class="btn btn-outline-secondary">공지사항만 보기</button>
+                    </div>
+
+                    <!-- 중앙: 검색창 -->
+                    <div class="flex-grow-1 mx-3 d-flex" style="max-width: 500px;">
+                        <label for="search-type"></label>
+                        <select id="search-type" class="form-select me-2" style="max-width: 120px;">
+                            <option value="title" selected>제목</option>
+                            <option value="writer">작성자</option>
+                        </select>
+                        <label for="search-keyword"></label>
+                        <input type="text" id="search-keyword" class="form-control" placeholder="검색어 입력">
+                    </div>
+
+                    <!-- 우측: 글 등록 버튼 -->
+                    <div>
+                        <a href="/board/registration" class="btn btn-primary">글 등록</a>
+                    </div>
                 </div>
 
                 <!-- 페이징 -->

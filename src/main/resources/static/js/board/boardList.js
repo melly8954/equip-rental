@@ -2,6 +2,20 @@ let filters = {}; // 기본 필터
 let onlyNotices = false; // 공지사항 전용 모드 여부
 
 $(document).ready(function () {
+    $("#search-keyword").on("input", function() {
+        const searchType = $("#search-type").val();
+        const keyword = $(this).val();
+
+        filters.searchType = searchType;
+        filters.keyword = keyword;
+
+        if (onlyNotices) {
+            fetchNoticeBoards(filters);  // 공지 모드일 땐 여기로
+        } else {
+            fetchBoardList(filters);     // 일반 모드일 땐 여기로
+        }
+    });
+
     loadBoardPage(); // 초기 로드
 
     // 버튼 이벤트

@@ -3,6 +3,7 @@ package com.equip.equiprental.board.repository.dsl;
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.QBoard;
 import com.equip.equiprental.board.dto.BoardListResponse;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,13 +21,21 @@ public class BoardQRepoImpl implements BoardQRepo{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<BoardListResponse> findBoardList(Pageable pageable, BoardType type) {
+    public Page<BoardListResponse> findBoardList(Pageable pageable, SearchParamDto paramDto) {
         QBoard b = QBoard.board;
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (type != null) {
-            builder.and(b.boardType.eq(type));
+        if (paramDto.getBoardType() != null) {
+            builder.and(b.boardType.eq(paramDto.getBoardType()));
+        }
+
+        if (paramDto.getKeyword() != null && !paramDto.getKeyword().isBlank()) {
+            if ("title".equalsIgnoreCase(paramDto.getSearchType())) {
+                builder.and(b.title.containsIgnoreCase(paramDto.getKeyword()));
+            } else if ("writer".equalsIgnoreCase(paramDto.getSearchType())) {
+                builder.and(b.writer.name.containsIgnoreCase(paramDto.getKeyword()));
+            }
         }
 
         builder.and(b.isDeleted.eq(false));

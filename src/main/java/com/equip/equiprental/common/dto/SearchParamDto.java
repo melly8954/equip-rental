@@ -38,6 +38,8 @@ public class SearchParamDto {
     private Long departmentId;
 
     private BoardType boardType;
+    private String searchType;
+    private String keyword;
 
     private Long boardId;
 
