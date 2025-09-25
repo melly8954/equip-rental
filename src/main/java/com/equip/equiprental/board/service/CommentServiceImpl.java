@@ -64,10 +64,10 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto) {
+    public PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto, Long writerId) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId());
+        Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId(), writerId);
 
         return PageResponseDto.<CommentListResponse>builder()
                 .content(dtosPage.getContent())

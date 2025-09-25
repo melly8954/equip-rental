@@ -21,7 +21,7 @@ public class CommentQRepoImpl implements CommentQRepo {
 
 
     @Override
-    public Page<CommentListResponse> findCommentList(Pageable pageable, Long boardId) {
+    public Page<CommentListResponse> findCommentList(Pageable pageable, Long boardId, Long writerId) {
         QComment c = QComment.comment;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -39,6 +39,7 @@ public class CommentQRepoImpl implements CommentQRepo {
                         c.writer.name,
                         c.content,
                         c.isOfficial,
+                        c.writer.memberId.eq(writerId),
                         c.createdAt,
                         c.updatedAt
                 ))
@@ -72,7 +73,7 @@ public class CommentQRepoImpl implements CommentQRepo {
 
             // 부모 댓글 DTO에 대댓글 매핑
             contents.forEach(parent -> {
-                parent.getChildren().addAll(fetchChildren(parent.getCommentId()));
+                parent.getChildren().addAll(fetchChildren(parent.getCommentId(), writerId));
             });
         }
 
@@ -81,7 +82,7 @@ public class CommentQRepoImpl implements CommentQRepo {
     }
 
     // 재귀적으로 children 채우기
-    private List<CommentListResponse> fetchChildren(Long parentId) {
+    private List<CommentListResponse> fetchChildren(Long parentId, Long writerId) {
         QComment c = QComment.comment;
 
         List<Comment> childComments = queryFactory
@@ -97,9 +98,10 @@ public class CommentQRepoImpl implements CommentQRepo {
                         child.getWriter().getName(),
                         child.getContent(),
                         child.getIsOfficial(),
+                        child.getWriter().getMemberId().equals(writerId),
                         child.getCreatedAt(),
                         child.getUpdatedAt(),
-                        fetchChildren(child.getCommentId()) // 재귀
+                        fetchChildren(child.getCommentId(), writerId) // 재귀
                 ))
                 .toList();
     }

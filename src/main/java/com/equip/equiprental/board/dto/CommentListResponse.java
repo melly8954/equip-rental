@@ -18,6 +18,7 @@ public class CommentListResponse {
     private String writerName;
     private String content;
     private Boolean isOfficial;
+    private Boolean isOwner;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     @Builder.Default
@@ -30,6 +31,7 @@ public class CommentListResponse {
                                String writerName,
                                String content,
                                Boolean isOfficial,
+                               Boolean isOwner,
                                LocalDateTime createdAt,
                                LocalDateTime updatedAt) {
         this.commentId = commentId;
@@ -37,6 +39,7 @@ public class CommentListResponse {
         this.writerName = writerName;
         this.content = content;
         this.isOfficial = isOfficial;
+        this.isOwner = isOwner;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.children = new ArrayList<>();

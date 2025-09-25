@@ -38,11 +38,14 @@ public class CommentController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute SearchParamDto paramDto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute SearchParamDto paramDto,
+                                                                                            @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("댓글 조회 요청 API] TraceId={}", traceId);
 
-        PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto);
+        Long writerId = principal.getMember().getMemberId();
+
+        PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto, writerId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 조회 성공", result);
     }

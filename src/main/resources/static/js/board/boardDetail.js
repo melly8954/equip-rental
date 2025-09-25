@@ -149,11 +149,17 @@ function renderCommentList(comments, container = $("#comment-list"), level = 0) 
         html += `
           <li class="list-group-item mt-2" data-comment-id="${c.commentId}">
             <strong>${c.writerName}</strong> 
-            <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
+            <small class="text-muted">
+                ${new Date(c.createdAt).toLocaleString()}
+                ${c.isOwner ? `
+                    <button class="btn btn-sm btn-outline-primary edit-comment">수정</button>
+                    <button class="btn btn-sm btn-outline-danger delete-comment">삭제</button>
+                ` : ''}
+            </small>
             <p>${c.content}</p>
             
             <button class="btn btn-sm btn-link reply-toggle">답글 달기</button>
-
+            
             <div class="reply-section mt-2" style="display:none;">
                 <textarea class="form-control mb-1 reply-content" rows="2" placeholder="답글을 입력하세요."></textarea>
                 <button class="btn btn-sm btn-secondary submit-reply">등록</button>

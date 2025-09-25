@@ -9,5 +9,5 @@ import com.equip.equiprental.common.dto.SearchParamDto;
 public interface CommentService {
     CommentCreateResponse createComment(CommentCreateRequest dto, Long writerId);
 
-    PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto);
+    PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto, Long writerId);
 }
