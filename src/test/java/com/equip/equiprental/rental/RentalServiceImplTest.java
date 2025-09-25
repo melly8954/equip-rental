@@ -1,5 +1,7 @@
 package com.equip.equiprental.rental;
 
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
@@ -11,6 +13,7 @@ import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalStatus;
+import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.RentalRequestDto;
 import com.equip.equiprental.rental.dto.RentalResponseDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
@@ -24,8 +27,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -189,6 +197,90 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .hasMessageContaining(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("getAdminRentalList 메서드 테스트")
+    class getAdminRentalList {
+        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        Pageable pageable = paramDto.getPageable();
+
+        @Test
+        @DisplayName("성공 - PageResponseDto 변환")
+        void getAdminRentalList_success() {
+            // given
+            LocalDate start = LocalDate.now().plusDays(1);
+            LocalDate end = LocalDate.now().plusDays(3);
+            LocalDateTime createdAt = LocalDateTime.now();
+
+            AdminRentalDto dto1 = AdminRentalDto.builder()
+                    .rentalId(1L)
+                    .equipmentId(101L)
+                    .thumbnailUrl("thumb1.png")
+                    .quantity(2)
+                    .requestStartDate(start)
+                    .requestEndDate(end)
+                    .rentalReason("촬영")
+                    .createdAt(createdAt)
+                    .memberId(1L)
+                    .name("홍길동")
+                    .department("개발팀")
+                    .category("전자기기")
+                    .subCategory("노트북")
+                    .model("MacBook Pro")
+                    .build();
+
+            AdminRentalDto dto2 = AdminRentalDto.builder()
+                    .rentalId(2L)
+                    .equipmentId(102L)
+                    .thumbnailUrl("thumb2.png")
+                    .quantity(1)
+                    .requestStartDate(start)
+                    .requestEndDate(end)
+                    .rentalReason("회의")
+                    .createdAt(createdAt)
+                    .memberId(2L)
+                    .name("김철수")
+                    .department("관리팀")
+                    .category("전자기기")
+                    .subCategory("카메라")
+                    .model("Canon R6")
+                    .build();
+
+            Page<AdminRentalDto> stubPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
+            when(rentalRepository.findAdminRentals(paramDto, pageable)).thenReturn(stubPage);
+
+            // when
+            PageResponseDto<AdminRentalDto> response = rentalService.getAdminRentalList(paramDto);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getContent().get(0).getCategory()).isEqualTo("전자기기");
+            assertThat(response.getContent().get(0).getSubCategory()).isEqualTo("노트북");
+            assertThat(response.getPage()).isEqualTo(1);
+            assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.isEmpty()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공 - 빈 페이지 반환")
+        void getAdminRentalList_emptyPage() {
+            Page<AdminRentalDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+            when(rentalRepository.findAdminRentals(paramDto, pageable)).thenReturn(emptyPage);
+
+            PageResponseDto<AdminRentalDto> response = rentalService.getAdminRentalList(paramDto);
+
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).isEmpty();
+            assertThat(response.getPage()).isEqualTo(1);
+            assertThat(response.getTotalElements()).isEqualTo(0);
+            assertThat(response.isEmpty()).isTrue();
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
         }
     }
 }
