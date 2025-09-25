@@ -132,18 +132,27 @@ $(document).on("click", "#submit-comment", function() {
 });
 
 // 댓글 조회 api 호출
-function fetchComments(boardId) {
+function fetchComments(boardId, page) {
+    const params = { boardId, page };
+
     $.ajax({
-        url: `/api/v1/comments?boardId=${boardId}&page=1&size=10`, // 페이지네이션 필요시
-        type: "GET"
+        url: `/api/v1/comments`,
+        type: "GET",
+        data: params
     }).done(function(response) {
         renderCommentList(response.data.content);
-
         // 공식 답변이 있으면 수정 버튼 비활성화
         const hasOfficial = response.data.content.some(c => checkOfficialRecursively(c));
         if (hasOfficial) {
             $("#update-board-btn").prop("disabled", true).text("공식 답변 존재 - 수정 불가");
         }
+        // 댓글 페이징 렌더링
+        renderCommentPagination(
+            "comment-pagination",
+            response.data.page,
+            response.data.totalPages,
+            (newPage) => fetchComments(boardId, newPage)
+        );
     }).fail(function(xhr) {
         handleServerError(xhr);
     });
@@ -201,6 +210,31 @@ function checkOfficialRecursively(comment) {
         return comment.children.some(c => checkOfficialRecursively(c));
     }
     return false;
+}
+
+function renderCommentPagination(containerId, currentPage, totalPages, onPageClick) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    if (totalPages <= 1) return; // 페이지 1개면 렌더링 생략
+
+    let html = `<nav><ul class="pagination justify-content-center">`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#">${i}</a>
+                 </li>`;
+    }
+
+    html += `</ul></nav>`;
+    container.html(html);
+
+    // 클릭 이벤트
+    container.find(".page-link").click(function(e) {
+        e.preventDefault();
+        const selectedPage = parseInt($(this).text());
+        onPageClick(selectedPage);
+    });
 }
 
 // 답글 입력창 토글
