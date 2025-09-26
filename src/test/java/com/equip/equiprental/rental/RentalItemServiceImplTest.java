@@ -3,11 +3,15 @@ package com.equip.equiprental.rental;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.RentalItemServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +27,11 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RentalItemServiceImpl 단위 테스트")
@@ -113,6 +119,48 @@ public class RentalItemServiceImplTest {
             assertThat(response.isEmpty()).isTrue();
             assertThat(response.isFirst()).isTrue();
             assertThat(response.isLast()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("extendRentalItem 메서드 테스트")
+    class extendRentalItem {
+        Long rentalItemId = 1L;
+        ExtendRentalItemDto dto = new ExtendRentalItemDto(5);
+
+        @Test
+        @DisplayName("성공 - 대여 연장")
+        void extendRentalItem_success() {
+            // given
+            RentalItem item = RentalItem.builder()
+                    .rentalItemId(rentalItemId)
+                    .startDate(LocalDate.now().plusDays(1))
+                    .endDate(LocalDate.now().plusDays(3))
+                    .status(RentalItemStatus.RENTED)
+                    .isExtended(false)
+                    .build();
+
+            when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.of(item));
+
+            // when
+            rentalItemService.extendRentalItem(rentalItemId, dto);
+
+            // then
+            assertThat(item.getEndDate()).isEqualTo(LocalDate.now().plusDays(8));
+            assertThat(item.getIsExtended()).isTrue();
+        }
+
+        @Test
+        @DisplayName("실패 - 대여 아이템 없음")
+        void extendRentalItem_notFound() {
+            // given
+            when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> rentalItemService.extendRentalItem(rentalItemId, dto))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
         }
     }
 }
