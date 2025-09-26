@@ -5,10 +5,16 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.equipment.domain.EquipmentItem;
+import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
+import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
+import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
@@ -151,7 +157,7 @@ public class RentalItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("실패 - 대여 아이템 없음")
+        @DisplayName("실패 - 존재하지 않는 RentalItem")
         void extendRentalItem_notFound() {
             // given
             when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.empty());
@@ -161,6 +167,121 @@ public class RentalItemServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("returnRentalItem 메서드 테스트")
+    class returnRentalItem {
+        Long rentalItemId = 1L;
+        Long memberId = 100L;
+
+        @Test
+        @DisplayName("성공 - 일부 아이템만 반납")
+        void returnRentalItem_partialReturn() {
+            // given
+            Rental rental = Rental.builder().rentalId(10L).status(RentalStatus.APPROVED).build();
+            EquipmentItem item1Equip = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
+            EquipmentItem item2Equip = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
+
+            RentalItem item1 = RentalItem.builder()
+                    .rentalItemId(1L)
+                    .rental(rental)
+                    .equipmentItem(item1Equip)
+                    .status(RentalItemStatus.RENTED)
+                    .build();
+
+            RentalItem item2 = RentalItem.builder()
+                    .rentalItemId(2L)
+                    .rental(rental)
+                    .equipmentItem(item2Equip)
+                    .status(RentalItemStatus.RENTED)
+                    .build();
+
+            List<RentalItem> rentalItems = List.of(item1, item2);
+            Member member = Member.builder().memberId(memberId).build();
+
+            when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item1));
+            when(rentalItemRepository.findByRental_RentalId(rental.getRentalId())).thenReturn(rentalItems);
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+
+            // when
+            rentalItemService.returnRentalItem(1L, memberId);
+
+            // then
+            assertThat(item1.getStatus()).isEqualTo(RentalItemStatus.RETURNED);
+            assertThat(rental.getStatus()).isEqualTo(RentalStatus.APPROVED); // 전체가 반납되지 않았으므로 유지
+
+            verify(equipmentItemHistoryRepository).save(any(EquipmentItemHistory.class));
+        }
+
+        @Test
+        @DisplayName("성공 - 모든 아이템 반납")
+        void returnRentalItem_allReturned() {
+            // given
+            Rental rental = Rental.builder().rentalId(10L).status(RentalStatus.APPROVED).build();
+            EquipmentItem item1Equip = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
+            EquipmentItem item2Equip = EquipmentItem.builder().status(EquipmentStatus.AVAILABLE).build(); // 이미 반납된 상태
+
+            RentalItem item1 = RentalItem.builder()
+                    .rentalItemId(1L)
+                    .rental(rental)
+                    .equipmentItem(item1Equip)
+                    .status(RentalItemStatus.RENTED)
+                    .build();
+
+            RentalItem item2 = RentalItem.builder()
+                    .rentalItemId(2L)
+                    .rental(rental)
+                    .equipmentItem(item2Equip)
+                    .status(RentalItemStatus.RETURNED)
+                    .build();
+
+            List<RentalItem> rentalItems = List.of(item1, item2);
+            Member member = Member.builder().memberId(memberId).build();
+
+            when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item1));
+            when(rentalItemRepository.findByRental_RentalId(rental.getRentalId())).thenReturn(rentalItems);
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+
+            // when
+            rentalItemService.returnRentalItem(1L, memberId);
+
+            // then
+            assertThat(item1.getStatus()).isEqualTo(RentalItemStatus.RETURNED);
+            assertThat(rental.getStatus()).isEqualTo(RentalStatus.COMPLETED); // 모든 아이템 반납 완료
+
+            verify(equipmentItemHistoryRepository).save(any(EquipmentItemHistory.class));
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 RentalItem")
+        void returnRentalItem_rentalNotFound() {
+            when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> rentalItemService.returnRentalItem(rentalItemId, memberId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - 존재하지 않는 Member")
+        void returnRentalItem_memberNotFound() {
+            EquipmentItem equipmentItem = EquipmentItem.builder().build();
+            Rental rental = Rental.builder().rentalId(10L).build();
+            RentalItem item = RentalItem.builder().rentalItemId(rentalItemId)
+                    .equipmentItem(equipmentItem)
+                    .rental(rental)
+                    .build();
+
+            when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.of(item));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> rentalItemService.returnRentalItem(rentalItemId, memberId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.USER_NOT_FOUND);
         }
     }
 }
