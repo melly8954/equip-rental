@@ -18,3 +18,28 @@
 .rental-btn:hover {
     background-color: #dee2e6 !important;
 }
+
+.filter-pill-btn {
+    display: inline-block;
+    border: 2px solid #b3dafe;
+    background: white;
+    color: #2996fd;
+    border-radius: 22px;
+    padding: 8px 20px;
+    margin: 7px 7px 7px 0;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+/* checked 스타일: input:checked + label */
+input[type="radio"]:checked + .filter-pill-btn {
+    background: #e6f3ff;
+    color: #2996fd;
+    border: 2px solid #2996fd;
+}
+
+input[type="radio"] {
+    display: none;
+}
