@@ -18,6 +18,7 @@ import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
+import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.RentalItemServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.*;
 public class RentalItemServiceImplTest {
     @Mock private RentalItemRepository rentalItemRepository;
     @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
+    @Mock private RentalItemOverdueRepository rentalItemOverdueRepository;
     @Mock private MemberRepository memberRepository;
 
     @InjectMocks
@@ -188,6 +190,7 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(1L)
                     .rental(rental)
                     .equipmentItem(item1Equip)
+                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -195,6 +198,7 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(2L)
                     .rental(rental)
                     .equipmentItem(item2Equip)
+                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -227,6 +231,7 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(1L)
                     .rental(rental)
                     .equipmentItem(item1Equip)
+                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -234,6 +239,7 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(2L)
                     .rental(rental)
                     .equipmentItem(item2Equip)
+                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RETURNED)
                     .build();
 
@@ -255,6 +261,37 @@ public class RentalItemServiceImplTest {
         }
 
         @Test
+        @DisplayName("성공 - 연체 발생 시 overdue 기록 저장")
+        void returnRentalItem_overdueCreated() {
+            // given
+            Rental rental = Rental.builder().rentalId(10L).build();
+            EquipmentItem equipmentItem = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
+            RentalItem item = RentalItem.builder()
+                    .rentalItemId(1L)
+                    .rental(rental)
+                    .equipmentItem(equipmentItem)
+                    .status(RentalItemStatus.RENTED)
+                    .endDate(LocalDate.now().minusDays(3)) // 연체
+                    .build();
+            Member member = Member.builder().memberId(memberId).build();
+
+            when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item));
+            when(rentalItemRepository.findByRental_RentalId(rental.getRentalId()))
+                    .thenReturn(List.of(item));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+
+            // when
+            rentalItemService.returnRentalItem(1L, memberId);
+
+            // then
+            verify(rentalItemOverdueRepository).save(argThat(overdue ->
+                    overdue.getOverdueDays() == 3 &&
+                            overdue.getRentalItem() == item
+            ));
+        }
+
+
+        @Test
         @DisplayName("예외 - 존재하지 않는 RentalItem")
         void returnRentalItem_rentalNotFound() {
             when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.empty());
@@ -272,6 +309,7 @@ public class RentalItemServiceImplTest {
             Rental rental = Rental.builder().rentalId(10L).build();
             RentalItem item = RentalItem.builder().rentalItemId(rentalItemId)
                     .equipmentItem(equipmentItem)
+                    .endDate(LocalDate.now().plusDays(2))
                     .rental(rental)
                     .build();
 
