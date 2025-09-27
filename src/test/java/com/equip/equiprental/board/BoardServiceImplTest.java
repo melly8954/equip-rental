@@ -348,4 +348,60 @@ public class BoardServiceImplTest {
                     .isEqualTo(ErrorType.BOARD_NOT_FOUND);
         }
     }
+
+    @Nested
+    @DisplayName("softDeleteBoard 메서드 테스트")
+    class softDeleteBoard {
+        @Test
+        @DisplayName("성공 - 정상 게시글 삭제")
+        void softDeleteBoard_Success() {
+            // given
+            Long boardId = 1L;
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .isDeleted(false)
+                    .build();
+
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+
+            // when
+            boardService.softDeleteBoard(boardId);
+
+            // then
+            assertThat(board.getIsDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("예외 - 게시글이 존재하지 않음")
+        void softDeleteBoard_BoardNotFound() {
+            // given
+            Long boardId = 1L;
+            when(boardRepository.findById(boardId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> boardService.softDeleteBoard(boardId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - 이미 삭제된 게시글")
+        void softDeleteBoard_AlreadyDeleted() {
+            // given
+            Long boardId = 1L;
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .isDeleted(true)
+                    .build();
+
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+
+            // when & then
+            assertThatThrownBy(() -> boardService.softDeleteBoard(boardId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.ALREADY_DELETED);
+        }
+    }
 }
