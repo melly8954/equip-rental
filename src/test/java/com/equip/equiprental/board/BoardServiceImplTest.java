@@ -6,14 +6,19 @@ import com.equip.equiprental.board.domain.BoardStatus;
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.dto.BoardCreateRequest;
 import com.equip.equiprental.board.dto.BoardCreateResponse;
+import com.equip.equiprental.board.dto.BoardListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.service.BoardServiceImpl;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.iface.FileService;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.rental.dto.AdminRentalDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,9 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -178,4 +187,68 @@ public class BoardServiceImplTest {
         }
     }
 
+    @Nested
+    @DisplayName("getBoardList 메서드 테스트")
+    class getBoardList {
+        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        Pageable pageable = paramDto.getPageable();
+
+        @Test
+        @DisplayName("성공 - PageResponseDto 변환")
+        void getBoardList_Success() {
+            // given
+            BoardListResponse dto1 = new BoardListResponse(
+                    1L,
+                    BoardType.NOTICE,
+                    "writer1",
+                    "제목1",
+                    LocalDateTime.now()
+            );
+            BoardListResponse dto2 = new BoardListResponse(
+                    2L,
+                    BoardType.SUGGESTION,
+                    "writer2",
+                    "제목2",
+                    LocalDateTime.now()
+            );
+
+            Page<BoardListResponse> page = new org.springframework.data.domain.PageImpl<>(
+                    List.of(dto1, dto2), pageable, 2
+            );
+
+            when(boardRepository.findBoardList(pageable, paramDto)).thenReturn(page);
+
+            // when
+            PageResponseDto<BoardListResponse> response = boardServiceImpl.getBoardList(paramDto);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).hasSize(2);
+            assertThat(response.getTotalElements()).isEqualTo(2);
+            assertThat(response.getTotalPages()).isEqualTo(1);
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.isEmpty()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공 - 빈 페이지 반환")
+        void getBoardList_Empty() {
+            // given
+            Page<BoardListResponse> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+            when(boardRepository.findBoardList(pageable, paramDto)).thenReturn(emptyPage);
+
+            // when
+            PageResponseDto<BoardListResponse> response = boardServiceImpl.getBoardList(paramDto);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getContent()).isEmpty();
+            assertThat(response.getTotalElements()).isEqualTo(0);
+            assertThat(response.getTotalPages()).isEqualTo(0);
+            assertThat(response.isFirst()).isTrue();
+            assertThat(response.isLast()).isTrue();
+            assertThat(response.isEmpty()).isTrue();
+        }
+    }
 }
