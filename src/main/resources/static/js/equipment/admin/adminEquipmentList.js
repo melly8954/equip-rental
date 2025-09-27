@@ -69,6 +69,9 @@ function renderFilter(containerId, config, onChange) {
 
         const group = $("<div>").addClass("mb-3");
 
+        const groupLabel = $(`<div class="mb-2 fw-semibold">${value.label}</div>`);
+        group.append(groupLabel);
+
         const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
 
         value.options.forEach(opt => {
@@ -82,7 +85,7 @@ function renderFilter(containerId, config, onChange) {
                 .prop("checked", opt.id === null); // 전체 체크
 
             const button = $("<label>")
-                .addClass("btn btn-outline-primary")
+                .addClass("filter-pill-btn")
                 .attr("for", inputId)
                 .text(opt.label);
 
@@ -141,7 +144,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
         $("#sub-category-filters").removeClass("active"); // 옵션 없으면 숨김
     }
 
-    renderFilter("sub-category-filters", { subCategory: { type: "radio", options } }, (values) => {
+    renderFilter("sub-category-filters", { subCategory: { label: "서브카테고리", type: "radio", options } }, (values) => {
         const combinedFilters = {
             category: getFilterValues(filterConfig).category,
             subCategory: values.subCategory

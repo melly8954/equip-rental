@@ -95,6 +95,10 @@ function renderFilter(containerId, config, onChange) {
         }
 
         const group = $("<div>").addClass("mb-3");
+
+        const groupLabel = $(`<div class="mb-2 fw-semibold">${value.label}</div>`);
+        group.append(groupLabel);
+
         const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
 
         value.options.forEach(opt => {
@@ -108,7 +112,7 @@ function renderFilter(containerId, config, onChange) {
                 .prop("checked", opt.default === true); // 전체 체크
 
             const button = $("<label>")
-                .addClass("btn btn-outline-primary")
+                .addClass("filter-pill-btn")
                 .attr("for", inputId)
                 .text(opt.label);
 
@@ -126,6 +130,13 @@ function renderRentalItemStatusFilters() {
     const container = $("#rental-item-status-filters");
     container.empty();
 
+    // 그룹 div
+    const group = $("<div>").addClass("mb-3");
+
+    // 상단 라벨
+    const groupLabel = $('<div class="mb-2 fw-semibold">대여 상태</div>');
+    group.append(groupLabel);
+
     const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
 
     rentalItemStatusOptions.forEach(opt => {
@@ -139,7 +150,7 @@ function renderRentalItemStatusFilters() {
             .prop("checked", opt.default === true); // 전체 기본 선택
 
         const button = $("<label>")
-            .addClass("btn btn-outline-primary")
+            .addClass("filter-pill-btn")
             .attr("for", inputId)
             .text(opt.label);
 
@@ -148,7 +159,8 @@ function renderRentalItemStatusFilters() {
         btnGroup.append(input, button);
     });
 
-    container.append(btnGroup);
+    group.append(btnGroup);
+    container.append(group);
 }
 
 // 필터 값 가져오기
@@ -209,7 +221,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
         $("#sub-category-filters").hide();
     }
 
-    renderFilter("sub-category-filters", { subCategory: { type: "radio", options } }, () => {
+    renderFilter("sub-category-filters", { subCategory: { label: "서브카테고리", type: "radio", options } }, () => {
         fetchRentalItemList(getFilterValues());
     });
 

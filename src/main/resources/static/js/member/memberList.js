@@ -65,34 +65,51 @@ function renderFilter(containerId, filterConfig, onChangeCallback) {
 
     for (const key in filterConfig) {
         const config = filterConfig[key];
-        const $filterGroup = $(`
-            <div class="mb-2">
-                <label class="form-label fw-bold">${config.label}</label>
-                <div id="filter-${key}" class="d-flex gap-2"></div>
-            </div>
-        `);
 
-        const $optionsContainer = $filterGroup.find(`#filter-${key}`);
+        // 그룹 div
+        const $filterGroup = $("<div>").addClass("mb-3");
 
-        if (config.type === "radio") {
-            config.options.forEach(option => {
-                const id = `filter-${key}-${option}`;
-                const $radio = $(`
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="${key}" id="${id}" value="${option}" ${option === "전체" ? "checked" : ""}>
-                        <label class="form-check-label" for="${id}">${option}</label>
-                    </div>
-                `);
-                $optionsContainer.append($radio);
-            });
+        // 상단 라벨
+        const $groupLabel = $(`<div class="mb-2 fw-semibold">${config.label}</div>`);
+        $filterGroup.append($groupLabel);
 
-            // 변경 이벤트
-            $optionsContainer.on("change", "input", function () {
-                const values = getFilterValues(filterConfig);
-                onChangeCallback(values);
-            });
-        }
+        // 버튼 그룹
+        const $btnGroup = $("<div>").addClass("btn-group").attr("role", "group");
 
+        config.options.forEach(option => {
+            const inputId = `filter-${key}-${option}`;
+
+            const $input = $("<input>")
+                .attr("type", "radio")
+                .addClass("btn-check")
+                .attr("name", key)
+                .attr("id", inputId)
+                .val(option)
+                .prop("checked", option === "전체");
+
+            // 한글 라벨 적용
+            let labelText = option; // 기본값
+            if (key === 'memberStatus') {
+                labelText = statusLabelMap[option] || option;
+            } else if (key === 'role') {
+                labelText = roleLabelMap[option] || option;
+            }
+
+            const $label = $("<label>")
+                .addClass("filter-pill-btn") // 버튼 스타일
+                .attr("for", inputId)
+                .text(labelText);
+
+            $btnGroup.append($input, $label);
+        });
+
+        // 변경 이벤트
+        $btnGroup.on("change", "input", function() {
+            const values = getFilterValues(filterConfig);
+            onChangeCallback(values);
+        });
+
+        $filterGroup.append($btnGroup);
         $container.append($filterGroup);
     }
 }

@@ -28,7 +28,7 @@ window.addEventListener("pageshow", async function (event) {
     filterConfig = {
         ...serverFilter,
         status: {
-            label: "신청 상태",
+            label: "",
             type: "radio",
             options: [
                 { id: "PENDING", label: "대기 중", default: true },
@@ -91,6 +91,9 @@ function renderFilter(containerId, config, onChange) {
 
         const group = $("<div>").addClass("mb-3");
 
+        const groupLabel = $(`<div class="mb-2 fw-semibold">${value.label}</div>`);
+        group.append(groupLabel);
+
         const btnGroup = $("<div>").addClass("btn-group w-100").attr("role", "group");
 
         value.options.forEach(opt => {
@@ -104,7 +107,7 @@ function renderFilter(containerId, config, onChange) {
                 .prop("checked", opt.default === true)
 
             const button = $("<label>")
-                .addClass("btn btn-outline-primary")
+                .addClass("filter-pill-btn")
                 .attr("for", inputId)
                 .text(opt.label);
 
@@ -137,11 +140,12 @@ async function onFilterChange() {
 
 // 서브카테고리 업데이트
 async function updateSubCategoryOptions(categoryId) {
-    let options = [{id: null, label: "전체", default: true}];
+    let options = [];
     if (categoryId) {
         try {
             const resp = await $.getJSON(`/api/v1/categories/${categoryId}/sub-categories`);
             options = options.concat(resp.data.map(sc => ({id: sc.subCategoryId, label: sc.label})));
+            options.unshift({ id: null, label: "전체" });
         } catch (e) {
             console.error("서브카테고리 불러오기 실패", e);
         }
@@ -155,7 +159,7 @@ async function updateSubCategoryOptions(categoryId) {
     if (options.length > 1) container.show();
     else container.hide();
 
-    renderFilter("sub-category-filters", {subCategory: {type: "radio", options}}, (values) => {
+    renderFilter("sub-category-filters", {subCategory: {label: "서브카테고리", type: "radio", options}}, (values) => {
         // 카테고리 값 포함해서 fetch
         const combinedFilters = {
             category: getFilterValues(filterConfig).category,
