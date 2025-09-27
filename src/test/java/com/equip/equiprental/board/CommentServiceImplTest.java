@@ -265,4 +265,60 @@ public class CommentServiceImplTest {
             assertThat(result.isLast()).isTrue();
         }
     }
+
+    @Nested
+    @DisplayName("softDeleteComment 메서드 테스트")
+    class softDeleteComment {
+        @Test
+        @DisplayName("성공 - 댓글 정상 삭제")
+        void softDeleteComment_Success() {
+            // given
+            Long commentId = 1L;
+            Comment comment = Comment.builder()
+                    .commentId(commentId)
+                    .isDeleted(false)
+                    .build();
+
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+            // when
+            commentService.softDeleteComment(commentId);
+
+            // then
+            assertThat(comment.getIsDeleted()).isTrue(); // softDelete() 적용 여부 확인
+        }
+
+        @Test
+        @DisplayName("예외 - 댓글 없음")
+        void softDeleteComment_NotFound() {
+            // given
+            Long commentId = 1L;
+            when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> commentService.softDeleteComment(commentId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.COMMENT_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("예외 - 이미 삭제된 댓글")
+        void softDeleteComment_AlreadyDeleted() {
+            // given
+            Long commentId = 1L;
+            Comment comment = Comment.builder()
+                    .commentId(commentId)
+                    .isDeleted(true)
+                    .build();
+
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+            // when & then
+            assertThatThrownBy(() -> commentService.softDeleteComment(commentId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.ALREADY_DELETED);
+        }
+    }
 }
