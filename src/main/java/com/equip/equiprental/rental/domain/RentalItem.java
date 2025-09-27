@@ -67,4 +67,8 @@ public class RentalItem extends BaseEntity {
         this.actualReturnDate = now;
         this.status = RentalItemStatus.RETURNED;
     }
+
+    public void rentalOverdue(RentalItemStatus status) {
+        this.status = status;
+    }
 }

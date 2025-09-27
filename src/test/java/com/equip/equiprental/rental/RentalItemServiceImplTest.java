@@ -11,10 +11,7 @@ import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
-import com.equip.equiprental.rental.domain.Rental;
-import com.equip.equiprental.rental.domain.RentalItem;
-import com.equip.equiprental.rental.domain.RentalItemStatus;
-import com.equip.equiprental.rental.domain.RentalStatus;
+import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
@@ -33,6 +30,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -190,7 +188,6 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(1L)
                     .rental(rental)
                     .equipmentItem(item1Equip)
-                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -198,7 +195,6 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(2L)
                     .rental(rental)
                     .equipmentItem(item2Equip)
-                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -208,6 +204,7 @@ public class RentalItemServiceImplTest {
             when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item1));
             when(rentalItemRepository.findByRental_RentalId(rental.getRentalId())).thenReturn(rentalItems);
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(rentalItemOverdueRepository.findByRentalItem(item1)).thenReturn(Optional.empty());
 
             // when
             rentalItemService.returnRentalItem(1L, memberId);
@@ -231,7 +228,6 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(1L)
                     .rental(rental)
                     .equipmentItem(item1Equip)
-                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RENTED)
                     .build();
 
@@ -239,7 +235,6 @@ public class RentalItemServiceImplTest {
                     .rentalItemId(2L)
                     .rental(rental)
                     .equipmentItem(item2Equip)
-                    .endDate(LocalDate.now().plusDays(2))
                     .status(RentalItemStatus.RETURNED)
                     .build();
 
@@ -249,6 +244,7 @@ public class RentalItemServiceImplTest {
             when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item1));
             when(rentalItemRepository.findByRental_RentalId(rental.getRentalId())).thenReturn(rentalItems);
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(rentalItemOverdueRepository.findByRentalItem(item1)).thenReturn(Optional.empty());
 
             // when
             rentalItemService.returnRentalItem(1L, memberId);
@@ -261,33 +257,28 @@ public class RentalItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 연체 발생 시 overdue 기록 저장")
-        void returnRentalItem_overdueCreated() {
-            // given
+        @DisplayName("성공 - 연체 발생 시 overdue actualReturnDate update")
+        void returnRentalItem_overdueUpdated() {
             Rental rental = Rental.builder().rentalId(10L).build();
             EquipmentItem equipmentItem = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
             RentalItem item = RentalItem.builder()
                     .rentalItemId(1L)
                     .rental(rental)
                     .equipmentItem(equipmentItem)
-                    .status(RentalItemStatus.RENTED)
-                    .endDate(LocalDate.now().minusDays(3)) // 연체
+                    .status(RentalItemStatus.OVERDUE) // 스케줄러에서 이미 OVERDUE
+                    .endDate(LocalDate.now().minusDays(3))
                     .build();
-            Member member = Member.builder().memberId(memberId).build();
+
+            RentalItemOverdue overdue = mock(RentalItemOverdue.class);
 
             when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item));
-            when(rentalItemRepository.findByRental_RentalId(rental.getRentalId()))
-                    .thenReturn(List.of(item));
-            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(Member.builder().memberId(memberId).build()));
+            when(rentalItemOverdueRepository.findByRentalItem(item)).thenReturn(Optional.of(overdue));
 
-            // when
             rentalItemService.returnRentalItem(1L, memberId);
 
-            // then
-            verify(rentalItemOverdueRepository).save(argThat(overdue ->
-                    overdue.getOverdueDays() == 3 &&
-                            overdue.getRentalItem() == item
-            ));
+            verify(overdue).markReturned(LocalDate.now());
+            verify(rentalItemOverdueRepository).save(overdue);
         }
 
 
@@ -320,6 +311,55 @@ public class RentalItemServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.USER_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateOverdueStatus 메서드 테스트")
+    class updateOverdueStatus {
+        @Test
+        @DisplayName("성공 - 연체 상황 발생")
+        void updateOverdueStatus_success() {
+            // given
+            RentalItem item1 = RentalItem.builder()
+                    .rentalItemId(1L)
+                    .status(RentalItemStatus.RENTED)
+                    .endDate(LocalDate.now().minusDays(2))
+                    .build();
+
+            RentalItem item2 = RentalItem.builder()
+                    .rentalItemId(2L)
+                    .status(RentalItemStatus.RENTED)
+                    .endDate(LocalDate.now().minusDays(1))
+                    .build();
+
+            List<RentalItem> overdueItems = List.of(item1, item2);
+
+            when(rentalItemRepository.findByStatusAndEndDateBefore(RentalItemStatus.RENTED, LocalDate.now()))
+                    .thenReturn(overdueItems);
+
+            // when
+            rentalItemService.updateOverdueStatus();
+
+            // then
+            assertThat(item1.getStatus()).isEqualTo(RentalItemStatus.OVERDUE);
+            assertThat(item2.getStatus()).isEqualTo(RentalItemStatus.OVERDUE);
+            
+            verify(rentalItemOverdueRepository, times(2)).save(any(RentalItemOverdue.class));
+        }
+
+        @Test
+        @DisplayName("성공 - 연체 미발생 ")
+        void updateOverdueStatus_noOverdueItems() {
+            // given
+            when(rentalItemRepository.findByStatusAndEndDateBefore(RentalItemStatus.RENTED, LocalDate.now()))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            rentalItemService.updateOverdueStatus();
+
+            // then
+            verify(rentalItemOverdueRepository, never()).save(any(RentalItemOverdue.class));
         }
     }
 }

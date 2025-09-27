@@ -12,5 +12,5 @@ public interface RentalItemService {
 
     void returnRentalItem(Long rentalItem, Long memberId);
 
-    int updateOverdueStatus();
+    void updateOverdueStatus();
 }

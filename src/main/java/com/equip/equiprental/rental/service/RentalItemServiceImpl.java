@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -83,14 +84,10 @@ public class RentalItemServiceImpl implements RentalItemService {
         item.returnItem(LocalDate.now());
 
         // 연체 여부 계산 후 연체 테이블 생성
-        long overdueDays = ChronoUnit.DAYS.between(item.getEndDate(), LocalDate.now());
-        if (overdueDays > 0) {
-            RentalItemOverdue overdue = RentalItemOverdue.builder()
-                    .rentalItem(item)
-                    .plannedEndDate(item.getEndDate())
-                    .actualReturnDate(LocalDate.now())
-                    .overdueDays((int) overdueDays)
-                    .build();
+        Optional<RentalItemOverdue> overdueOpt = rentalItemOverdueRepository.findByRentalItem(item);
+        if (overdueOpt.isPresent()) {
+            RentalItemOverdue overdue = overdueOpt.get();
+            overdue.markReturned(LocalDate.now());
             rentalItemOverdueRepository.save(overdue);
         }
 
@@ -123,7 +120,22 @@ public class RentalItemServiceImpl implements RentalItemService {
 
     @Override
     @Transactional
-    public int updateOverdueStatus() {
-        return rentalItemRepository.markOverdueRentalItems();
+    public void  updateOverdueStatus() {
+        // 연체 대상 RentalItem 조회
+        List<RentalItem> overdueItems = rentalItemRepository.findByStatusAndEndDateBefore(RentalItemStatus.RENTED, LocalDate.now());
+
+        for (RentalItem item : overdueItems) {
+            // 상태 업데이트
+            item.rentalOverdue(RentalItemStatus.OVERDUE);
+
+            // 3. overdue_tbl insert
+            RentalItemOverdue overdue = RentalItemOverdue.builder()
+                    .rentalItem(item)
+                    .plannedEndDate(item.getEndDate())
+                    .actualReturnDate(null) // 반납 전이므로 null
+                    .overdueDays((int) ChronoUnit.DAYS.between(item.getEndDate(), LocalDate.now()))
+                    .build();
+            rentalItemOverdueRepository.save(overdue);
+        }
     }
 }

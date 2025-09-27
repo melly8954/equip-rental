@@ -15,7 +15,6 @@ public class RentalItemOverdueScheduler {
     // 매일 자정 00:00에 실행
     @Scheduled(cron = "0 0 0 * * ?")
     public void markOverdue() {
-        int updatedCount = rentalItemService.updateOverdueStatus();
-        log.info("Overdue 상태로 업데이트된 RentalItem 수: " + updatedCount);
+        rentalItemService.updateOverdueStatus();
     }
 }

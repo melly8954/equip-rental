@@ -33,4 +33,8 @@ public class RentalItemOverdue extends BaseEntity {
 
     @Column(name = "actual_return_date")
     private LocalDate actualReturnDate;
+
+    public void markReturned(LocalDate returnDate) {
+        this.actualReturnDate = returnDate;
+    }
 }
