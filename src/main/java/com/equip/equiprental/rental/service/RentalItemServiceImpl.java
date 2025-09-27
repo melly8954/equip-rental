@@ -10,12 +10,10 @@ import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
-import com.equip.equiprental.rental.domain.Rental;
-import com.equip.equiprental.rental.domain.RentalItem;
-import com.equip.equiprental.rental.domain.RentalItemStatus;
-import com.equip.equiprental.rental.domain.RentalStatus;
+import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
+import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.iface.RentalItemService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -32,6 +31,7 @@ import java.util.List;
 public class RentalItemServiceImpl implements RentalItemService {
 
     private final RentalItemRepository rentalItemRepository;
+    private final RentalItemOverdueRepository rentalItemOverdueRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final MemberRepository memberRepository;
 
@@ -81,6 +81,18 @@ public class RentalItemServiceImpl implements RentalItemService {
         // 장비 상태 변경(사용 가능) + 실 반납일 저장
         equipmentItem.updateStatus(EquipmentStatus.AVAILABLE);
         item.returnItem(LocalDate.now());
+
+        // 연체 여부 계산 후 연체 테이블 생성
+        long overdueDays = ChronoUnit.DAYS.between(item.getEndDate(), LocalDate.now());
+        if (overdueDays > 0) {
+            RentalItemOverdue overdue = RentalItemOverdue.builder()
+                    .rentalItem(item)
+                    .plannedEndDate(item.getEndDate())
+                    .actualReturnDate(LocalDate.now())
+                    .overdueDays((int) overdueDays)
+                    .build();
+            rentalItemOverdueRepository.save(overdue);
+        }
 
         // 모든 아이템이 반납되었으면 Rental 상태 변경
         List<RentalItem> rentalItems = rentalItemRepository.findByRental_RentalId(rental.getRentalId());
