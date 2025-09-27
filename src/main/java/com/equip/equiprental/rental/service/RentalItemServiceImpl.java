@@ -104,6 +104,7 @@ public class RentalItemServiceImpl implements RentalItemService {
             rental.updateStatus(RentalStatus.COMPLETED);
         }
 
+        // 히스토리 저장
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
 

@@ -62,6 +62,7 @@ public enum ErrorType {
     // 대여 현황
     RENTAL_ACCESS_DENIED("rental_access_denied","해당 대여 내역을 조회할 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
     RENTAL_NOT_APPROVED("rental_not_approved", "해당 장비는 아직 대여 승인이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
+    RENTAL_NOT_COMPLETED("rental_not_completed", "해당 대여 신청은 아직 반납 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
     // 대여 연장
     ALREADY_EXTENDED("already_extended", "이미 연장된 대여건입니다.", HttpStatus.CONFLICT),

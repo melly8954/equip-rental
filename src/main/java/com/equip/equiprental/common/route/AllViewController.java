@@ -55,6 +55,11 @@ public class AllViewController {
         return "rental/rentalItemList";
     }
 
+    @GetMapping("/rental/{rentalId}/return-item")
+    public String returnRentalItem() {
+        return "rental/returnRentalItem";
+    }
+
     @GetMapping("/board")
     public String boardList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
         model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());

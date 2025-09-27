@@ -14,4 +14,5 @@ public interface RentalService {
     void updateRentalStatus(UpdateRentalStatusDto dto, Long rentalId, Long memberId);
 
     PageResponseDto<UserRentalItemDto> getUserRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId);
+    PageResponseDto<ReturnedRentalItemDto> getReturnRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId);
 }
