@@ -9,6 +9,18 @@
     margin-top: 20px;
 }
 
+#equipment-search {
+    padding-left: 35px; /* 텍스트와 아이콘 간격 확보 */
+    background-color: white; /* 배경색 */
+    background-image: url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/search.svg'); /* 돋보기 */
+    background-repeat: no-repeat;
+    background-position: 10px center; /* 좌측 10px, 세로 중앙 */
+    background-size: 16px 16px; /* 아이콘 크기 조정 */
+
+    border-radius: 25px; /* 둥글게 */
+    width: 375px;
+}
+
 .rental-btn {
     cursor: pointer;
     border-top: 3px solid #ced4da;
