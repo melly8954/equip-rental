@@ -235,4 +235,35 @@ public class RentalServiceImpl implements RentalService {
                 .empty(dtosPage.isEmpty())
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<ReturnedRentalItemDto> getReturnRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId) {
+        Pageable pageable = paramDto.getPageable();
+
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+
+        if(!Objects.equals(rental.getMember().getMemberId(), memberId)){
+            throw new CustomException(ErrorType.RENTAL_ACCESS_DENIED);
+        }
+
+        if(rental.getStatus() != RentalStatus.COMPLETED){
+            throw new CustomException(ErrorType.RENTAL_NOT_COMPLETED);
+        }
+
+        Page<ReturnedRentalItemDto> dtosPage = rentalItemRepository.findReturnRentalItems(paramDto, pageable, rentalId, memberId);
+
+        return PageResponseDto.<ReturnedRentalItemDto>builder()
+                .content(dtosPage.getContent())
+                .page(dtosPage.getNumber() + 1)
+                .size(dtosPage.getSize())
+                .totalElements(dtosPage.getTotalElements())
+                .totalPages(dtosPage.getTotalPages())
+                .numberOfElements(dtosPage.getNumberOfElements())
+                .first(dtosPage.isFirst())
+                .last(dtosPage.isLast())
+                .empty(dtosPage.isEmpty())
+                .build();
+    }
 }

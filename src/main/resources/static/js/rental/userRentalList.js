@@ -247,11 +247,13 @@ function renderRentalList(data) {
                                         </span> <br>
                                     신청 수량: ${r.quantity} <br>
                                     ${
-                                    r.status === "APPROVED"
-                                        ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
-                                        : r.status === "REJECTED"
-                                            ? `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br> 거절 사유: ${r.rejectReason}`
-                                            : `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}`
+                                        r.status === "APPROVED"
+                                            ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
+                                            : r.status === "COMPLETED"
+                                                ? `<button class="btn btn-sm btn-success mt-1 view-returned-items-btn" data-id="${r.rentalId}">반납 완료 현황</button>`
+                                                : r.status === "REJECTED"
+                                                    ? `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br> 거절 사유: ${r.rejectReason}`
+                                                    : `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}`
                                     }
                                 </p>
                             </div>
@@ -294,4 +296,10 @@ $(document).on("click", ".cancel-rental-btn", function() {
         showSnackbar("대여 신청이 취소되었습니다.");
         fetchRentalList(getFilterValues(filterConfig)); // 목록 갱신
     }).fail(handleServerError);
+});
+
+$(document).on("click", ".view-returned-items-btn", function() {
+    const rentalId = $(this).data("id");
+    // 반납 완료 조회 페이지로 이동
+    window.location.href = `/rental/${rentalId}/return-item`;
 });

@@ -8,10 +8,9 @@ import com.equip.equiprental.equipment.domain.QSubCategory;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.equip.equiprental.member.domain.QDepartment;
 import com.equip.equiprental.member.domain.QMember;
-import com.equip.equiprental.rental.domain.QRental;
-import com.equip.equiprental.rental.domain.QRentalItem;
-import com.equip.equiprental.rental.domain.RentalStatus;
+import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.ReturnedRentalItemDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -166,5 +165,56 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
         total = total == null ? 0 : total;
 
         return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<ReturnedRentalItemDto> findReturnRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
+        QRentalItem i = QRentalItem.rentalItem;
+        QEquipment e = QEquipment.equipment;
+        QSubCategory sc = QSubCategory.subCategory;
+        QCategory c = QCategory.category;
+        QFileMeta f = QFileMeta.fileMeta;
+        QRentalItemOverdue o = QRentalItemOverdue.rentalItemOverdue;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(i.rental.rentalId.eq(rentalId));
+        builder.and(i.rental.member.memberId.eq(memberId));
+        builder.and(i.status.eq(RentalItemStatus.RETURNED));
+
+        List<ReturnedRentalItemDto> results = queryFactory
+                .select(Projections.constructor(ReturnedRentalItemDto.class,
+                        i.rentalItemId,
+                        i.rental.rentalId,
+                        f.filePath,
+                        c.label,
+                        sc.label,
+                        e.model,
+                        i.equipmentItem.serialNumber,
+                        i.startDate,
+                        i.endDate,
+                        i.actualReturnDate,
+                        i.status,
+                        i.isExtended,
+                        o.overdueDays
+                ))
+                .from(i)
+                .join(i.rental.equipment, e)
+                .leftJoin(e.subCategory, sc)
+                .leftJoin(sc.category, c)
+                .leftJoin(f).on(f.relatedType.eq("equipment").and(f.relatedId.eq(i.rental.equipment.equipmentId)))
+                .leftJoin(o).on(o.rentalItem.eq(i))
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(i.actualReturnDate.desc())
+                .fetch();
+
+        Long total = queryFactory
+                .select(i.count())
+                .from(i)
+                .where(builder)
+                .fetchOne();
+
+        return new PageImpl<>(results, pageable, total != null ? total : 0);
     }
 }
