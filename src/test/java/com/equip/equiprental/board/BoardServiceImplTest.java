@@ -4,10 +4,7 @@ package com.equip.equiprental.board;
 import com.equip.equiprental.board.domain.Board;
 import com.equip.equiprental.board.domain.BoardStatus;
 import com.equip.equiprental.board.domain.BoardType;
-import com.equip.equiprental.board.dto.BoardCreateRequest;
-import com.equip.equiprental.board.dto.BoardCreateResponse;
-import com.equip.equiprental.board.dto.BoardDetailDto;
-import com.equip.equiprental.board.dto.BoardListResponse;
+import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.service.BoardServiceImpl;
 import com.equip.equiprental.common.dto.PageResponseDto;
@@ -402,6 +399,120 @@ public class BoardServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.ALREADY_DELETED);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateBoard 메서드 테스트")
+    class updateBoard {
+        @Test
+        @DisplayName("성공 - 게시글 업데이트 (파일 미첨부)")
+        void updateBoard_Success_NoFiles() {
+            // given
+            Long boardId = 1L;
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .boardType(BoardType.NOTICE)
+                    .title("old title")
+                    .content("old content")
+                    .build();
+
+            BoardUpdateRequest request = BoardUpdateRequest.builder()
+                    .title("new title")
+                    .content("new content")
+                    .deletedFileIds(List.of())
+                    .boardType(BoardType.NOTICE)
+                    .build();
+
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+            when(fileRepository.findAllByRelatedTypeAndRelatedId(anyString(), eq(boardId)))
+                    .thenReturn(List.of());
+
+            // when
+            BoardUpdateResponse result = boardService.updateBoard(boardId, request, List.of());
+
+            // then
+            assertThat(result.getTitle()).isEqualTo("new title");
+            assertThat(result.getContent()).isEqualTo("new content");
+            assertThat(result.getFiles()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("성공 - 게시글 업데이트 (기존 파일 제거)")
+        void updateBoard_DeleteFiles() {
+            // given
+            Long boardId = 1L;
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .boardType(BoardType.NOTICE)
+                    .build();
+
+            List<Long> deletedIds = List.of(10L);
+            BoardUpdateRequest request = BoardUpdateRequest.builder()
+                    .deletedFileIds(deletedIds)
+                    .boardType(BoardType.NOTICE)
+                    .build();
+
+            FileMeta fileToDelete = FileMeta.builder()
+                    .fileId(10L)
+                    .filePath("/upload/test.png")
+                    .build();
+
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+            when(fileRepository.findAllById(deletedIds)).thenReturn(List.of(fileToDelete));
+
+            // when
+            boardService.updateBoard(boardId, request, List.of());
+
+            // then
+            verify(fileRepository).delete(fileToDelete);
+            verify(fileService).deleteFile("/upload/test.png", "board_notice");
+        }
+
+        @Test
+        @DisplayName("성공 - 게시글 업데이트 (신규 파일 추가)")
+        void updateBoard_SaveFiles() throws IOException {
+            // given
+            Long boardId = 1L;
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .boardType(BoardType.NOTICE)
+                    .build();
+
+            BoardUpdateRequest request = BoardUpdateRequest.builder()
+                    .boardType(BoardType.NOTICE)
+                    .build();
+
+            MultipartFile fileMock = mock(MultipartFile.class);
+            when(fileMock.getOriginalFilename()).thenReturn("file1.png");
+            when(fileMock.getContentType()).thenReturn("image/png");
+            when(fileMock.getSize()).thenReturn(100L);
+
+            List<MultipartFile> files = List.of(fileMock);
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+            when(fileService.saveFiles(files, "board_notice")).thenReturn(List.of("/upload/file1.png"));
+
+            // when
+            boardService.updateBoard(boardId, request, files);
+
+            // then
+            verify(fileRepository).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("예외 - 게시글 없음")
+        void updateBoard_BoardNotFound() {
+            // given
+            Long boardId = 1L;
+            BoardUpdateRequest request = BoardUpdateRequest.builder().build();
+
+            when(boardRepository.findById(boardId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> boardService.updateBoard(boardId, request, List.of()))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
         }
     }
 }
