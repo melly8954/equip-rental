@@ -4,6 +4,8 @@ import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.dsl.EquipmentQRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
         WHERE e.status IN :statuses
     """)
     int countFaultyNow(@Param("statuses") List<EquipmentStatus> statuses);
+
+    Page<Equipment> findByStock(int stock, Pageable pageable);
 }

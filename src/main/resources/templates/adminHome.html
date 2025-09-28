@@ -17,8 +17,27 @@
         <main class="content">
             <div class="container-fluid mt-4">
                 <h3>대여 현황</h3>
-                <div class="row" id="kpi-cards" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
+                <div class="row mb-3" id="kpi-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
                     <!-- JS에서 카드 렌더링 -->
+                </div>
+
+                <div class="row">
+                    <!-- 좌측: 긴급 관리 현황 -->
+                    <div class="col-md-4">
+                        <h5>긴급 관리 현황</h5>
+                        <div id="zero-stock-container" class="row g-2">
+                            <!-- 재고 0 카드 렌더링 -->
+                        </div>
+                        <div id="pagination" class="mt-2"></div>
+                    </div>
+
+                    <!-- 우측: 도넛 차트 -->
+                    <div class="col-md-8">
+                        <h5>장비 현황 차트</h5>
+                        <div id="chart-container">
+                            <!-- 도넛 차트 렌더링 -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

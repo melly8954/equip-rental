@@ -1,5 +1,3 @@
-let currentEquipmentId = null;
-
 // 검색 이벤트 등록
 $(document).ready(function() {
     $("#equipment-search").on("input", function() {
@@ -22,6 +20,23 @@ window.addEventListener("pageshow", async function (event) {
         renderFilter("category-filters", {category: filterConfig.category}, onFilterChange);
         // 서브카테고리는 초기엔 옵션이 없으면 숨김
         $("#sub-category-filters").hide();
+
+        // URL에서 model 파라미터 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const modelFromUrl = urlParams.get("model");
+
+        if (modelFromUrl) {
+            const decodedModel = decodeURIComponent(modelFromUrl);
+            $("#equipment-search").val(decodedModel);
+
+            // fetchEquipment 호출 시 model 포함
+            fetchEquipment({
+                model: decodedModel
+            });
+        }
+
+        // URL 파라미터 제거 → 새로고침 시 초기화
+        window.history.replaceState({}, document.title, window.location.pathname);
 
         fetchEquipment();
     }

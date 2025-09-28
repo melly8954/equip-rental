@@ -1,19 +1,27 @@
 package com.equip.equiprental.dashboard.service;
 
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.dashboard.dto.KpiItemDto;
 import com.equip.equiprental.dashboard.dto.KpiResponseDto;
+import com.equip.equiprental.dashboard.dto.ZeroStockDto;
+import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
-import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +64,40 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         return KpiResponseDto.builder()
                 .kpis(kpis)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<ZeroStockDto> getDashBoardZeroStock(SearchParamDto paramDto) {
+        Pageable pageable = PageRequest.of(
+                paramDto.getPage() - 1,
+                paramDto.getSize(),
+                Sort.by("subCategory.category.label").ascending()
+                        .and(Sort.by("subCategory.label").ascending()
+                        .and(Sort.by("modelSequence").descending()))
+        );
+        Page<Equipment> page = equipmentRepository.findByStock(0, pageable);
+
+        List<ZeroStockDto> content = page.stream()
+                .map(e -> ZeroStockDto.builder()
+                        .equipmentId(e.getEquipmentId())
+                        .category(e.getSubCategory().getCategory().getLabel())
+                        .subCategory(e.getSubCategory().getLabel())
+                        .model(e.getModel())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageResponseDto.<ZeroStockDto>builder()
+                .content(content)
+                .page(page.getNumber() + 1)
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .empty(page.isEmpty())
                 .build();
     }
 
