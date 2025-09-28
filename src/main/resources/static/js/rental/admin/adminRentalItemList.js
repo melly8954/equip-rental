@@ -32,6 +32,15 @@ window.addEventListener("pageshow", async function (event) {
 
     renderRentalItemStatusFilters();
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFromUrl = urlParams.get("rentalItemStatus");
+    if (statusFromUrl) {
+        $(`input[name="status"][value="${statusFromUrl}"]`).prop("checked", true);
+    }
+
+    // URL 파라미터 제거 → 새로고침 시 초기화
+    window.history.replaceState({}, document.title, window.location.pathname);
+
     // 초기 데이터 로딩
     fetchRentalItemList(getFilterValues());
 });

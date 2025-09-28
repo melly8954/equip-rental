@@ -1,0 +1,13 @@
+.kpi-detail-label {
+    cursor: pointer;
+    display: inline-block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0.25em 0.5em;
+    font-size: 0.85rem;
+    color: blue;
+    align-self: flex-start; /* flex-column 안에서 왼쪽 정렬 */
+
+    margin: 0 auto 0 auto;    /* 좌우 auto로 중앙 정렬 */
+    text-align: center;          /* 글자 중앙 */
+}

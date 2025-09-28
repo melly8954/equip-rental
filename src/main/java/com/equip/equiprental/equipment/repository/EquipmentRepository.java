@@ -2,11 +2,13 @@ package com.equip.equiprental.equipment.repository;
 
 import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
+import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.dsl.EquipmentQRepo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, EquipmentQRepo {
@@ -18,4 +20,11 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
 
     @Query("SELECT COALESCE(MAX(e.modelSequence), 0) FROM Equipment e WHERE e.subCategory.subCategoryId = :subCategoryId")
     Optional<Long> findMaxModelSequence(@Param("subCategoryId") Long subCategoryId);
+
+    @Query("""
+        SELECT COUNT(e)
+        FROM EquipmentItem e
+        WHERE e.status IN :statuses
+    """)
+    int countFaultyNow(@Param("statuses") List<EquipmentStatus> statuses);
 }

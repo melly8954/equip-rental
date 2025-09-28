@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="rental_tbl")
@@ -48,8 +49,15 @@ public class Rental extends BaseEntity {
     @Column(name="reject_reason")
     private String rejectReason;
 
+    @Column(name="approved_at")
+    private LocalDateTime approvedAt;
+
     public void updateStatus(RentalStatus status) {
         this.status = status;
+
+        if (status == RentalStatus.APPROVED && this.approvedAt == null) {
+            this.approvedAt = LocalDateTime.now();
+        }
     }
 
     public void updateRejectReason(String rejectReason) {
