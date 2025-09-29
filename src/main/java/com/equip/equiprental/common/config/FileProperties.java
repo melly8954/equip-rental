@@ -19,8 +19,19 @@ public class FileProperties {
 
     public String getFullPath(String typeKey) {
         String[] parts = typeKey.split("_");
+        if (parts.length == 0) return storagePath;
+
+        // 첫 번째 부분은 directories 매핑 사용
         String dir1 = directories.getOrDefault(parts[0], parts[0]);
-        String dir2 = (parts.length > 1) ? parts[1] : ""; // 안전하게 처리
-        return Paths.get(storagePath, dir1, dir2).toString();
+
+        // 나머지 부분을 하위 디렉토리로 사용
+        String[] subDirs = (parts.length > 1) ? java.util.Arrays.copyOfRange(parts, 1, parts.length) : new String[0];
+
+        // dir1 + subDirs를 합쳐서 가변인자로 전달
+        String[] fullDirs = new String[subDirs.length + 1];
+        fullDirs[0] = dir1;
+        System.arraycopy(subDirs, 0, fullDirs, 1, subDirs.length);
+
+        return Paths.get(storagePath, fullDirs).toString();
     }
 }
