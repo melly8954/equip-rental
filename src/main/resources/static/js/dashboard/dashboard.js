@@ -223,6 +223,22 @@ function renderCategoryChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
+                layout: {
+                    padding: {
+                        top: 20, // 차트와 범례 사이 간격
+                        bottom: 10
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 },
+                        color: '#000',
+                        boxWidth: 15,
+                        boxHeight: 15,
+                        padding: 15
+                    }
+                },
                 datalabels: {
                     color: '#fff',
                     font: { weight: 'bold', size: 14 },
@@ -265,6 +281,22 @@ function renderSubCategoryChart(data, categoryLabel) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
+                layout: {
+                    padding: {
+                        top: 20, // 차트와 범례 사이 간격
+                        bottom: 10
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 },
+                        color: '#000',
+                        boxWidth: 15,
+                        boxHeight: 15,
+                        padding: 15
+                    }
+                },
                 datalabels: {
                     color: '#fff',
                     font: { weight: 'bold', size: 14 },
