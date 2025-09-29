@@ -66,7 +66,12 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         if(files != null && !files.isEmpty()) {
             int fileOrder = 0;
-            List<String> fileUrls = fileService.saveFiles(files, "equipment");
+
+            String categoryLabel = equipment.getSubCategory().getCategory().getLabel();
+            String subCategoryLabel = equipment.getSubCategory().getLabel();
+            String typeKey = String.format("equipment_%s_%s", categoryLabel, subCategoryLabel);
+
+            List<String> fileUrls = fileService.saveFiles(files, typeKey);
 
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
