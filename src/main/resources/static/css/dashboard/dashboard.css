@@ -11,3 +11,10 @@
     margin: 0 auto 0 auto;    /* 좌우 auto로 중앙 정렬 */
     text-align: center;          /* 글자 중앙 */
 }
+
+.row.d-flex.align-items-start {
+    min-height: 450px; /* 전체 차트 컨테이너의 최소 높이 지정 */
+}
+.col-md-6 canvas {
+    max-height: 400px; /* 차트 캔버스의 최대 높이 지정 */
+}

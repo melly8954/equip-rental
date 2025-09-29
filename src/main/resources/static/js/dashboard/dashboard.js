@@ -1,6 +1,7 @@
 $(document).ready(function() {
     fetchKpiData();
     fetchZeroStock();
+    fetchCategoryInventory();
 
     // 이벤트 위임: 카드 내 상세보기 버튼 클릭
     $('#kpi-cards').on('click', '.kpi-detail-label', function() {
@@ -146,6 +147,7 @@ function renderZeroStock(items) {
     });
 }
 
+// 긴급 관리 현황 페이징
 function renderPaginationInDashBoard(containerId, pageInfo, onPageChange) {
     const container = $("#" + containerId);
     container.empty();
@@ -175,4 +177,134 @@ function renderPaginationInDashBoard(containerId, pageInfo, onPageChange) {
     pagination.append(nextLi);
 
     container.append(pagination);
+}
+
+// 카테고리 별 장비 보유 현황 호출
+function fetchCategoryInventory() {
+    $.ajax({
+        url: '/api/v1/dashboards/equipments/category',
+        method: 'GET',
+    }).done(function(response) {
+        const categories = response.data;
+        renderCategoryChart(categories);
+
+        // 디폴트: 첫 번째 카테고리 선택 후 서브 카테고리 차트 렌더링
+        if (categories.length > 0) {
+            fetchSubCategoryInventory(categories[0].categoryId, categories[0].categoryLabel);
+        }
+    }).fail(handleServerError);
+}
+
+// 서브 카테고리 별 장비 보유 현황 호출
+function fetchSubCategoryInventory(categoryId, categoryLabel) {
+    $.ajax({
+        url: `/api/v1/dashboards/equipments/categories/${categoryId}`,
+        method: 'GET',
+    }).done(function(response) {
+        renderSubCategoryChart(response.data, categoryLabel);
+    }).fail(handleServerError);
+}
+
+// 카테고리 차트 렌더링
+function renderCategoryChart(data) {
+    const ctx = document.getElementById('category-chart').getContext('2d');
+    if (window.categoryChart) window.categoryChart.destroy();
+
+    window.categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.categoryLabel),
+            datasets: [{
+                data: data.map(d => d.stock),
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 14 },
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        return `${label} : ${value}`;
+                    }
+                }
+            },
+            onClick: (evt, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const categoryId = data[index].categoryId;
+                    const label = data[index].categoryLabel;
+                    fetchSubCategoryInventory(categoryId, label);
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+    // 테이블 업데이트
+    renderCategoryTable(data);
+}
+
+// 서브 카테고리 차트 렌더링
+function renderSubCategoryChart(data, categoryLabel) {
+    const ctx = document.getElementById('sub-category-chart').getContext('2d');
+    if (window.subCategoryChart) window.subCategoryChart.destroy();
+
+    window.subCategoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.subCategoryLabel),
+            datasets: [{
+                data: data.map(d => d.stock),
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 14 },
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        return `${label} : ${value}`;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+    // 테이블 업데이트
+    renderSubCategoryTable(data, categoryLabel);
+}
+
+function renderCategoryTable(data) {
+    const table = $('#category-data-table');
+    table.empty();
+
+    table.append('<thead><tr><th>카테고리</th><th>재고</th></tr></thead>');
+    const tbody = $('<tbody></tbody>');
+
+    data.forEach(d => {
+        tbody.append(`<tr><td>${d.categoryLabel}</td><td>${d.stock}</td></tr>`);
+    });
+
+    table.append(tbody);
+}
+
+function renderSubCategoryTable(data, categoryLabel) {
+    const table = $('#sub-category-data-table');
+    table.empty();
+
+    table.append(`<thead><tr><th>서브카테고리 [${categoryLabel}]</th><th>재고</th></tr></thead>`);
+    const tbody = $('<tbody></tbody>');
+
+    data.forEach(d => {
+        tbody.append(`<tr><td>${d.subCategoryLabel}</td><td>${d.stock}</td></tr>`);
+    });
+
+    table.append(tbody);
 }

@@ -1,5 +1,6 @@
 package com.equip.equiprental.equipment.repository;
 
+import com.equip.equiprental.dashboard.dto.CategoryInventoryResponse;
 import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
@@ -30,5 +31,14 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
     """)
     int countFaultyNow(@Param("statuses") List<EquipmentStatus> statuses);
 
+    // 긴급 관리 현황 API 조회 쿼리 메서드
     Page<Equipment> findByStock(int stock, Pageable pageable);
+
+    @Query("""
+        SELECT e
+        FROM Equipment e
+        JOIN FETCH e.subCategory sc
+        JOIN FETCH sc.category c
+    """)
+    List<Equipment> findAllWithCategoryAndSubCategory();
 }

@@ -2,9 +2,7 @@ package com.equip.equiprental.dashboard.service;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
-import com.equip.equiprental.dashboard.dto.KpiItemDto;
-import com.equip.equiprental.dashboard.dto.KpiResponseDto;
-import com.equip.equiprental.dashboard.dto.ZeroStockDto;
+import com.equip.equiprental.dashboard.dto.*;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
@@ -99,6 +97,45 @@ public class DashBoardServiceImpl implements DashBoardService {
                 .last(page.isLast())
                 .empty(page.isEmpty())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryInventoryResponse> getCategoryInventory() {
+        List<Equipment> allEquipment  = equipmentRepository.findAllWithCategoryAndSubCategory();
+
+        return allEquipment.stream()
+                .collect(Collectors.groupingBy(                      // Map<Key, Value> 반환
+                        e -> e.getSubCategory().getCategory(),       // key: Category
+                        Collectors.summingInt(e -> e.getStock())     // value: stock 합계
+                ))
+                .entrySet().stream()
+                .map(entry -> new CategoryInventoryResponse(         // dto 변환
+                        entry.getKey().getCategoryId(),
+                        entry.getKey().getLabel(),
+                        entry.getValue()
+                ))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubCategoryInventoryResponse> getSubCategoryInventory(Long categoryId) {
+        List<Equipment> allEquipment = equipmentRepository.findAllWithCategoryAndSubCategory();
+
+        return allEquipment.stream()
+                .filter(e -> e.getSubCategory().getCategory().getCategoryId().equals(categoryId))
+                .collect(Collectors.groupingBy(
+                        e -> e.getSubCategory(),                      // key: SubCategory
+                        Collectors.summingInt(e -> e.getStock())    // value: stock 합계
+                ))
+                .entrySet().stream()
+                .map(entry -> new SubCategoryInventoryResponse(
+                        entry.getKey().getSubCategoryId(),
+                        entry.getKey().getLabel(),
+                        entry.getValue()
+                ))
+                .toList();
     }
 
     private String calcChangeRate(int current, int previous) {

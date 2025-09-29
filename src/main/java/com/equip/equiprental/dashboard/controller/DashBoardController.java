@@ -5,7 +5,9 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.dashboard.dto.CategoryInventoryResponse;
 import com.equip.equiprental.dashboard.dto.KpiResponseDto;
+import com.equip.equiprental.dashboard.dto.SubCategoryInventoryResponse;
 import com.equip.equiprental.dashboard.dto.ZeroStockDto;
 import com.equip.equiprental.dashboard.service.DashBoardService;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -47,5 +46,27 @@ public class DashBoardController implements ResponseController {
         PageResponseDto<ZeroStockDto> result = dashBoardService.getDashBoardZeroStock(paramDto);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "긴급 재고 조회 성공", result);
+    }
+
+    @GetMapping("/equipments/category")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<List<CategoryInventoryResponse>>> getCategoryInventory() {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("카테고리 별 장비 보유 현황 API] TraceId={}", traceId);
+
+        List<CategoryInventoryResponse> result = dashBoardService.getCategoryInventory();
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "카테고리 별 장비 보유 현황 조회 성공", result);
+    }
+
+    @GetMapping("/equipments/categories/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<List<SubCategoryInventoryResponse>>> getCategoryInventory(@PathVariable Long categoryId) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("서브 카테고리 별 장비 보유 현황 API] TraceId={}", traceId);
+
+        List<SubCategoryInventoryResponse> result = dashBoardService.getSubCategoryInventory(categoryId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 장비 보유 현황 조회 성공", result);
     }
 }
