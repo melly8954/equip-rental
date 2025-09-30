@@ -38,7 +38,6 @@ function fetchNotifications(page, pageSize, notificationStatus) {
         url: `/api/v1/notifications?${params.toString()}`,
         method: "GET",
     }).done(function (response) {
-        console.log(response);
         renderNotifications(response.data);
         currentPage = response.data.page;
         lastPage = response.data.last;
@@ -104,6 +103,15 @@ $(document).on("click", ".mark-read-btn", function() {
         // 알림 상태 배지만 변경
         $(this).closest("div.d-flex").find(".n-status").html(`<span class="badge bg-secondary">읽음</span>`);
         $(this).remove(); // 버튼 제거
+
+        // 사이드바 미열람 알림 개수 -1
+        const unreadText = $('#unread-count-text');
+        let currentCount = parseInt(unreadText.data('count')) || 0; // data-count로 현재 값 저장
+        if(currentCount > 0){
+            currentCount -= 1;
+            unreadText.data('count', currentCount); // data 속성 갱신
+            unreadText.text(`읽지 않은 알림 ${currentCount}개`);
+        }
     }).fail(jqXHR => {
         handleServerError(jqXHR);
     });
