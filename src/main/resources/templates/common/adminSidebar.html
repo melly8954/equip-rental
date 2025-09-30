@@ -34,6 +34,11 @@
             </a>
         </li>
         <li>
+            <a href="/notification" class="nav-link active">
+                알림
+            </a>
+        </li>
+        <li>
             <a href="/member" class="nav-link active">
                 사용자 관리
             </a>
@@ -41,13 +46,10 @@
     </ul>
     <!-- 사용자 + 로그아웃 감싸는 영역 -->
     <div class="sidebar-footer">
-        <!-- 알림 영역 -->
-        <div id="notification-wrapper" class="mt-3">
-            <ul id="notification-list" class="list-group"></ul>
-        </div>
-        <div class="user-info">
+        <div class="user-info text-center">
             <span>현재 접속 계정<br>[{{member.username}}]</span>
-            <input type="hidden" id="current-member-id" value="{{member.memberId}}">
+            <!-- 읽지 않은 알림 표시 -->
+            <br><span id="unread-count-text"></span>
         </div>
         <button class="logout-btn" onclick="logout()">로그아웃</button>
     </div>

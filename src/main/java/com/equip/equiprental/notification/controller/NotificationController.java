@@ -5,6 +5,7 @@ import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.service.iface.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,18 @@ import java.util.List;
 @RequestMapping("/api/v1/notifications")
 public class NotificationController implements ResponseController {
     private final NotificationService notificationService;
+
+    @GetMapping("/unread-count")
+    public ResponseEntity<ResponseDto<UnreadCountResponseDto>> getUnreadCount(@AuthenticationPrincipal PrincipalDetails principal) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[읽지 않은 알림 수 조회 요청 API] TraceId={}", traceId);
+
+        Long memberId = principal.getMember().getMemberId();
+
+        UnreadCountResponseDto result = notificationService.getUnreadCount(memberId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "읽지 않은 알림 수 조회 성공", result);
+    }
 
     @GetMapping("")
     public ResponseEntity<ResponseDto<List<NotificationDto>>> getUnreadNotifications(@AuthenticationPrincipal PrincipalDetails principal) {

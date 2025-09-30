@@ -1,5 +1,7 @@
 package com.equip.equiprental.notification.service;
 
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.domain.MemberRole;
@@ -8,6 +10,7 @@ import com.equip.equiprental.notification.domain.Notification;
 import com.equip.equiprental.notification.domain.NotificationStatus;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.repository.NotificationRepository;
 import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.Rental;
@@ -79,5 +82,13 @@ public class NotificationServiceImpl implements NotificationService {
                         n.getCreatedAt()
                 ))
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public UnreadCountResponseDto getUnreadCount(Long memberId) {
+        int unreadCount = notificationRepository.countByMember_MemberIdAndStatus(memberId, NotificationStatus.UNREAD);
+
+        return new UnreadCountResponseDto(unreadCount);
     }
 }

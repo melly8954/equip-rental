@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByMember_MemberIdAndStatus(Long memberId, NotificationStatus notificationStatus);
+
+    int countByMember_MemberIdAndStatus(Long memberId, NotificationStatus notificationStatus);
 }
