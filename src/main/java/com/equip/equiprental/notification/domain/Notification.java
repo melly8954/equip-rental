@@ -2,6 +2,7 @@ package com.equip.equiprental.notification.domain;
 
 import com.equip.equiprental.common.domain.BaseEntity;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.notification.dto.ReadRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,4 +33,10 @@ public class Notification extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private NotificationStatus status;
+
+    public void markAsRead(ReadRequestDto dto) {
+        if (dto.getNotificationStatus() != null) {
+            this.status = dto.getNotificationStatus();
+        }
+    }
 }

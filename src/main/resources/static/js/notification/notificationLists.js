@@ -72,11 +72,16 @@ function renderNotifications(pageData) {
             ? `<span class="badge bg-danger">안읽음</span>`
             : `<span class="badge bg-secondary">읽음</span>`;
 
+        // UNREAD 상태일 때만 버튼 생성
+        let readBtn = n.status === "UNREAD"
+            ? `<button class="btn btn-sm btn-outline-primary mark-read-btn" data-id="${n.notificationId}">읽음 처리</button>`
+            : ""; // READ이면 버튼 없음
+
         const row = $(`
             <div class="d-flex text-center border-bottom py-2">
-                <div class="col-3">${statusBadge}</div>
+                <div class="col-3 n-status">${statusBadge}</div>
                 <div class="col-4">${n.message}</div>
-                <div class="col-2">읽음처리 버튼</div>
+                <div class="col-2">${readBtn}</div>
                 <div class="col-3">${formatDateTime(n.createdAt)}</div>
             </div>
         `);
@@ -84,3 +89,22 @@ function renderNotifications(pageData) {
         listContainer.append(row);
     });
 }
+
+$(document).on("click", ".mark-read-btn", function() {
+    const notificationId = $(this).data("id");
+
+    $.ajax({
+        url: `/api/v1/notifications/${notificationId}`,
+        method: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify({
+            notificationStatus: "READ"
+        })
+    }).done(() => {
+        // 알림 상태 배지만 변경
+        $(this).closest("div.d-flex").find(".n-status").html(`<span class="badge bg-secondary">읽음</span>`);
+        $(this).remove(); // 버튼 제거
+    }).fail(jqXHR => {
+        handleServerError(jqXHR);
+    });
+});

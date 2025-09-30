@@ -7,6 +7,7 @@ import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.ReadRequestDto;
 import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.service.iface.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -49,5 +47,16 @@ public class NotificationController implements ResponseController {
         PageResponseDto<NotificationDto> result = notificationService.getNotificationList(paramDto, memberId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "알림 조회 성공", result);
+    }
+
+    @PatchMapping("/{notificationId}")
+    public ResponseEntity<ResponseDto<Void>> updateNotificationStatus(@PathVariable Long notificationId,
+                                                                      @RequestBody ReadRequestDto dto) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[알림 읽음 처리 요청 API] TraceId={}", traceId);
+
+        notificationService.updateNotificationStatus(notificationId, dto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "알림 읽음 처리 성공", null);
     }
 }

@@ -15,7 +15,6 @@ function fetchUnreadCount() {
     }).done(function(response) {
         const count = response.data.unreadCount || 0;
         unreadText.text('읽지 않은 알림 ' + count + '개');
-        console.log(count);
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })

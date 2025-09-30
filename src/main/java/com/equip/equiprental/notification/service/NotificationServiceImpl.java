@@ -2,6 +2,8 @@ package com.equip.equiprental.notification.service;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.domain.MemberRole;
@@ -10,6 +12,7 @@ import com.equip.equiprental.notification.domain.Notification;
 import com.equip.equiprental.notification.domain.NotificationStatus;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.ReadRequestDto;
 import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.repository.NotificationRepository;
 import com.equip.equiprental.notification.service.iface.NotificationService;
@@ -104,5 +107,14 @@ public class NotificationServiceImpl implements NotificationService {
                 .last(page.isLast())
                 .empty(page.isEmpty())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateNotificationStatus(Long notificationId, ReadRequestDto dto) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+
+        notification.markAsRead(dto);
     }
 }
