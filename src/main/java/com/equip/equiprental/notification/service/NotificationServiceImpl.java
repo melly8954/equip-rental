@@ -1,7 +1,7 @@
 package com.equip.equiprental.notification.service;
 
-import com.equip.equiprental.common.exception.CustomException;
-import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.common.dto.PageResponseDto;
+import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.domain.MemberRole;
@@ -16,6 +16,8 @@ import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,29 +68,41 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
-    public List<NotificationDto> getUnreadNotifications(Long memberId) {
-        List<Notification> list = notificationRepository.findByMember_MemberIdAndStatus(memberId, NotificationStatus.UNREAD);
-
-        return list.stream()
-                .map(n -> new NotificationDto(
-                        n.getNotificationId(),
-                        n.getMessage(),
-                        n.getLink(),
-                        n.getType().name(),
-                        n.getStatus().name(),
-                        n.getMember() != null ? n.getMember().getMemberId() : null,
-                        n.getMember() != null ? n.getMember().getName() : null,
-                        n.getCreatedAt()
-                ))
-                .toList();
-    }
-
-    @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UnreadCountResponseDto getUnreadCount(Long memberId) {
         int unreadCount = notificationRepository.countByMember_MemberIdAndStatus(memberId, NotificationStatus.UNREAD);
 
         return new UnreadCountResponseDto(unreadCount);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDto<NotificationDto> getNotificationList(SearchParamDto paramDto, Long memberId) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<Notification> page = notificationRepository.findNotifications(paramDto.getNotificationStatus(), memberId, pageable);
+
+        return PageResponseDto.<NotificationDto>builder()
+                .content(page.stream()
+                        .map(n -> NotificationDto.builder()
+                                .notificationId(n.getNotificationId())
+                                .status(n.getStatus().name())
+                                .type(n.getType().name())
+                                .message(n.getMessage())
+                                .link(n.getLink())
+                                .memberId(n.getMember().getMemberId())
+                                .memberName(n.getMember().getUsername())
+                                .createdAt(n.getCreatedAt())
+                                .build())
+                        .toList())
+                .page(page.getNumber() + 1)
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .empty(page.isEmpty())
+                .build();
     }
 }
