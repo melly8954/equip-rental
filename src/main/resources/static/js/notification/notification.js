@@ -13,7 +13,7 @@ function fetchUnreadCount() {
         url: '/api/v1/notifications/unread-count',
         method: 'GET',
     }).done(function(response) {
-        const count = response.data.unreadCount;
+        const count = response.data.unreadCount || 0;
         unreadText.text('읽지 않은 알림 ' + count + '개');
         console.log(count);
     }).fail(function(jqXHR) {

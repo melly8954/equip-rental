@@ -39,6 +39,14 @@ public class AllViewController {
         return "equipment/equipmentList";  // 일반 사용자 페이지
     }
 
+    // 알림
+    @GetMapping("/notification")
+    public String notificationList(Model model, @AuthenticationPrincipal PrincipalDetails principal) {
+        model.addAttribute("isAdmin", principal.getMember().isAdminOrManager());
+
+        return "notification/notificationList";
+    }
+
     // 사용자 접근
     @GetMapping("/equipment/list")
     public String equipmentList() {
