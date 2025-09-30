@@ -13,6 +13,7 @@ import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItem;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
@@ -43,6 +44,7 @@ public class RentalServiceImpl implements RentalService {
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final RentalRepository rentalRepository;
     private final RentalItemRepository rentalItemRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -81,6 +83,8 @@ public class RentalServiceImpl implements RentalService {
                 .build();
 
         rentalRepository.save(rental);
+
+        notificationService.handleRentalRequest(rental);
 
         return RentalResponseDto.builder()
                 .rentalId(rental.getRentalId())

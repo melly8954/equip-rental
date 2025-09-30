@@ -151,3 +151,42 @@ nav.sidebar .user-info span {
 .pagination .page-item {
     margin: 0 4px; /* 좌우 여백 */
 }
+
+#notification-container {
+    height: 171.188px;
+    overflow-y: auto;
+    padding: 8px;
+    border: 1px solid #3a3f57;
+    border-radius: 5px;
+    background-color: #3a3f57; /* 사이드바 배경과 통일 */
+}
+
+#notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#notification-list li {
+    padding: 6px 10px;
+    border-bottom: 1px solid #4a5a78;
+    font-size: 14px;
+    color: #fff; /* 메시지 흰색 */
+}
+
+#notification-list li:last-child {
+    border-bottom: none;
+}
+
+#notification-list li .notification-message {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#notification-list li .notification-time {
+    display: block;
+    font-size: 12px;
+    color: #ccc; /* 조금 밝게 */
+}

@@ -66,3 +66,29 @@ function getCurrentPage(containerId) {
     }
     return 1; // 기본 1페이지
 }
+
+// 알림창 렌더링
+function renderNotificationList(notifications) {
+    const container = $('#notification-list');
+    container.empty();
+
+    if (!notifications || notifications.length === 0) {
+        container.append('<li class="text-center text-muted">새로운 알림이 없습니다.</li>');
+        return;
+    }
+
+    notifications.forEach(n => {
+        const itemHtml = `
+            <li>
+                <span class="notification-message">${n.message}</span>
+                <span class="notification-time">${formatDate(n.createdAt)}</span>
+            </li>
+        `;
+        container.append(itemHtml);
+    });
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', { hour12: false });
+}

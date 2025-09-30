@@ -1,4 +1,18 @@
 $(document).ready(function() {
+    const memberId = $('#current-member-id').val();
+    if (memberId) {
+        // 기존 안읽은 알림 로딩
+        $.ajax({
+            url: '/api/v1/notifications', // 서버에서 안읽은 알림 조회 API
+            method: 'GET',
+        }).done(function(response) {
+            renderNotificationList(response.data); // 여러 개 렌더링용
+        }).fail(function(jqXHR) {
+            handleServerError(jqXHR);
+        });
+
+    }
+
     fetchKpiData();
     fetchZeroStock();
     fetchCategoryInventory();
@@ -313,6 +327,7 @@ function renderSubCategoryChart(data, categoryLabel) {
     renderSubCategoryTable(data, categoryLabel);
 }
 
+// 데이터 표 렌더링
 function renderCategoryTable(data) {
     const table = $('#category-data-table');
     table.empty();
