@@ -13,6 +13,7 @@ import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItem;
@@ -146,6 +147,10 @@ public class RentalServiceImpl implements RentalService {
         // 거절(REJECTED) 처리
         if (dto.getRentalStatusEnum() == RentalStatus.REJECTED) {
             rental.updateRejectReason(dto.getRejectReason());
+
+            String msg = rental.getEquipment().getModel() + " 대여가 거절되었습니다.";
+            notificationService.createNotification(rental.getMember(), NotificationType.RENTAL_REJECTED, msg, null);
+
             return;
         }
 
@@ -207,6 +212,9 @@ public class RentalServiceImpl implements RentalService {
                         .build())
                 .toList();
         equipmentItemHistoryRepository.saveAll(histories);
+
+        String msg = rental.getEquipment().getModel() + " 대여가 승인되었습니다.";
+        notificationService.createNotification(rental.getMember(), NotificationType.RENTAL_APPROVED, msg, null);
     }
 
     @Override
