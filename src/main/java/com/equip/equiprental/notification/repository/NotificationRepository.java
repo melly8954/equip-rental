@@ -16,7 +16,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         FROM Notification n
         JOIN FETCH n.member m
         WHERE m.memberId = :memberId
-         AND n.status IN :status
+         AND (:status IS NULL OR n.status = :status)
         ORDER BY n.createdAt DESC
     """)
     Page<Notification> findNotifications(@Param("status") NotificationStatus notificationStatus, @Param("memberId") Long memberId, Pageable pageable);
