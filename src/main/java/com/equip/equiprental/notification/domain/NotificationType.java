@@ -10,5 +10,5 @@ public enum NotificationType {
     RENTAL_RETURNED,             // 관리자가 반납 처리 → 사용자
     SYSTEM_ANNOUNCEMENT,        // 관리자 공지사항 등록 → 모든 사용자
     SUGGESTION_CREATED,          // 사용자 문의 글 등록 → 관리자
-    SUGGESTION_ANSWERED,         // 관리자가 문의 글 답변 → 사용자
+    SUGGESTION_ANSWERED,         // 문의 글 답변
 }

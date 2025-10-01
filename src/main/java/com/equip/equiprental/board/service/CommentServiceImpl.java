@@ -1,6 +1,7 @@
 package com.equip.equiprental.board.service;
 
 import com.equip.equiprental.board.domain.Board;
+import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.Comment;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
@@ -14,6 +15,8 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ public class CommentServiceImpl implements CommentService {
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -54,6 +58,26 @@ public class CommentServiceImpl implements CommentService {
                 .isDeleted(false)
                 .build();
         commentRepository.save(comment);
+
+        // 알림 처리
+        // 부모 댓글이 있으면 부모 작성자에게 알림 (대댓글)
+        if (parent != null && !parent.getWriter().getMemberId().equals(writer.getMemberId())) {
+            notificationService.createNotification(
+                    parent.getWriter(),
+                    NotificationType.SUGGESTION_ANSWERED,
+                    writer.getName() + "님이 '" + board.getTitle() + "' 글에 답변을 남겼습니다.",
+                    null
+            );
+        }
+        // 일반 댓글이면 게시글 작성자에게 알림
+        else if (!board.getWriter().getMemberId().equals(writer.getMemberId())) {
+            notificationService.createNotification(
+                    board.getWriter(),
+                    NotificationType.SUGGESTION_ANSWERED,
+                    writer.getName() + "님이 '" + board.getTitle() + "' 글에 댓글을 남겼습니다.",
+                    null
+            );
+        }
 
         return CommentCreateResponse.builder()
                 .commentId(comment.getCommentId())
