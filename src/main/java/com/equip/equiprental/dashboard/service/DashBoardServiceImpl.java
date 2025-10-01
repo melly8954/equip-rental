@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class DashBoardServiceImpl implements DashBoardService {
     @Transactional(readOnly = true)
     public KpiResponseDto getDashBoardKpi() {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime firstDayThisMonth = now.withDayOfMonth(1);
+        LocalDateTime firstDayThisMonth = now.withDayOfMonth(1).with(LocalTime.MIN);;
         LocalDateTime firstDayNextMonth = firstDayThisMonth.plusMonths(1);
         LocalDateTime firstDayLastMonth = firstDayThisMonth.minusMonths(1);
 
