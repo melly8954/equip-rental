@@ -15,7 +15,7 @@ const notificationTypeLabels = {
     RENTAL_OVERDUE: "대여 연체",
     RENTAL_RETURNED: "반납 완료",
     SYSTEM_ANNOUNCEMENT: "공지사항",
-    SUGGESTION_CREATED: "문의 등록",
+    SUGGESTION_CREATED: "FAQ 등록",
     SUGGESTION_ANSWERED: "문의 답변"
 };
 

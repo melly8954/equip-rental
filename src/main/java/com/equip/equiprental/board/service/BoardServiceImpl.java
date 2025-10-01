@@ -14,7 +14,10 @@ import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.iface.FileService;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
     private final FileService fileService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -81,7 +87,35 @@ public class BoardServiceImpl implements BoardService {
 
             fileRepository.saveAll(savedFiles);
         }
+        // 알림 처리
+        if (boardType == BoardType.NOTICE && writer.isAdminOrManager()) {
+            List<Member> allUsers = memberRepository.findAll();
+            for (Member user : allUsers) {
+                notificationService.createNotification(
+                        user,
+                        NotificationType.SYSTEM_ANNOUNCEMENT,
+                        "새로운 공지사항 추가: " + board.getTitle(),
+                        null
+                );
+            }
+        } else if (boardType == BoardType.SUGGESTION) {
+            // 문의글 → Admin + Manager
+            List<Member> admins = memberRepository.findByRole(MemberRole.ADMIN);
+            List<Member> managers = memberRepository.findByRole(MemberRole.MANAGER);
+            Set<Member> recipients = new HashSet<>();
+            recipients.addAll(admins);
+            recipients.addAll(managers);
 
+            for (Member recipient : recipients) {
+                notificationService.createNotification(
+                        recipient,
+                        NotificationType.SUGGESTION_CREATED,
+                        writer.getName() + "님이 새로운 문의글을 등록했습니다: " + board.getTitle(),
+                        null
+                );
+            }
+        }
+        
         return BoardCreateResponse.builder()
                 .boardId(board.getBoardId())
                 .boardType(board.getBoardType().name())
