@@ -103,6 +103,14 @@ public class RentalItemServiceImpl implements RentalItemService {
 
         if (allReturned) {
             rental.updateStatus(RentalStatus.COMPLETED);
+
+            // 알림 발송
+            notificationService.createNotification(
+                    rental.getMember(), // 사용자
+                    NotificationType.RENTAL_RETURNED,
+                    "'" + equipmentItem.getEquipment().getModel() + "' 대여가 모두 반납 완료되었습니다.",
+                    null
+            );
         }
 
         // 히스토리 저장
@@ -150,7 +158,7 @@ public class RentalItemServiceImpl implements RentalItemService {
                     renter,
                     NotificationType.RENTAL_OVERDUE,
                     "'" + equipment.getModel() + "' 장비가 연체되었습니다. 빠른 반납 부탁드립니다.",
-                    "/rentals/me"
+                    null
             );
 
             // 관리자/매니저 알림
@@ -158,7 +166,7 @@ public class RentalItemServiceImpl implements RentalItemService {
                     equipment.getSubCategory().getCategory(),
                     NotificationType.RENTAL_OVERDUE,
                     renter.getName() + "님이 '" + equipment.getModel() + "' 장비를 연체 중입니다.",
-                    "/admin/rentals/overdue"
+                    null
             );
         }
     }
