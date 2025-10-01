@@ -20,4 +20,6 @@ public interface RentalItemRepository extends JpaRepository<RentalItem, Long>, R
     WHERE ri.status = 'OVERDUE'
     """)
     int countOverdueNow();
+
+    List<RentalItem> findByEndDate(LocalDate tomorrow);
 }
