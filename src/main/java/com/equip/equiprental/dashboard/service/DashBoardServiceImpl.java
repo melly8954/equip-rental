@@ -3,8 +3,10 @@ package com.equip.equiprental.dashboard.service;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.dashboard.dto.*;
+import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.domain.SubCategory;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
@@ -102,39 +104,72 @@ public class DashBoardServiceImpl implements DashBoardService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoryInventoryResponse> getCategoryInventory() {
-        List<Equipment> allEquipment  = equipmentRepository.findAllWithCategoryAndSubCategory();
+        List<Equipment> allEquipment = equipmentRepository.findAllWithCategorySubCategoryAndItems();
 
         return allEquipment.stream()
-                .collect(Collectors.groupingBy(                      // Map<Key, Value> 반환
-                        e -> e.getSubCategory().getCategory(),       // key: Category
-                        Collectors.summingInt(e -> e.getStock())     // value: stock 합계
-                ))
-                .entrySet().stream()
-                .map(entry -> new CategoryInventoryResponse(         // dto 변환
-                        entry.getKey().getCategoryId(),
-                        entry.getKey().getLabel(),
-                        entry.getValue()
-                ))
+                // 카테고리(Category)를 기준으로 장비(Equipment)를 그룹핑
+                .collect(Collectors.groupingBy(e -> e.getSubCategory().getCategory()))
+                .entrySet().stream()    // Map<Category, List<Equipment>> → Stream<Map.Entry<Category, List<Equipment>>>
+                .map(entry -> {
+                    Category category = entry.getKey();
+                    List<Equipment> equipments = entry.getValue();
+
+                    // 총 재고 합계
+                    int totalStock = equipments.stream()
+                            .mapToInt(Equipment::getStock)
+                            .sum();
+
+                    // 사용 가능한 재고 합계
+                    int availableStock = equipments.stream()
+                            .flatMap(e -> e.getItems().stream())
+                            .filter(item -> item.getStatus() == EquipmentStatus.AVAILABLE)
+                            .mapToInt(i -> 1)
+                            .sum();
+
+                    // DTO 생성
+                    return CategoryInventoryResponse.builder()
+                            .categoryId(category.getCategoryId())
+                            .categoryLabel(category.getLabel())
+                            .totalStock(totalStock)
+                            .availableStock(availableStock)
+                            .build();
+                })
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<SubCategoryInventoryResponse> getSubCategoryInventory(Long categoryId) {
-        List<Equipment> allEquipment = equipmentRepository.findAllWithCategoryAndSubCategory();
+        List<Equipment> allEquipment = equipmentRepository.findAllWithCategorySubCategoryAndItems();
 
         return allEquipment.stream()
                 .filter(e -> e.getSubCategory().getCategory().getCategoryId().equals(categoryId))
-                .collect(Collectors.groupingBy(
-                        e -> e.getSubCategory(),                      // key: SubCategory
-                        Collectors.summingInt(e -> e.getStock())    // value: stock 합계
-                ))
+                // 카테고리 기준 장비 그룹핑 → Map<SubCategory, List<Equipment>>
+                .collect(Collectors.groupingBy(Equipment::getSubCategory))
+                // Map의 값 스트림으로 변환
                 .entrySet().stream()
-                .map(entry -> new SubCategoryInventoryResponse(
-                        entry.getKey().getSubCategoryId(),
-                        entry.getKey().getLabel(),
-                        entry.getValue()
-                ))
+                .map(entry -> {
+                    SubCategory sc = entry.getKey();
+                    List<Equipment> equipments = entry.getValue();
+
+                    int totalStock = equipments.stream()
+                            .mapToInt(Equipment::getStock)
+                            .sum();
+
+                    int availableStock = equipments.stream()
+                            .flatMap(e -> e.getItems().stream())
+                            .filter(item -> item.getStatus() == EquipmentStatus.AVAILABLE)
+                            .mapToInt(i -> 1)
+                            .sum();
+
+                    // DTO 생성
+                    return new SubCategoryInventoryResponse(
+                            sc.getSubCategoryId(),
+                            sc.getLabel(),
+                            totalStock,
+                            availableStock
+                    );
+                })
                 .toList();
     }
 

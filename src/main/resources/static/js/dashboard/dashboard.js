@@ -215,7 +215,7 @@ function renderCategoryChart(data) {
         data: {
             labels: data.map(d => d.categoryLabel),
             datasets: [{
-                data: data.map(d => d.stock),
+                data: data.map(d => d.totalStock),
                 backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
             }]
         },
@@ -273,7 +273,7 @@ function renderSubCategoryChart(data, categoryLabel) {
         data: {
             labels: data.map(d => d.subCategoryLabel),
             datasets: [{
-                data: data.map(d => d.stock),
+                data: data.map(d => d.totalStock),
                 backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
             }]
         },
@@ -318,11 +318,17 @@ function renderCategoryTable(data) {
     const table = $('#category-data-table');
     table.empty();
 
-    table.append('<thead><tr><th>카테고리</th><th>재고</th></tr></thead>');
+    table.append('<thead><tr><th>카테고리</th><th>총 재고</th><th>사용 가능 재고</th></tr></thead>');
     const tbody = $('<tbody></tbody>');
 
     data.forEach(d => {
-        tbody.append(`<tr><td>${d.categoryLabel}</td><td>${d.stock}</td></tr>`);
+        tbody.append(`
+            <tr>
+                <td>${d.categoryLabel}</td>
+                <td>${d.totalStock}</td>
+                <td>${d.availableStock}</td>
+            </tr>
+        `);
     });
 
     table.append(tbody);
@@ -332,11 +338,17 @@ function renderSubCategoryTable(data, categoryLabel) {
     const table = $('#sub-category-data-table');
     table.empty();
 
-    table.append(`<thead><tr><th>서브카테고리 [${categoryLabel}]</th><th>재고</th></tr></thead>`);
+    table.append(`<thead><tr><th>서브카테고리 [${categoryLabel}]</th><th>총 재고</th><th>사용 가능 재고</th></tr></thead>`);
     const tbody = $('<tbody></tbody>');
 
     data.forEach(d => {
-        tbody.append(`<tr><td>${d.subCategoryLabel}</td><td>${d.stock}</td></tr>`);
+        tbody.append(`
+            <tr>
+                <td>${d.subCategoryLabel}</td>
+                <td>${d.totalStock}</td>
+                <td>${d.availableStock}</td>
+            </tr>
+        `);
     });
 
     table.append(tbody);

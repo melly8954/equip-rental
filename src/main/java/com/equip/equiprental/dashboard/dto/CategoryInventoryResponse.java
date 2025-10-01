@@ -10,5 +10,6 @@ import lombok.Getter;
 public class CategoryInventoryResponse {
     private Long categoryId;
     private String categoryLabel;
-    private int stock;
+    private int totalStock;
+    private int availableStock;
 }

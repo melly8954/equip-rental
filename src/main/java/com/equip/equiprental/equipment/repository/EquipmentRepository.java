@@ -1,6 +1,5 @@
 package com.equip.equiprental.equipment.repository;
 
-import com.equip.equiprental.dashboard.dto.CategoryInventoryResponse;
 import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
@@ -35,10 +34,11 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
     Page<Equipment> findByStock(int stock, Pageable pageable);
 
     @Query("""
-        SELECT e
+        SELECT DISTINCT e
         FROM Equipment e
         JOIN FETCH e.subCategory sc
         JOIN FETCH sc.category c
+        LEFT JOIN FETCH e.items ei
     """)
-    List<Equipment> findAllWithCategoryAndSubCategory();
+    List<Equipment> findAllWithCategorySubCategoryAndItems();
 }
