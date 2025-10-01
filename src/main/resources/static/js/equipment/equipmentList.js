@@ -138,8 +138,14 @@ async function onFilterChange() {
     const categoryId = getFilterValues(filterConfig).category;
     await updateSubCategoryOptions(categoryId);
 
-    updateUrlWithFilters(getFilterValues(filterConfig));
-    fetchEquipment(getFilterValues(filterConfig));
+    // 최신 filterConfig 값으로 fetch
+    const filters = getFilterValues(filterConfig);
+
+    // 새 필터 조건이므로 페이지는 항상 1로 초기화
+    filters.page = 1;
+
+    updateUrlWithFilters(filters);
+    fetchEquipment(filters);
 }
 
 // 서브카테고리 업데이트
