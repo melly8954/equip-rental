@@ -51,16 +51,12 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         int overdueCount = rentalItemRepository.countOverdueNow();
 
-        List<EquipmentStatus> faultyStatuses = List.of(EquipmentStatus.REPAIRING, EquipmentStatus.LOST);
-        int faultyCount = equipmentRepository.countFaultyNow(faultyStatuses);
-
-        // 2. KPI 리스트 생성
+        // KPI 리스트 생성
         List<KpiItemDto> kpis = Arrays.asList(
                 new KpiItemDto("이번 달 신규 대여 신청 건수", newRequestsThisMonth, newRequestsChange),
                 new KpiItemDto("이번 달 승인된 대여 건수", approvedThisMonth, approvedChange),
                 new KpiItemDto("현재 승인 대기 중인 건수", pendingCount, null),
-                new KpiItemDto("현재 대여 연체 중인 건수", overdueCount, null),
-                new KpiItemDto("현재 파손 및 분실 장비 건수", faultyCount, null)
+                new KpiItemDto("현재 대여 연체 중인 건수", overdueCount, null)
         );
 
         return KpiResponseDto.builder()

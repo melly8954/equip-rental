@@ -226,12 +226,12 @@ function renderEquipmentList(list) {
                             <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                         </div>
                         <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
-                        <p class="mb-1 text-muted small">${equip.category} / ${equip.subCategory || '-'}</p>
+                        <p class="mb-1 text-muted small">[${equip.category} / ${equip.subCategory || '-'}]</p>
                         <p class="mb-2">대여 가능: <span class="fw-bold">${equip.availableStock}</span></p>
                         
                         <div class="card-footer p-0 border-0">
                             <div class="rental-btn w-100 text-center py-2 bg-light"  data-id="${equip.equipmentId}">
-                                <i class="bi bi-box-seam"></i> 대여 신청
+                                <i class="bi-pencil-square"></i> 대여 신청
                             </div>
                         </div>
                     </div>

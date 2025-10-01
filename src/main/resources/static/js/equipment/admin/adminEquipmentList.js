@@ -233,9 +233,10 @@ function renderEquipmentList(list) {
                         </div>
                         <h6 class="card-title mb-1 text-center fw-bold">${equip.model}</h6>
                         <p class="card-text small text-muted text-center mb-2">
-                            ${equip.category} / ${equip.subCategory}
+                            [${equip.category} / ${equip.subCategory}]
                         </p>
                         <p class="card-text mb-1 text-center">
+                            <i class="bi bi-box-seam me-1"></i>
                             재고 현황: <span class="fw-bold">${equip.availableStock}</span> / ${equip.totalStock}
                         </p>
                     </div>
@@ -244,13 +245,13 @@ function renderEquipmentList(list) {
                     <div class="card-footer bg-white border-0 text-center pb-3">
                         <button class="btn btn-outline-success btn-sm stock-increase-btn" 
                                 data-id="${equip.equipmentId}">
-                            ➕ 재고 추가
+                            <i class="bi bi-plus-circle me-1"></i> 재고 추가
                         </button>
                     </div>
                     <div class="card-footer p-0 border-0">
                         <div class="item-list-btn w-100 text-center py-2 bg-light" 
                              data-id="${equip.equipmentId}">
-                            재고 목록
+                            <i class="bi bi-card-list me-1"></i> 재고 목록
                         </div>
                     </div>
                 </div>
