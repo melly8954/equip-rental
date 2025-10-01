@@ -83,7 +83,7 @@ function renderKpiCards(kpis) {
 // 재고 0 데이터 가져오기
 function fetchZeroStock(filters={}) {
     const params = {
-        size: 5
+        size: 4
     };
 
     params.page = filters.page;
@@ -156,7 +156,7 @@ function renderPaginationInDashBoard(containerId, pageInfo, onPageChange) {
 
     // 이전 버튼
     const prevLi = $('<li class="page-item"></li>');
-    const prevLink = $('<a class="page-link" href="#">&lt;</a>');
+    const prevLink = $('<a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>');
     if (pageInfo.page <= 1) prevLi.addClass("disabled");
     prevLink.on("click", (e) => {
         e.preventDefault();
@@ -167,7 +167,7 @@ function renderPaginationInDashBoard(containerId, pageInfo, onPageChange) {
 
     // 다음 버튼
     const nextLi = $('<li class="page-item"></li>');
-    const nextLink = $('<a class="page-link" href="#">&gt;</a>');
+    const nextLink = $('<a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>');
     if (pageInfo.page >= pageInfo.totalPages - 1) nextLi.addClass("disabled");
     nextLink.on("click", (e) => {
         e.preventDefault();
