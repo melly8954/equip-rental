@@ -12,6 +12,7 @@ import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.service.iface.NotificationService;
@@ -23,6 +24,7 @@ import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import com.equip.equiprental.rental.service.iface.RentalService;
+import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,7 +87,12 @@ public class RentalServiceImpl implements RentalService {
 
         rentalRepository.save(rental);
 
-        notificationService.handleRentalRequest(rental);
+        notificationService.notifyManagersAndAdmins(
+                equipment.getSubCategory().getCategory(),
+                NotificationType.RENTAL_REQUEST,
+                rental.getMember().getName() + "님이 장비 '" + equipment.getModel() + "' 대여 신청",
+                null
+        );
 
         return RentalResponseDto.builder()
                 .rentalId(rental.getRentalId())
@@ -145,10 +152,12 @@ public class RentalServiceImpl implements RentalService {
         rental.updateStatus(dto.getRentalStatusEnum());
 
         // 거절(REJECTED) 처리
+        Equipment equipment = rental.getEquipment();
+
         if (dto.getRentalStatusEnum() == RentalStatus.REJECTED) {
             rental.updateRejectReason(dto.getRejectReason());
 
-            String msg = rental.getEquipment().getModel() + " 대여가 거절되었습니다.";
+            String msg = equipment.getModel() + " 대여가 거절되었습니다.";
             notificationService.createNotification(rental.getMember(), NotificationType.RENTAL_REJECTED, msg, null);
 
             return;
@@ -213,8 +222,21 @@ public class RentalServiceImpl implements RentalService {
                 .toList();
         equipmentItemHistoryRepository.saveAll(histories);
 
-        String msg = rental.getEquipment().getModel() + " 대여가 승인되었습니다.";
+        String msg = equipment.getModel() + " 대여가 승인되었습니다.";
         notificationService.createNotification(rental.getMember(), NotificationType.RENTAL_APPROVED, msg, null);
+
+        // 승인 후 재고 체크
+        int remainingStock = equipmentItemRepository.countAvailableByEquipmentId(equipment.getEquipmentId());
+        if (remainingStock == 0) {
+            String stockMsg = "'" + equipment.getModel() + "'" + " 장비 재고가 0이 되었습니다.";
+
+            notificationService.notifyManagersAndAdmins(
+                    equipment.getSubCategory().getCategory(),
+                    NotificationType.EQUIPMENT_OUT_OF_STOCK,
+                    stockMsg,
+                    null
+            );
+        }
     }
 
     @Override

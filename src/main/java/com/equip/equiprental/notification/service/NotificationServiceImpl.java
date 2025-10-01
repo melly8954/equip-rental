@@ -4,7 +4,7 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.equipment.domain.Equipment;
+import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
@@ -16,7 +16,6 @@ import com.equip.equiprental.notification.dto.ReadRequestDto;
 import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.repository.NotificationRepository;
 import com.equip.equiprental.notification.service.iface.NotificationService;
-import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -49,24 +50,20 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void handleRentalRequest(Rental rental) {
-        Equipment equipment = rental.getEquipment();
-
-        // 카테고리 기반 매니저 조회
-        List<Member> managers = managerScopeRepository.findManagersByCategory(equipment.getSubCategory().getCategory());
+    public void notifyManagersAndAdmins(Category category, NotificationType type, String message, String link) {
+        // 카테고리 매니저 조회
+        List<Member> managers = managerScopeRepository.findManagersByCategory(category);
 
         // ADMIN 포함
         List<Member> admins = memberRepository.findByRole(MemberRole.ADMIN);
         managers.addAll(admins);
 
-        // 각 관리자에게 알림 생성 + Redis publish
+        // 중복 제거(Optional)
+        Set<Long> notifiedIds = new HashSet<>();
         for (Member manager : managers) {
-            createNotification(
-                    manager,
-                    NotificationType.RENTAL_REQUEST,
-                    rental.getMember().getName() + "님이 장비 '" + equipment.getModel() + "' 대여 신청",
-                    null
-            );
+            if (notifiedIds.add(manager.getMemberId())) { // 중복 방지
+                createNotification(manager, type, message, link);
+            }
         }
     }
 
