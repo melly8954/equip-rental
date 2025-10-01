@@ -217,7 +217,6 @@ function renderRentalList(data) {
 
     data.forEach((r, index) => {
         const card = $(`
-
             <div class="col-md-6 mb-3">
                 <div class="card shadow-sm h-100">
                     <div class="row g-0 align-items-center">
@@ -227,15 +226,7 @@ function renderRentalList(data) {
                         <div class="col">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">
-                                    <p class="mb-0 fw-bold">
-                                        ${r.model}
-                                        ${
-                                            r.status === "PENDING"
-                                                ? `<button class="btn btn-sm btn-danger ms-2 cancel-rental-btn"
-                                                    data-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">취소</button>`
-                                                : ""
-                                        }
-                                    </p>
+                                    <p class="mb-0 fw-bold">${r.model}</p>
                                     <p class="mb-0 text-muted">
                                         [${r.category} / ${r.subCategory}]
                                     </p>
@@ -246,17 +237,28 @@ function renderRentalList(data) {
                                             [${rentalStatusMap[r.status]?.label || r.status}]
                                         </span> <br>
                                     신청 수량: ${r.quantity} <br>
-                                    ${
-                                        r.status === "APPROVED"
-                                            ? `<button class="btn btn-sm btn-primary mt-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
-                                            : r.status === "COMPLETED"
-                                                ? `<button class="btn btn-sm btn-success mt-1 view-returned-items-btn" data-id="${r.rentalId}">반납 완료 현황</button>`
-                                                : r.status === "REJECTED"
-                                                    ? `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""} <br> 거절 사유: ${r.rejectReason}`
-                                                    : `대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}`
+                                    ${r.status === "REJECTED"
+                                        ? `<span>대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}<br>거절 사유: ${r.rejectReason || "-"}</span>`
+                                        : ""
                                     }
                                 </p>
                             </div>
+                        </div>
+                        <div class="col-auto pe-2 ps-2 text-center">
+                            ${r.status === "PENDING"?
+                                `<button class="btn btn-sm btn-danger ms-2 cancel-rental-btn"
+                                    data-id="${r.rentalId}" data-equipment-id="${r.equipmentId}">취소</button>`
+                                : ""
+                            }
+                            ${r.status === "APPROVED"
+                                ? `<button class="btn btn-sm btn-primary mb-1 view-items-btn" data-id="${r.rentalId}">대여 현황</button>`
+                                : ""
+                            }
+                    
+                            ${r.status === "COMPLETED"
+                                ? `<button class="btn btn-sm btn-success mb-1 view-returned-items-btn" data-id="${r.rentalId}">반납 현황</button>`
+                                : ""
+                            }
                         </div>
                     </div>
                 </div>
