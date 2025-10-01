@@ -227,8 +227,15 @@ function renderEquipmentList(list) {
                         </div>
                         <h6 class="card-title mb-1 fw-bold">${equip.model}</h6>
                         <p class="mb-1 text-muted small">[${equip.category} / ${equip.subCategory || '-'}]</p>
-                        <p class="mb-2">대여 가능: <span class="fw-bold">${equip.availableStock}</span></p>
-                        
+                        <p class="mb-2">
+                            <i class="bi bi-box-seam me-1"></i>
+                            수량: 
+                            <span class="fw-bold ${equip.availableStock === 0 ? 'text-danger' : 'text-success'}">
+                                ${equip.availableStock}
+                            </span> 
+                            / 
+                            <span class="text-muted">${equip.totalStock}</span>
+                        </p>
                         <div class="card-footer p-0 border-0">
                             <div class="rental-btn w-100 text-center py-2 bg-light"  data-id="${equip.equipmentId}">
                                 <i class="bi-pencil-square"></i> 대여 신청

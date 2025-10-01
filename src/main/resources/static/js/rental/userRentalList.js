@@ -1,6 +1,5 @@
 let filterConfig;
 
-// 상태 코드 → 한글 맵핑
 // 상태 코드 → 한글 + 색상 클래스
 const rentalStatusMap = {
     PENDING: { label: "대기 중", class: "text-warning" },    // 주황
@@ -218,6 +217,7 @@ function renderRentalList(data) {
 
     data.forEach((r, index) => {
         const card = $(`
+
             <div class="col-md-6 mb-3">
                 <div class="card shadow-sm h-100">
                     <div class="row g-0 align-items-center">
@@ -237,7 +237,7 @@ function renderRentalList(data) {
                                         }
                                     </p>
                                     <p class="mb-0 text-muted">
-                                        ${r.category} / ${r.subCategory}
+                                        [${r.category} / ${r.subCategory}]
                                     </p>
                                 </h6>
                                 <p class="card-text mb-1">
