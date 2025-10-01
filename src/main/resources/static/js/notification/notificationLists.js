@@ -6,6 +6,19 @@ const pageSize = 10;
 let lastPage = false;
 let notificationStatus = ""; // 기본값: 전체
 
+const notificationTypeLabels = {
+    EQUIPMENT_OUT_OF_STOCK: "재고 부족",
+    RENTAL_REQUEST: "대여 신청",
+    RENTAL_APPROVED: "대여 승인",
+    RENTAL_REJECTED: "대여 거절",
+    RENTAL_DUE_TOMORROW: "반납 예정일 경고",
+    RENTAL_OVERDUE: "대여 연체",
+    RENTAL_RETURNED: "반납 완료",
+    SYSTEM_ANNOUNCEMENT: "공지사항",
+    SUGGESTION_CREATED: "문의 등록",
+    SUGGESTION_ANSWERED: "문의 답변"
+};
+
 $(document).ready(function () {
     // 초기 로드
     fetchNotifications(currentPage, pageSize, notificationStatus);
@@ -71,6 +84,8 @@ function renderNotifications(pageData) {
             ? `<span class="badge bg-danger">안읽음</span>`
             : `<span class="badge bg-secondary">읽음</span>`;
 
+        const typeLabel = notificationTypeLabels[n.type] || n.type; // fallback
+
         // UNREAD 상태일 때만 버튼 생성
         let readBtn = n.status === "UNREAD"
             ? `<button class="btn btn-sm btn-outline-primary mark-read-btn" data-id="${n.notificationId}">읽음 처리</button>`
@@ -78,10 +93,11 @@ function renderNotifications(pageData) {
 
         const row = $(`
             <div class="d-flex text-center border-bottom py-2">
-                <div class="col-3 n-status">${statusBadge}</div>
+                <div class="col-2 n-status">${statusBadge}</div>
+                <div class="col-2">${typeLabel}</div>
                 <div class="col-4">${n.message}</div>
                 <div class="col-2">${readBtn}</div>
-                <div class="col-3">${formatDateTime(n.createdAt)}</div>
+                <div class="col-2">${formatDateTime(n.createdAt)}</div>
             </div>
         `);
 
