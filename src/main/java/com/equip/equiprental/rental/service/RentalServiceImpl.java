@@ -31,7 +31,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -229,12 +231,14 @@ public class RentalServiceImpl implements RentalService {
         int remainingStock = equipmentItemRepository.countAvailableByEquipmentId(equipment.getEquipmentId());
         if (remainingStock == 0) {
             String stockMsg = "'" + equipment.getModel() + "'" + " 장비 재고가 0이 되었습니다.";
+            // 장비 상세/검색 URL 생성
+            String stockUrl = "/admin/equipment/list?model=" + UriUtils.encode(equipment.getModel(), StandardCharsets.UTF_8);
 
             notificationService.notifyManagersAndAdmins(
                     equipment.getSubCategory().getCategory(),
                     NotificationType.EQUIPMENT_OUT_OF_STOCK,
                     stockMsg,
-                    null
+                    stockUrl
             );
         }
     }
