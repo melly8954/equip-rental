@@ -1,3 +1,5 @@
+const badge = $('#unread-count-badge');
+
 $(document).ready(function() {
     // 초기 조회
     fetchUnreadCount();
@@ -14,9 +16,17 @@ function fetchUnreadCount() {
         method: 'GET',
     }).done(function(response) {
         const count = response.data.unreadCount || 0;
-        unreadText.text('읽지 않은 알림 ' + count + '개');
-        unreadText.data('count', count);
+        updateUnreadCount(count);
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })
+}
+
+function updateUnreadCount(count) {
+    if (count > 0) {
+        badge.text(count > 99 ? '99+' : count);
+        badge.show();
+    } else {
+        badge.hide();
+    }
 }

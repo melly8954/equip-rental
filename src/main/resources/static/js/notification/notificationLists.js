@@ -125,13 +125,18 @@ $(document).on("click", ".mark-read-btn", function() {
         $(this).closest("div.d-flex").find(".n-status").html(`<span class="badge bg-secondary">읽음</span>`);
         $(this).remove(); // 버튼 제거
 
-        // 사이드바 미열람 알림 개수 -1
-        const unreadText = $('#unread-count-text');
-        let currentCount = parseInt(unreadText.data('count')) || 0; // data-count로 현재 값 저장
+        // 사이드바 미열람 알림 배지 감소
+        const badge = $('#unread-count-badge');
+        let currentCount = parseInt(badge.text()) || 0;
         if(currentCount > 0){
             currentCount -= 1;
-            unreadText.data('count', currentCount); // data 속성 갱신
-            unreadText.text(`읽지 않은 알림 ${currentCount}개`);
+            badge.text(currentCount > 99 ? '99+' : currentCount);
+
+            if(currentCount === 0){
+                badge.hide(); // 0이면 배지 숨김
+            } else {
+                badge.show();
+            }
         }
     }).fail(jqXHR => {
         handleServerError(jqXHR);
