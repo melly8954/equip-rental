@@ -8,21 +8,34 @@ $(document).ready(function() {
 
 // 페이지가 보여질 때 초기화
 window.addEventListener("pageshow", async function () {
-    // 필터 초기화
-    $("input[name='category']").prop("checked", false);
-    $("input[name='subCategory']").prop("checked", false);
-    $("#equipment-search").val("");
-
     // 필터 구성 가져오기
     window.filterConfig = await fetchFilterConfig();
-    if (filterConfig) {
-        // 카테고리만 먼저 렌더링
-        renderFilter("category-filters", { category: filterConfig.category }, onFilterChange);
-        // 서브카테고리는 초기엔 옵션이 없으면 숨김
-        $("#sub-category-filters").hide();
+    if (!filterConfig) return;
 
-        fetchEquipment();
-    }
+    // 카테고리 렌더링
+    renderFilter("category-filters", {category: filterConfig.category}, onFilterChange);
+    $("#sub-category-filters").hide(); // 초기엔 서브카테고리 숨김
+
+    // URL에서 필터값 복원
+    const urlParams = new URLSearchParams(window.location.search);
+    const savedFilters = {
+        category: urlParams.get("category"),
+        subCategory: urlParams.get("subCategory"),
+        model: urlParams.get("model"),
+        page: urlParams.get("page")
+    };
+
+    if (savedFilters.category) $(`input[name="category"][value="${savedFilters.category}"]`).prop("checked", true);
+    if (savedFilters.model) $("#equipment-search").val(savedFilters.model);
+
+    // 카테고리에 따라 서브카테고리 fetch
+    const categoryId = savedFilters.category || getFilterValues(filterConfig).category;
+    await updateSubCategoryOptions(categoryId);
+
+    if (savedFilters.subCategory) $(`input[name="subCategory"][value="${savedFilters.subCategory}"]`).prop("checked", true);
+
+    // 최종 필터값으로 fetch
+    fetchEquipment(getFilterValues(filterConfig));
 });
 
 // 필터 구성 가져오기
@@ -104,7 +117,20 @@ function getFilterValues(config) {
         const selected = $(`input[name="${key}"]:checked`);
         values[key] = selected.length ? selected.val() : "";
     });
+    // 페이지 input이나 URL에서 가져오기
+    const urlPage = new URLSearchParams(window.location.search).get("page");
+    values.page = urlPage || 1;
     return values;
+}
+
+// 필터 상태 URL에 반영
+function updateUrlWithFilters(filters) {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k,v]) => {
+        if (v) params.set(k, v);
+    });
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, "", newUrl);
 }
 
 // 필터 변경 시
@@ -112,6 +138,7 @@ async function onFilterChange() {
     const categoryId = getFilterValues(filterConfig).category;
     await updateSubCategoryOptions(categoryId);
 
+    updateUrlWithFilters(getFilterValues(filterConfig));
     fetchEquipment(getFilterValues(filterConfig));
 }
 
@@ -141,6 +168,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
             category: getFilterValues(filterConfig).category,
             subCategory: values.subCategory
         };
+        updateUrlWithFilters(combinedFilters);
         fetchEquipment(combinedFilters);
     });
 }
@@ -153,10 +181,9 @@ function fetchEquipment(filters={}) {
     const params = {
         categoryId: filterValues.category || null,
         subCategoryId: filterValues.subCategory || null,
-        model: modelSearch || null
+        model: modelSearch || null,
+        page: filterValues.page || 1
     };
-
-    if (filterValues.page) params.page = filterValues.page;
 
     $.ajax({
         url: "/api/v1/equipments",
@@ -170,7 +197,10 @@ function fetchEquipment(filters={}) {
             first: response.data.first,
             last: response.data.last
         }, (newPage) => {
-            fetchEquipment({...filterValues, page: newPage});
+            const currentFilters = getFilterValues(filterConfig);
+            currentFilters.page = newPage;          // 여기서 page 포함
+            updateUrlWithFilters(currentFilters);   // URL 반영
+            fetchEquipment(currentFilters);
         });
     }).fail(handleServerError);
 }
