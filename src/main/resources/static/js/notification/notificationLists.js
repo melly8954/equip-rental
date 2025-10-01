@@ -82,7 +82,7 @@ function renderNotifications(pageData) {
     notifications.forEach(n => {
         let statusBadge = n.status === "UNREAD"
             ? `<span class="badge bg-danger">안읽음</span>`
-            : `<span class="badge bg-secondary">읽음</span>`;
+            : `<span class="badge bg-success">읽음</span>`;
 
         const typeLabel = notificationTypeLabels[n.type] || n.type;
         // 링크가 있을 때만 "이동" 버튼 생성
@@ -122,7 +122,7 @@ $(document).on("click", ".mark-read-btn", function() {
         })
     }).done(() => {
         // 알림 상태 배지만 변경
-        $(this).closest("div.d-flex").find(".n-status").html(`<span class="badge bg-secondary">읽음</span>`);
+        $(this).closest("div.d-flex").find(".n-status").html(`<span class="badge bg-success">읽음</span>`);
         $(this).remove(); // 버튼 제거
 
         // 사이드바 미열람 알림 배지 감소
