@@ -74,7 +74,7 @@ public class DashBoardServiceImpl implements DashBoardService {
                         .and(Sort.by("subCategory.label").ascending()
                         .and(Sort.by("modelSequence").descending()))
         );
-        Page<Equipment> page = equipmentRepository.findByStock(0, pageable);
+        Page<Equipment> page = equipmentRepository.findZeroAvailableStock(pageable);
 
         List<ZeroStockDto> content = page.stream()
                 .map(e -> ZeroStockDto.builder()
