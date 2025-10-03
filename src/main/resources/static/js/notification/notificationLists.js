@@ -85,10 +85,6 @@ function renderNotifications(pageData) {
             : `<span class="badge bg-success">읽음</span>`;
 
         const typeLabel = notificationTypeLabels[n.type] || n.type;
-        // 링크가 있을 때만 "이동" 버튼 생성
-        let linkBtn = n.link
-            ? `<a href="${n.link}" class="btn btn-sm btn-outline-success">이동</a>`
-            : "";
 
         // UNREAD 상태일 때만 버튼 생성
         let readBtn = n.status === "UNREAD"
@@ -97,11 +93,10 @@ function renderNotifications(pageData) {
 
         const row = $(`
             <div class="d-flex text-center border-bottom py-2">
-                <div class="col-1 n-status">${statusBadge}</div>
+                <div class="col-2 n-status">${statusBadge}</div>
                 <div class="col-2">${typeLabel}</div>
                 <div class="col-4">${n.message}</div>
-                <div class="col-2">${linkBtn}</div>
-                <div class="col-1">${readBtn}</div>
+                <div class="col-2">${readBtn}</div>
                 <div class="col-2">${formatDateTime(n.createdAt)}</div>
             </div>
         `);
