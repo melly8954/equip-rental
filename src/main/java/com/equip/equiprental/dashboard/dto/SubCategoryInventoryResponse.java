@@ -10,5 +10,6 @@ import lombok.Getter;
 public class SubCategoryInventoryResponse {
     private Long subCategoryId;
     private String subCategoryLabel;
-    private int stock;
+    private int totalStock;
+    private int availableStock;
 }

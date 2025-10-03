@@ -16,4 +16,11 @@ public interface ManagerScopeRepository extends JpaRepository<ManagerScope, Inte
     List<Category> findCategoriesByManager(@Param("managerId") Long managerId);
 
     List<ManagerScope> findAllByManager(Member manager);
+
+    @Query("""
+        SELECT ms.manager 
+        FROM ManagerScope ms 
+        WHERE ms.category = :category
+    """)
+    List<Member> findManagersByCategory(@Param("category") Category category);
 }

@@ -6,6 +6,8 @@ import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.domain.MemberStatus;
+import com.equip.equiprental.notification.domain.NotificationStatus;
+import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import lombok.*;
@@ -42,6 +44,8 @@ public class SearchParamDto {
     private String keyword;
 
     private Long boardId;
+
+    private NotificationStatus notificationStatus;
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());

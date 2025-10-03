@@ -3,7 +3,7 @@
     <ul class="nav nav-pills flex-column mb-auto text-center">
         <li>
             <a href="/home" class="nav-link active">
-                홈
+                대시보드
             </a>
         </li>
         <li>
@@ -34,6 +34,11 @@
             </a>
         </li>
         <li>
+            <a href="/notification" class="nav-link active">
+                알림
+            </a>
+        </li>
+        <li>
             <a href="/member" class="nav-link active">
                 사용자 관리
             </a>
@@ -41,7 +46,15 @@
     </ul>
     <!-- 사용자 + 로그아웃 감싸는 영역 -->
     <div class="sidebar-footer">
-        <div class="user-info">
+        <div class="user-info text-center">
+            <!-- 벨 아이콘 + 배지 -->
+            <div class="mt-2 d-inline-block">
+                <i class="bi bi-bell bell-icon" style="font-size: 24px; position: relative;">
+                    <span id="unread-count-badge" class="badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </i>
+            </div>
             <span>현재 접속 계정<br>[{{member.username}}]</span>
         </div>
         <button class="logout-btn" onclick="logout()">로그아웃</button>

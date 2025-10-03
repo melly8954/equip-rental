@@ -28,18 +28,16 @@ public interface RentalRepository extends JpaRepository<Rental, Long>, RentalQRe
     @Query("""
         SELECT COUNT(r)
         FROM Rental r
-        WHERE r.status = 'APPROVED'
-          AND r.approvedAt >= :start
-          AND r.approvedAt < :end
+        WHERE r.approvedAt >= :start
+            AND r.approvedAt < :end
     """)
     int countApprovedThisMonth(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("""
         SELECT COUNT(r)
         FROM Rental r
-        WHERE r.status = 'APPROVED'
-          AND r.approvedAt >= :start
-          AND r.approvedAt < :end
+        WHERE r.approvedAt >= :start
+            AND r.approvedAt < :end
     """)
     int countApprovedLastMonth(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 

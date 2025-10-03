@@ -4,12 +4,15 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
+import com.equip.equiprental.equipment.domain.Equipment;
 import com.equip.equiprental.equipment.domain.EquipmentItem;
 import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
@@ -35,6 +38,7 @@ public class RentalItemServiceImpl implements RentalItemService {
     private final RentalItemOverdueRepository rentalItemOverdueRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -99,6 +103,14 @@ public class RentalItemServiceImpl implements RentalItemService {
 
         if (allReturned) {
             rental.updateStatus(RentalStatus.COMPLETED);
+
+            // 알림 발송
+            notificationService.createNotification(
+                    rental.getMember(), // 사용자
+                    NotificationType.RENTAL_RETURNED,
+                    "'" + equipmentItem.getEquipment().getModel() + "' 대여가 모두 반납 완료되었습니다.",
+                    null
+            );
         }
 
         // 히스토리 저장
@@ -136,6 +148,26 @@ public class RentalItemServiceImpl implements RentalItemService {
                     .overdueDays((int) ChronoUnit.DAYS.between(item.getEndDate(), LocalDate.now()))
                     .build();
             rentalItemOverdueRepository.save(overdue);
+
+            // 알림 발송
+            Member renter = item.getRental().getMember();
+            Equipment equipment = item.getRental().getEquipment();
+
+            // 사용자 알림
+            notificationService.createNotification(
+                    renter,
+                    NotificationType.RENTAL_OVERDUE,
+                    "'" + equipment.getModel() + "' 장비가 연체되었습니다. 빠른 반납 부탁드립니다.",
+                    null
+            );
+
+            // 관리자/매니저 알림
+            notificationService.notifyManagersAndAdmins(
+                    equipment.getSubCategory().getCategory(),
+                    NotificationType.RENTAL_OVERDUE,
+                    renter.getName() + "님이 '" + equipment.getModel() + "' 장비를 연체 중입니다.",
+                    null
+            );
         }
     }
 }

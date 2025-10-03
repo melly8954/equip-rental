@@ -1,0 +1,21 @@
+/* main 안 중앙 박스 스타일 */
+main.content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+
+    display: flex;              /* 내부 flex */
+    justify-content: center;    /* 가로 중앙 */
+    align-items: flex-start;    /* 상단 정렬, 필요하면 center */
+}
+
+.registration-box {
+    max-width: 1000px;           /* 중앙 박스 최대 너비 */
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-top: 50px;
+}

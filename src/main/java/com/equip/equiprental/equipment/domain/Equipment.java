@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name="equipment_tbl")
 @Getter
@@ -34,6 +37,9 @@ public class Equipment extends BaseEntity {
     private Long modelSequence;
 
     private Integer stock;
+
+    @OneToMany(mappedBy = "equipment")
+    private List<EquipmentItem> items = new ArrayList<>();
 
     public void increaseStock(int amount) {
         if (amount < 0) {
