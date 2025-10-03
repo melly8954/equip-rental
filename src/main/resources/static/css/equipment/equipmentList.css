@@ -55,3 +55,9 @@ input[type="radio"]:checked + .filter-pill-btn {
 input[type="radio"] {
     display: none;
 }
+
+.filter-card {
+    background-color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
