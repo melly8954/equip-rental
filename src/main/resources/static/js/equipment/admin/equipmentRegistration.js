@@ -111,3 +111,20 @@ function registerEquipment() {
         handleServerError(jqXHR);
     });
 }
+
+// 장비 등록 폼 초기화
+function registerReset() {
+    // select 초기화
+    $('#equipmentCategory').val('');
+    $('#equipmentSubCategory').empty().append('<option value="">선택</option>');
+
+    // input 초기화
+    $('#model').val('');
+    $('#stock').val(1);
+
+    // 파일 초기화
+    const $files = $('#files');
+    $files.val('');
+    $('#filePreviewList').empty();
+    $('#filePreviewArea').hide();
+}
