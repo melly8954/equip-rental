@@ -46,10 +46,8 @@ function renderFilter(containerId, config, onChange) {
     Object.entries(config).forEach(([key, value]) => {
         const group = $("<div>").addClass("mb-3");
 
-        // 라벨
-        if (value.label) {
-            group.append($("<label>").addClass("form-label fw-bold me-2").text(value.label));
-        }
+        const groupLabel = $(`<div class="mb-2 fw-semibold">${value.label}</div>`);
+        group.append(groupLabel);
 
         // 버튼 그룹 또는 라디오
         const btnGroup = $("<div>").addClass("btn-group").attr("role", "group");
@@ -65,7 +63,7 @@ function renderFilter(containerId, config, onChange) {
                 .prop("checked", opt === "전체"); // 기본 전체 선택
 
             const button = $("<label>")
-                .addClass("btn btn-outline-primary btn-sm")
+                .addClass("filter-pill-btn")
                 .attr("for", inputId)
                 .text(opt);
 
@@ -107,27 +105,30 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         };
         const equipmentSummary = response.data.equipmentSummary;
 
-        $("#equipment-summary").html(`
-            <div class="card mb-3" style="max-width: 540px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="${equipmentSummary.imageUrl}" 
-                             class="img-fluid rounded-start" alt="${equipmentSummary.model}" id="equipment-image">
-                        <div class="mt-2">
-                            <button id="change-image-btn" class="btn btn-sm btn-secondary">이미지 변경</button>
-                            <input type="file" id="image-input" accept="image/*" style="display:none">
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">${equipmentSummary.model}</h5>
-                            <p class="card-text mb-1"><strong>카테고리:</strong> ${equipmentSummary.category}</p>
-                            ${equipmentSummary.subCategory ? `<p class="card-text mb-1"><strong>서브카테고리:</strong> ${equipmentSummary.subCategory}</p>` : ""}
-                            <p class="card-text mb-1"><strong>사용 가능한 재고:</strong> ${equipmentSummary.availableStock}</p>
-                            <p class="card-text"><strong>총 재고:</strong> ${equipmentSummary.totalStock}</p>
-                        </div>
-                    </div>
+        $("#summary-image-wrapper").html(`
+            <div class="card bg-white w-100 h-100 d-flex flex-column justify-content-center align-items-center p-2">
+                <!-- 이미지 -->
+                <div class="d-flex justify-content-center align-items-center" style="width: 100%; padding-top: 100%; position: relative;">
+                    <img src="${equipmentSummary.imageUrl}" 
+                         class="img-fluid rounded p-5" alt="${equipmentSummary.model}" 
+                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;">
                 </div>
+        
+                <!-- 이미지 변경 버튼 -->
+                <div class="mt-2">
+                    <button id="change-image-btn" class="btn btn-sm btn-secondary">이미지 변경</button>
+                    <input type="file" id="image-input" accept="image/*" style="display:none">
+                </div>
+            </div>
+        `);
+
+        $("#summary-info-wrapper").html(`
+            <div class="card bg-white p-2">
+                <h5>${equipmentSummary.model}</h5>
+                <p class="mb-1"><strong>카테고리:</strong> ${equipmentSummary.category}</p>
+                ${equipmentSummary.subCategory ? `<p class="mb-1"><strong>서브카테고리:</strong> ${equipmentSummary.subCategory}</p>` : ""}
+                <p class="mb-1"><strong>사용 가능한 재고:</strong> ${equipmentSummary.availableStock}</p>
+                <p><strong>총 재고:</strong> ${equipmentSummary.totalStock}</p>
             </div>
         `);
 
