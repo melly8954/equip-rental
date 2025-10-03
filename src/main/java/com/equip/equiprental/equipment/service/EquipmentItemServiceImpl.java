@@ -26,7 +26,6 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
 
     private final EquipmentItemRepository equipmentItemRepository;
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
-    private final RentalItemRepository rentalItemRepository;
 
     @Override
     @Transactional
@@ -38,9 +37,19 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
 
         EquipmentStatus oldStatus = item.getStatus();
 
-        // 대여 중인 장비는 상태 변경 불가
-        if (oldStatus == EquipmentStatus.RENTED) {
-            throw new CustomException(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+        // 상태가 바뀌지 않았으면 아무 처리도 안 함
+        if (oldStatus == newStatus) {
+            return;
+        }
+
+        // UI에서 직접 변경일 경우 제한
+        if (dto.isAdminChange()) {
+            if (oldStatus == EquipmentStatus.RENTED) {
+                throw new CustomException(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+            }
+            if (newStatus == EquipmentStatus.RENTED) {
+                throw new CustomException(ErrorType.CANNOT_DIRECT_RENT_CHANGE);
+            }
         }
 
         // 상태 변경

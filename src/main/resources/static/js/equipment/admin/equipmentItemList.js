@@ -183,29 +183,33 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
 
 $(document).on("change", ".item-status", function() {
     const itemId = Number($(this).data("id"));
+    const oldStatus = $(this).data("original-status"); // 기존 상태
     const newStatus = $(this).val();
 
     // 현재 필터와 페이지를 DOM에서 가져오기
     const filters = getFilterValues(statusFilterConfig);
     const page = getCurrentPage("equipment-pagination");
 
-    updateItemStatus(itemId, newStatus, filters, page);
+    updateItemStatus(itemId, oldStatus, newStatus, filters, page);
 });
 
-function updateItemStatus(itemId, newStatus, filters, page) {
+function updateItemStatus(itemId, oldStatus, newStatus, filters, page) {
     $.ajax({
         url: `/api/v1/equipment-items/status`, // API 엔드포인트 예시
         method: "PATCH",
         contentType: "application/json",
         data: JSON.stringify({
             equipmentItemId: itemId,
-            newStatus: newStatus
+            newStatus: newStatus,
+            isAdminChange:true
         })
     }).done(function(response) {
         showSnackbar(response.message);
         fetchEquipmentItems(equipmentId, filters, page);
     }).fail(function(xhr) {
         handleServerError(xhr);
+        // 실패하면 선택값을 이전 상태로 되돌림
+        $(`select[data-id="${itemId}"]`).val(oldStatus);
     });
 }
 

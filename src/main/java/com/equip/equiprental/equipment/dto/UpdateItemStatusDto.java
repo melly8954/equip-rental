@@ -13,6 +13,7 @@ import lombok.Getter;
 public class UpdateItemStatusDto {
     private Long equipmentItemId;
     private String newStatus;
+    private boolean isAdminChange; // UI에서 직접 변경인지 여부
 
     public EquipmentStatus getEquipmentItemStatusEnum(){
         if(this.newStatus == null){
