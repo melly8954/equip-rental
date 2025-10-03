@@ -9,6 +9,14 @@ const statusLabels = {
     LOST: "분실"
 };
 
+const statusClassMap = {
+    AVAILABLE: "text-success",
+    RENTED: "text-warning",
+    REPAIRING: "text-info",
+    OUT_OF_STOCK: "text-secondary",
+    LOST: "text-danger"
+};
+
 $(document).ready(function () {
     // URL에서 equipmentId 추출
     const pathParts = window.location.pathname.split("/");
@@ -39,6 +47,7 @@ function fetchHistory(page = 1, size = 10) {
 function renderHistoryList(content, page, size, totalElements) {
     const listDiv = $('#history-list');
     listDiv.empty();
+    listDiv.addClass('p-3');
 
     if (!content || content.length === 0) {
         listDiv.append('<p class="text-muted">해당 장비 아이템의 히스토리가 존재하지 않습니다.</p>');
@@ -46,35 +55,48 @@ function renderHistoryList(content, page, size, totalElements) {
     }
 
     content.forEach((item, index) => {
-        // 역순 시퀀스 계산
         const sequence = totalElements - ((page - 1) * size + index);
+        const formattedDate = new Date(item.createdAt).toLocaleString();
 
         let extraInfo = "";
-
         if (item.newStatus === "RENTED") {
             extraInfo = `
-                <p><strong>대여자:</strong> ${item.rentedUserName} (${item.rentedUserDept})</p>
+                <div class="row mb-1">
+                    <div class="col-6"><strong>대여자:</strong> ${item.rentedUserName} (${item.rentedUserDept})</div>
+                </div>
             `;
         } else if (item.oldStatus === "RENTED" && item.newStatus === "AVAILABLE") {
             extraInfo = `
-                <p><strong>대여자:</strong> ${item.rentedUserName} (${item.rentedUserDept})</p>
-                <p><strong>대여 시작일:</strong> ${item.rentalStartDate || "-"}</p>
-                <p><strong>실 반납일:</strong> ${item.actualReturnDate || "-"}</p>
+                <div class="row mb-1">
+                    <div class="col-6"><strong>대여자:</strong> ${item.rentedUserName} (${item.rentedUserDept})</div>
+                    <div class="col-6"><strong>대여 시작일:</strong> ${item.rentalStartDate || "-"}</div>
+                </div>
+                <div class="row mb-1">
+                    <div class="col-6"><strong>실 반납일:</strong> ${item.actualReturnDate || "-"}</div>
+                </div>
             `;
         }
 
         const card = `
-            <div class="card mb-3">
+            <div class="card mb-3 w-75 mx-auto ${index % 2 === 0 ? '' : 'bg-light'}">  
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>순서: ${sequence}</span>
+                    <small class="text-muted">${formattedDate}</small>
+                </div>
                 <div class="card-body">
-                    <p><strong>순서:</strong> ${sequence}</p>
-                    <p><strong>이전 상태:</strong> ${statusLabels[item.oldStatus]}</p>
-                    <p><strong>변경 상태:</strong> ${statusLabels[item.newStatus]}</p>
-                    <p><strong>변경자:</strong> ${item.changedBy}</p>
+                    <div class="row mb-1">
+                        <div class="col-6"><strong>이전 상태:</strong> <span class="${statusClassMap[item.oldStatus]}">${statusLabels[item.oldStatus]}</span></div>
+                        <div class="col-6"><strong>변경 상태:</strong> <span class="${statusClassMap[item.newStatus]}">${statusLabels[item.newStatus]}</span></div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col-6"><strong>변경자:</strong> ${item.changedBy}</div>
+                        ${extraInfo ? '' : ''}
+                    </div>
                     ${extraInfo}
-                    <p><strong>변경 시간:</strong> ${item.createdAt}</p>
                 </div>
             </div>
         `;
+
         listDiv.append(card);
     });
 }
