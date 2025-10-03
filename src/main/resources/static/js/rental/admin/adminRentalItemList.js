@@ -11,6 +11,22 @@ $(document).ready(function() {
     $("#member-search").on("input", function() {
         fetchRentalItemList(getFilterValues(filterConfig));
     });
+    // 필터 초기화
+    $('#reset-filters').on('click', function() {
+        $("#department").val("");
+        $('#category-filters input[type=radio][value=""]').prop('checked', true);
+        $('#sub-category-filters input[type=radio][value=""]').prop('checked', true);
+        filterConfig.subCategory.options = [];
+        $("#sub-category-filters").hide();
+
+        $('#member-search').val('');
+        $("input[name='status']").each(function() {
+            const isDefault = rentalItemStatusOptions.find(opt => opt.id === $(this).val())?.default;
+            $(this).prop("checked", !!isDefault);
+        });
+
+        fetchRentalItemList(getFilterValues(filterConfig));
+    });
 });
 
 // 페이지 로드 또는 뒤로/앞으로가기 시

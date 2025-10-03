@@ -56,6 +56,20 @@ $(document).ready(function () {
         const newRole = $(this).val();
         updateMember(memberId, "role", newRole, getFilterValues(filterConfig));
     });
+    // 필터 초기화
+    $('#reset-filters').on('click', function() {
+        // 각 필터 그룹에서 "전체" 값 선택
+        Object.keys(filterConfig).forEach(key => {
+            $(`input[name="${key}"][value="전체"]`).prop('checked', true);
+        });
+
+        // select 필터가 있다면 초기화
+        $('.member-status, .member-role').each(function() {
+            $(this).val($(this).find('option:first').val());
+        });
+
+        loadMembers();
+    });
 });
 
 // 필터 UI 렌더링

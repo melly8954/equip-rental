@@ -13,6 +13,15 @@ $(document).ready(function() {
     $("#member-search").on("input", function() {
         fetchRentalList(getFilterValues(filterConfig));
     });
+    // 필터 초기화
+    $('#reset-filters').on('click', function() {
+        $('#category-filters input[type=radio][value=""]').prop('checked', true);
+        $('#sub-category-filters input[type=radio][value=""]').prop('checked', true);
+        filterConfig.subCategory.options = [];
+        $("#sub-category-filters").hide();
+
+        fetchRentalList(getFilterValues(filterConfig));
+    });
 });
 
 

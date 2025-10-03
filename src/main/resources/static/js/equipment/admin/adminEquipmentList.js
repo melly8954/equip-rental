@@ -3,6 +3,20 @@ $(document).ready(function() {
     $("#equipment-search").on("input", function() {
         fetchEquipment(getFilterValues(filterConfig));
     });
+    // 필터 초기화
+    $('#reset-filters').on('click', function() {
+        $('#category-filters input[type=radio][value=""]').prop('checked', true);
+        $('#sub-category-filters input[type=radio][value=""]').prop('checked', true);
+        filterConfig.subCategory.options = [];
+        $("#sub-category-filters").hide();
+        $('#equipment-search').val('');
+
+        // 페이지도 항상 1로 초기화
+        const resetFilters = { category: "", subCategory: "", page: 1 };
+
+        updateUrlWithFilters(resetFilters);
+        fetchEquipment(resetFilters);
+    });
 });
 
 // pageshow 이벤트 활용: 뒤로가기/앞으로가기 시에도 실행

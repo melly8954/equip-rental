@@ -4,6 +4,20 @@ $(document).ready(function() {
         const currentValues = getFilterValues(filterConfig);
         fetchEquipment(currentValues);
     });
+    // 필터 초기화
+    $('#reset-filters').on('click', function() {
+        $('#category-filters input[type=radio][value=""]').prop('checked', true);
+        $('#sub-category-filters input[type=radio][value=""]').prop('checked', true);
+        filterConfig.subCategory.options = [];
+        $("#sub-category-filters").hide();
+        $('#equipment-search').val('');
+
+        // 페이지도 항상 1로 초기화
+        const resetFilters = { category: "", subCategory: "", page: 1 };
+
+        updateUrlWithFilters(resetFilters);
+        fetchEquipment(resetFilters);
+    });
 });
 
 // 페이지가 보여질 때 초기화
