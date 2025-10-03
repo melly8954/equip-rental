@@ -65,7 +65,7 @@ function renderFilter(containerId, config, onChange) {
             const button = $("<label>")
                 .addClass("filter-pill-btn")
                 .attr("for", inputId)
-                .text(opt);
+                .text(statusLabelMap[opt] || opt);
 
             input.on("change", () => onChange(getFilterValues(config)));
 
@@ -144,9 +144,9 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         // 열 제목
         container.append(`
             <div class="d-flex fw-bold border-bottom border-dark pb-2 mb-2">
-                <div class="col-4">Serial Number</div>
-                <div class="col-4">Status</div>
-                <div class="col-4">Histroy</div>
+                <div class="col-4">시리얼 번호</div>
+                <div class="col-4">상태</div>
+                <div class="col-4">히스토리</div>
             </div>
         `);
 
