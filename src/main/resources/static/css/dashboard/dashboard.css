@@ -1,3 +1,9 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2열 */
+    gap: 15px;
+}
+
 .kpi-detail-label {
     cursor: pointer;
     display: inline-block !important;

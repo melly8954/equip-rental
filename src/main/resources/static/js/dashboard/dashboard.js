@@ -83,7 +83,7 @@ function renderKpiCards(kpis) {
 // 재고 0 데이터 가져오기
 function fetchZeroStock(filters={}) {
     const params = {
-        size: 4
+        size: 2
     };
 
     params.page = filters.page;

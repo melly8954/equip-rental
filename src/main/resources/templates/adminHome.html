@@ -37,17 +37,23 @@
                     </div>
                 </div>
 
-                <h3 class="mt-5 mb-4 ms-3">대여 현황</h3><hr>
-                <div class="row mb-3" id="kpi-cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
-                    <!-- JS에서 카드 렌더링 -->
-                </div>
-
-                <div class="col-md-4">
-                    <h3 class="mt-5 mb-4 ms-3">긴급 관리 현황</h3><hr>
-                    <div id="zero-stock-container" class="row g-2">
-                        <!-- 재고 0 카드 렌더링 -->
+                <div class="row mt-5">
+                    <!-- 좌측: 긴급 관리 현황 -->
+                    <div class="col-md-4">
+                        <h3 class="mb-4 ms-3">긴급 관리 현황</h3><hr>
+                        <div id="zero-stock-container" class="row g-2">
+                            <!-- 재고 0 카드 렌더링 -->
+                        </div>
+                        <div id="pagination" class="mt-2"></div>
                     </div>
-                    <div id="pagination" class="mt-2"></div>
+
+                    <!-- 우측: KPI 카드 2x2 -->
+                    <div class="col-md-8">
+                        <h3 class="mb-4 ms-3">대여 현황</h3><hr>
+                        <div id="kpi-cards" class="grid-container">
+                            <!-- JS에서 카드 렌더링 -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
