@@ -5,7 +5,10 @@ import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
+import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.service.iface.RentalItemService;
@@ -50,6 +53,7 @@ public class RentalItemController implements ResponseController {
     }
 
     @PatchMapping("/{rentalItem}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<Void>> returnRentalItem(@PathVariable Long rentalItem,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();

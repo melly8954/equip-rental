@@ -10,6 +10,7 @@ import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.service.iface.NotificationService;
@@ -19,6 +20,7 @@ import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.iface.RentalItemService;
+import com.equip.equiprental.scope.service.ManagerScopeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,7 @@ public class RentalItemServiceImpl implements RentalItemService {
     private final EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
+    private final ManagerScopeService managerScopeService;
 
     @Override
     @Transactional(readOnly = true)
@@ -82,8 +85,17 @@ public class RentalItemServiceImpl implements RentalItemService {
         RentalItem item = rentalItemRepository.findById(rentalItem)
                 .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
 
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+
         EquipmentItem equipmentItem = item.getEquipmentItem();
         Rental rental = item.getRental();
+
+        // 매니저 스코프 검사
+        if (member.getRole()  == MemberRole.MANAGER &&
+                !managerScopeService.canAccessEquipment(equipmentItem.getEquipment().getEquipmentId(), memberId)) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
 
         EquipmentStatus oldStatus = equipmentItem.getStatus();
 
@@ -118,9 +130,6 @@ public class RentalItemServiceImpl implements RentalItemService {
         }
 
         // 히스토리 저장
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
-
         EquipmentItemHistory history = EquipmentItemHistory.builder()
                 .item(equipmentItem)
                 .changedBy(member)

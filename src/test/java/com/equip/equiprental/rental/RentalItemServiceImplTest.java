@@ -17,6 +17,7 @@ import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.RentalItemServiceImpl;
+import com.equip.equiprental.scope.service.ManagerScopeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ public class RentalItemServiceImplTest {
     @Mock private RentalItemOverdueRepository rentalItemOverdueRepository;
     @Mock private MemberRepository memberRepository;
     @Mock private NotificationService notificationService;
+    @Mock private ManagerScopeService managerScopeService;
 
     @InjectMocks
     private RentalItemServiceImpl rentalItemService;
