@@ -254,7 +254,7 @@ function renderEquipmentList(list) {
                         </p>
                         <p class="card-text mb-1 text-center">
                             <i class="bi bi-box-seam me-1"></i>
-                            수량: 
+                            재고: 
                             <span class="fw-bold ${equip.availableStock === 0 ? 'text-danger' : 'text-success'}">
                                 ${equip.availableStock}
                             </span> 

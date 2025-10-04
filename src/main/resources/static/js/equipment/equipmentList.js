@@ -251,7 +251,7 @@ function renderEquipmentList(list) {
                         <p class="mb-1 text-muted small">[${equip.category} / ${equip.subCategory || '-'}]</p>
                         <p class="mb-2">
                             <i class="bi bi-box-seam me-1"></i>
-                            수량: 
+                            재고: 
                             <span class="fw-bold ${equip.availableStock === 0 ? 'text-danger' : 'text-success'}">
                                 ${equip.availableStock}
                             </span> 
