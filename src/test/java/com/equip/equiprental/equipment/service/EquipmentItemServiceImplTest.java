@@ -12,9 +12,6 @@ import com.equip.equiprental.equipment.dto.UpdateItemStatusDto;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.rental.domain.Rental;
-import com.equip.equiprental.rental.domain.RentalItem;
-import com.equip.equiprental.rental.repository.RentalItemRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,15 +31,13 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("EquipmentItemServiceImpl 단위 테스트")
 public class EquipmentItemServiceImplTest {
     @Mock private EquipmentItemRepository equipmentItemRepository;
     @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
-    @Mock private RentalItemRepository rentalItemRepository;
 
     @InjectMocks
     private EquipmentItemServiceImpl equipmentItemService;
@@ -89,6 +84,29 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
+        @DisplayName("성공 - 상태 동일 시 아무 처리 안함")
+        void updateItemStatus_noChange() {
+            EquipmentItem item = EquipmentItem.builder()
+                    .equipmentItemId(1L)
+                    .status(EquipmentStatus.AVAILABLE)
+                    .build();
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("AVAILABLE")
+                    .build();
+
+            when(equipmentItemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+            equipmentItemService.updateItemStatus(dto, null);
+
+            // 상태 변경 안됨
+            assertThat(item.getStatus()).isEqualTo(EquipmentStatus.AVAILABLE);
+
+            // 히스토리 저장도 호출 안됨
+            verify(equipmentItemHistoryRepository, never()).save(any());
+        }
+
+        @Test
         @DisplayName("예외 - 장비 아이템 존재하지 않음")
         void updateItemStatus_itemNotFound() {
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
@@ -105,6 +123,31 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
+        @DisplayName("예외 - 장비 상태 직접 RENTED 변경 불가")
+        void updateItemStatus_adminDirectRentChange() {
+            Member changer = Member.builder()
+                    .memberId(1L)
+                    .name("Admin")
+                    .build();
+            EquipmentItem item = EquipmentItem.builder()
+                    .equipmentItemId(1L)
+                    .status(EquipmentStatus.AVAILABLE)
+                    .build();
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("RENTED")
+                    .isAdminChange(true)
+                    .build();
+
+            when(equipmentItemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+            assertThatThrownBy(() -> equipmentItemService.updateItemStatus(dto, changer))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.CANNOT_DIRECT_RENT_CHANGE);
+        }
+
+        @Test
         @DisplayName("예외 - 대여 중인 장비 상태 변경 불가")
         void updateItemStatus_rentedItem() {
             // given
@@ -113,14 +156,15 @@ public class EquipmentItemServiceImplTest {
                     .name("Admin")
                     .build();
 
-            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
-                    .equipmentItemId(1L)
-                    .newStatus("AVAILABLE") // 변경 시도
-                    .build();
-
             EquipmentItem item = EquipmentItem.builder()
                     .equipmentItemId(1L)
                     .status(EquipmentStatus.RENTED) // 이미 대여 중
+                    .build();
+
+            UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
+                    .equipmentItemId(1L)
+                    .newStatus("AVAILABLE")
+                    .isAdminChange(true)
                     .build();
 
             when(equipmentItemRepository.findById(dto.getEquipmentItemId())).thenReturn(Optional.of(item));
