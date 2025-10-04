@@ -116,9 +116,8 @@ public class EquipmentServiceImplTest {
 
             mockEquipmentSave();
 
-            when(fileService.saveFiles(files, "equipment"))
+            when(fileService.saveFiles(files, "equipment_ELECTRONICS_monitor"))
                     .thenReturn(List.of("http://url/to/test.png"));
-
             // when
             EquipmentRegisterResponse response = equipmentService.register(request, files);
 
@@ -131,7 +130,7 @@ public class EquipmentServiceImplTest {
                     .allMatch(img -> img.getOriginalName().equals("test.png"));
 
             verify(equipmentItemRepository, times(1)).saveAll(anyList());
-            verify(fileService).saveFiles(files, "equipment");
+            verify(fileService).saveFiles(files, "equipment_ELECTRONICS_monitor");
             verify(fileRepository).saveAll(anyList());
         }
 
