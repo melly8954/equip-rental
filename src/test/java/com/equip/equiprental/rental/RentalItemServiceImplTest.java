@@ -5,14 +5,13 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.equipment.domain.EquipmentItem;
-import com.equip.equiprental.equipment.domain.EquipmentItemHistory;
-import com.equip.equiprental.equipment.domain.EquipmentStatus;
+import com.equip.equiprental.equipment.domain.*;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.*;
-import com.equip.equiprental.rental.dto.AdminRentalDto;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
@@ -45,6 +44,7 @@ public class RentalItemServiceImplTest {
     @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     @Mock private RentalItemOverdueRepository rentalItemOverdueRepository;
     @Mock private MemberRepository memberRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks
     private RentalItemServiceImpl rentalItemService;
@@ -220,9 +220,27 @@ public class RentalItemServiceImplTest {
         @DisplayName("성공 - 모든 아이템 반납")
         void returnRentalItem_allReturned() {
             // given
-            Rental rental = Rental.builder().rentalId(10L).status(RentalStatus.APPROVED).build();
-            EquipmentItem item1Equip = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
-            EquipmentItem item2Equip = EquipmentItem.builder().status(EquipmentStatus.AVAILABLE).build(); // 이미 반납된 상태
+            Rental rental = Rental.builder()
+                    .rentalId(10L)
+                    .status(RentalStatus.APPROVED)
+                    .build();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .model("MacBook Pro")
+                    .build();
+
+            EquipmentItem item1Equip = EquipmentItem.builder()
+                    .equipmentItemId(101L)
+                    .equipment(equipment)
+                    .status(EquipmentStatus.RENTED)
+                    .build();
+
+            EquipmentItem item2Equip = EquipmentItem.builder()
+                    .equipmentItemId(102L)
+                    .equipment(equipment)
+                    .status(EquipmentStatus.AVAILABLE)
+                    .build();
 
             RentalItem item1 = RentalItem.builder()
                     .rentalItemId(1L)
@@ -259,8 +277,20 @@ public class RentalItemServiceImplTest {
         @Test
         @DisplayName("성공 - 연체 발생 시 overdue actualReturnDate update")
         void returnRentalItem_overdueUpdated() {
-            Rental rental = Rental.builder().rentalId(10L).build();
-            EquipmentItem equipmentItem = EquipmentItem.builder().status(EquipmentStatus.RENTED).build();
+            Rental rental = Rental.builder()
+                    .rentalId(10L)
+                    .build();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .model("MacBook Pro")
+                    .build();
+
+            EquipmentItem equipmentItem = EquipmentItem.builder()
+                    .equipment(equipment)
+                    .status(EquipmentStatus.RENTED)
+                    .build();
+
             RentalItem item = RentalItem.builder()
                     .rentalItemId(1L)
                     .rental(rental)
@@ -281,6 +311,65 @@ public class RentalItemServiceImplTest {
             verify(rentalItemOverdueRepository).save(overdue);
         }
 
+        @Test
+        @DisplayName("성공 - 모든 아이템 반납 시 알림 발생")
+        void returnRentalItem_notificationTriggered() {
+            // given
+            Member member = Member.builder()
+                    .memberId(memberId)
+                    .build();
+
+            Rental rental = Rental.builder()
+                    .rentalId(10L)
+                    .status(RentalStatus.APPROVED)
+                    .member(member)
+                    .build();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .model("MacBook Pro")
+                    .build();
+
+            EquipmentItem item1Equip = EquipmentItem.builder()
+                    .equipment(equipment)
+                    .status(EquipmentStatus.RENTED)
+                    .build();
+            EquipmentItem item2Equip = EquipmentItem.builder()
+                    .equipment(equipment)
+                    .status(EquipmentStatus.AVAILABLE)
+                    .build();
+
+            RentalItem item1 = RentalItem.builder()
+                    .rentalItemId(1L)
+                    .rental(rental)
+                    .equipmentItem(item1Equip)
+                    .status(RentalItemStatus.RENTED)
+                    .build();
+            RentalItem item2 = RentalItem.builder()
+                    .rentalItemId(2L)
+                    .rental(rental)
+                    .equipmentItem(item2Equip)
+                    .status(RentalItemStatus.RETURNED)
+                    .build();
+
+            List<RentalItem> rentalItems = List.of(item1, item2);
+
+            when(rentalItemRepository.findById(1L)).thenReturn(Optional.of(item1));
+            when(rentalItemRepository.findByRental_RentalId(rental.getRentalId())).thenReturn(rentalItems);
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(rentalItemOverdueRepository.findByRentalItem(item1)).thenReturn(Optional.empty());
+
+            // when
+            rentalItemService.returnRentalItem(1L, memberId);
+
+            // then
+            verify(notificationService, times(1)).createNotification(
+                    eq(member),
+                    eq(NotificationType.RENTAL_RETURNED),
+                    contains("모두 반납 완료"),
+                    isNull()
+            );
+        }
 
         @Test
         @DisplayName("예외 - 존재하지 않는 RentalItem")
@@ -296,8 +385,20 @@ public class RentalItemServiceImplTest {
         @Test
         @DisplayName("예외 - 존재하지 않는 Member")
         void returnRentalItem_memberNotFound() {
-            EquipmentItem equipmentItem = EquipmentItem.builder().build();
-            Rental rental = Rental.builder().rentalId(10L).build();
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .model("MacBook Pro")
+                    .build();
+
+            EquipmentItem equipmentItem = EquipmentItem.builder()
+                    .status(EquipmentStatus.RENTED)
+                    .equipment(equipment)
+                    .build();
+
+            Rental rental = Rental.builder()
+                    .rentalId(10L)
+                    .build();
+
             RentalItem item = RentalItem.builder().rentalItemId(rentalItemId)
                     .equipmentItem(equipmentItem)
                     .endDate(LocalDate.now().plusDays(2))
@@ -320,23 +421,50 @@ public class RentalItemServiceImplTest {
         @Test
         @DisplayName("성공 - 연체 상황 발생")
         void updateOverdueStatus_success() {
-            // given
+            Member member = Member.builder()
+                    .memberId(1L)
+                    .name("Tester")
+                    .build();
+
+            Category category = Category.builder()
+                    .categoryId(1L)
+                    .label("노트북")
+                    .build();
+
+            SubCategory subCategory = SubCategory.builder()
+                    .subCategoryId(1L)
+                    .label("맥북")
+                    .category(category)
+                    .build();
+
+            Equipment equipment = Equipment.builder()
+                    .equipmentId(1L)
+                    .model("MacBook Pro")
+                    .subCategory(subCategory)
+                    .build();
+
+            Rental rental = Rental.builder()
+                    .rentalId(10L)
+                    .member(member)
+                    .equipment(equipment)
+                    .build();
+
             RentalItem item1 = RentalItem.builder()
                     .rentalItemId(1L)
                     .status(RentalItemStatus.RENTED)
                     .endDate(LocalDate.now().minusDays(2))
+                    .rental(rental)
                     .build();
 
             RentalItem item2 = RentalItem.builder()
                     .rentalItemId(2L)
                     .status(RentalItemStatus.RENTED)
                     .endDate(LocalDate.now().minusDays(1))
+                    .rental(rental)
                     .build();
 
-            List<RentalItem> overdueItems = List.of(item1, item2);
-
             when(rentalItemRepository.findByStatusAndEndDateBefore(RentalItemStatus.RENTED, LocalDate.now()))
-                    .thenReturn(overdueItems);
+                    .thenReturn(List.of(item1, item2));
 
             // when
             rentalItemService.updateOverdueStatus();
@@ -346,6 +474,22 @@ public class RentalItemServiceImplTest {
             assertThat(item2.getStatus()).isEqualTo(RentalItemStatus.OVERDUE);
             
             verify(rentalItemOverdueRepository, times(2)).save(any(RentalItemOverdue.class));
+
+            // 사용자 알림
+            verify(notificationService, times(2)).createNotification(
+                    eq(member),
+                    eq(NotificationType.RENTAL_OVERDUE),
+                    contains("연체"),
+                    isNull()
+            );
+
+            // 관리자/매니저 알림
+            verify(notificationService, times(2)).notifyManagersAndAdmins(
+                    eq(category),
+                    eq(NotificationType.RENTAL_OVERDUE),
+                    contains(member.getName()),
+                    isNull()
+            );
         }
 
         @Test
