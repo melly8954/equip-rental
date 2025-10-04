@@ -241,7 +241,7 @@ function renderRentalList(data) {
                                     </p>
                                 </h6>
                                 <p class="card-text mb-1">
-                                    신청 ID: ${r.rentalId} 
+                                    대여 ID: ${r.rentalId} 
                                         <span class="${rentalStatusMap[r.status]?.class || ""} ms-2">
                                             [${rentalStatusMap[r.status]?.label || r.status}]
                                         </span> <br>
