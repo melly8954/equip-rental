@@ -26,7 +26,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String rawPassword = authentication.getCredentials().toString();
 
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new BadCredentialsException("BAD_CREDENTIALS"));
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
