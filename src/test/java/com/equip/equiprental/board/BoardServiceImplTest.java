@@ -15,7 +15,10 @@ import com.equip.equiprental.filestorage.domain.FileMeta;
 import com.equip.equiprental.filestorage.repository.FileRepository;
 import com.equip.equiprental.filestorage.service.iface.FileService;
 import com.equip.equiprental.member.domain.Member;
+import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,7 @@ public class BoardServiceImplTest {
     @Mock private MemberRepository memberRepository;
     @Mock private FileRepository fileRepository;
     @Mock private FileService fileService;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks
     private BoardServiceImpl boardService;
@@ -142,6 +146,92 @@ public class BoardServiceImplTest {
             assertThat(response.getFiles()).isEmpty();
             verify(boardRepository).save(any(Board.class));
             verifyNoInteractions(fileService, fileRepository);
+        }
+
+        @Test
+        @DisplayName("성공 - 공지사항 작성 시 전체 사용자에게 알림 전송")
+        void createBoard_Notice_SendsNotificationsToAllUsers() {
+            // given
+            Member admin = mock(Member.class);
+            when(admin.isAdminOrManager()).thenReturn(true);
+            when(memberRepository.findById(1L)).thenReturn(Optional.of(admin));
+
+            BoardCreateRequest dto = BoardCreateRequest.builder()
+                    .boardType(BoardType.NOTICE)
+                    .title("공지 제목")
+                    .content("내용")
+                    .build();
+
+            Board savedBoard = Board.builder()
+                    .boardId(200L)
+                    .writer(admin)
+                    .boardType(BoardType.NOTICE)
+                    .title("공지 제목")
+                    .content("내용")
+                    .status(BoardStatus.PENDING)
+                    .isDeleted(false)
+                    .build();
+
+            when(boardRepository.save(any(Board.class))).thenReturn(savedBoard);
+
+            Member user1 = mock(Member.class);
+            Member user2 = mock(Member.class);
+            when(memberRepository.findAll()).thenReturn(List.of(user1, user2));
+
+            // when
+            boardService.createBoard(dto, null, 1L);
+
+            // then
+            verify(notificationService, times(2)).createNotification(
+                    any(Member.class),
+                    eq(NotificationType.SYSTEM_ANNOUNCEMENT),
+                    contains("공지사항"),
+                    isNull()
+            );
+        }
+
+        @Test
+        @DisplayName("성공 - 문의글 작성 시 관리자 및 매니저에게 알림 전송")
+        void createBoard_Suggestion_SendsNotificationsToAdminsAndManagers() {
+            // given
+            Member normalUser = mock(Member.class);
+            when(normalUser.isAdminOrManager()).thenReturn(false);
+            when(normalUser.getName()).thenReturn("홍길동");
+            when(memberRepository.findById(1L)).thenReturn(Optional.of(normalUser));
+
+            BoardCreateRequest dto = BoardCreateRequest.builder()
+                    .boardType(BoardType.SUGGESTION)
+                    .title("문의 제목")
+                    .content("문의 내용")
+                    .build();
+
+            Board savedBoard = Board.builder()
+                    .boardId(300L)
+                    .writer(normalUser)
+                    .boardType(BoardType.SUGGESTION)
+                    .title("문의 제목")
+                    .content("문의 내용")
+                    .status(BoardStatus.PENDING)
+                    .isDeleted(false)
+                    .build();
+
+            when(boardRepository.save(any(Board.class))).thenReturn(savedBoard);
+
+            Member admin = mock(Member.class);
+            Member manager = mock(Member.class);
+            when(memberRepository.findByRole(MemberRole.ADMIN)).thenReturn(List.of(admin));
+            when(memberRepository.findByRole(MemberRole.MANAGER)).thenReturn(List.of(manager));
+
+            // when
+            boardService.createBoard(dto, null, 1L);
+
+            // then
+            verify(notificationService, times(2)).createNotification(
+                    any(Member.class),
+                    eq(NotificationType.SUGGESTION_CREATED),
+                    contains("홍길동님이 새로운 문의글을 등록했습니다"),
+                    isNull()
+            );
         }
 
         @Test
