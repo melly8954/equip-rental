@@ -132,14 +132,20 @@ public class RentalItemServiceImplTest {
     @DisplayName("extendRentalItem 메서드 테스트")
     class extendRentalItem {
         Long rentalItemId = 1L;
+        Long memberId = 100L;
         ExtendRentalItemDto dto = new ExtendRentalItemDto(5);
 
         @Test
         @DisplayName("성공 - 대여 연장")
         void extendRentalItem_success() {
             // given
+            Rental rental = Rental.builder()
+                    .member(Member.builder().memberId(memberId).build())
+                    .build();
+
             RentalItem item = RentalItem.builder()
                     .rentalItemId(rentalItemId)
+                    .rental(rental)
                     .startDate(LocalDate.now().plusDays(1))
                     .endDate(LocalDate.now().plusDays(3))
                     .status(RentalItemStatus.RENTED)
@@ -149,7 +155,7 @@ public class RentalItemServiceImplTest {
             when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.of(item));
 
             // when
-            rentalItemService.extendRentalItem(rentalItemId, dto);
+            rentalItemService.extendRentalItem(rentalItemId, dto, memberId);
 
             // then
             assertThat(item.getEndDate()).isEqualTo(LocalDate.now().plusDays(8));
@@ -163,10 +169,38 @@ public class RentalItemServiceImplTest {
             when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> rentalItemService.extendRentalItem(rentalItemId, dto))
+            assertThatThrownBy(() -> rentalItemService.extendRentalItem(rentalItemId, dto, memberId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패 - 대여자 인증 실패")
+        void extendRentalItem_unauthorized() {
+            // given
+            Long memberId = 100L;
+            Long otherMemberId = 200L;
+            Rental rental = Rental.builder()
+                    .member(Member.builder().memberId(otherMemberId).build())
+                    .build();
+
+            RentalItem item = RentalItem.builder()
+                    .rentalItemId(rentalItemId)
+                    .rental(rental)
+                    .startDate(LocalDate.now().plusDays(1))
+                    .endDate(LocalDate.now().plusDays(3))
+                    .status(RentalItemStatus.RENTED)
+                    .isExtended(false)
+                    .build();
+
+            when(rentalItemRepository.findById(rentalItemId)).thenReturn(Optional.of(item));
+
+            // when & then
+            assertThatThrownBy(() -> rentalItemService.extendRentalItem(rentalItemId, dto, memberId))
+                    .isInstanceOf(CustomException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.UNAUTHORIZED);
         }
     }
 
