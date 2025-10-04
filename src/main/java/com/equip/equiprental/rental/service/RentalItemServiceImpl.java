@@ -62,9 +62,13 @@ public class RentalItemServiceImpl implements RentalItemService {
 
     @Override
     @Transactional
-    public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto) {
+    public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto, Long memberId) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
                 .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+
+        if (!item.getRental().getMember().getMemberId().equals(memberId)) {
+            throw new CustomException(ErrorType.UNAUTHORIZED);
+        }
 
         LocalDate extendedEndDate = item.getEndDate().plusDays(dto.getDays());
 

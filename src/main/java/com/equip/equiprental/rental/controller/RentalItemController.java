@@ -37,11 +37,14 @@ public class RentalItemController implements ResponseController {
     }
 
     @PostMapping("/{rentalItem}")
-    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRentalItemDto dto){
+    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRentalItemDto dto,
+                                                              @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("장비 대여 연장 요청 API] TraceId={}", traceId);
 
-        rentalItemService.extendRentalItem(rentalItem, dto);
+        Long memberId = principal.getMember().getMemberId();
+
+        rentalItemService.extendRentalItem(rentalItem, dto, memberId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 연장 성공", null);
     }

@@ -8,7 +8,7 @@ import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
 public interface RentalItemService {
     PageResponseDto<AdminRentalItemDto> getAdminRentalItemLists(SearchParamDto paramDto);
 
-    void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto);
+    void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto, Long memberId);
 
     void returnRentalItem(Long rentalItem, Long memberId);
 
