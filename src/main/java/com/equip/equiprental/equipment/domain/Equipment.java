@@ -39,7 +39,7 @@ public class Equipment extends BaseEntity {
     private Integer stock;
 
     @OneToMany(mappedBy = "equipment")
-    private List<EquipmentItem> items = new ArrayList<>();
+    private List<EquipmentItem> items;
 
     public void increaseStock(int amount) {
         if (amount < 0) {
