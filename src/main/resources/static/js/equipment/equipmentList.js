@@ -238,6 +238,8 @@ function renderEquipmentList(list) {
     let row = $('<div class="row row-cols-5 g-3 mb-3"></div>');
 
     list.forEach((equip, index) => {
+        const isOutOfStock = equip.availableStock === 0;
+
         const card = $(`
             <div class="col">
                 <div class="card h-100 shadow-sm">
@@ -258,14 +260,16 @@ function renderEquipmentList(list) {
                         </p>
                         <div class="card-footer p-0 border-0">
                             <div 
-                                class="rental-btn w-100 text-center py-2 bg-light"
+                                class="rental-btn w-100 text-center py-2 ${isOutOfStock ? 'disabled' : 'bg-light'}"
                                 data-id="${equip.equipmentId}"
                                 data-model="${equip.model}"
                                 data-category="${equip.category}"
                                 data-subcategory="${equip.subCategory || '-'}"
                                 data-stock="${equip.availableStock}"
-                                data-image="${equip.imageUrl}">
-                                <i class="bi-pencil-square"></i> 대여 신청
+                                data-image="${equip.imageUrl}"
+                                ${isOutOfStock ? 'style="pointer-events:none;"' : ''}>
+                                <i class="bi-${isOutOfStock ? 'exclamation-triangle' : 'pencil-square'}"></i>
+                                ${isOutOfStock ? '재고 부족' : '대여 신청'}
                             </div>
                         </div>
                     </div>
