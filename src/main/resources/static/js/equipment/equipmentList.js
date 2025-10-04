@@ -260,7 +260,7 @@ function renderEquipmentList(list) {
                         </p>
                         <div class="card-footer p-0 border-0">
                             <div 
-                                class="rental-btn w-100 text-center py-2 ${isOutOfStock ? 'disabled' : 'bg-light'}"
+                                class="rental-btn w-100 text-center text-success py-2 ${isOutOfStock ? 'disabled text-danger' : 'bg-light'}"
                                 data-id="${equip.equipmentId}"
                                 data-model="${equip.model}"
                                 data-category="${equip.category}"
