@@ -13,6 +13,8 @@ import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.Rental;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
@@ -52,6 +54,7 @@ public class RentalServiceImplTest {
     @Mock private EquipmentItemHistoryRepository equipmentItemHistoryRepository;
     @Mock private RentalRepository rentalRepository;
     @Mock private RentalItemRepository rentalItemRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks private RentalServiceImpl rentalService;
 
@@ -109,6 +112,40 @@ public class RentalServiceImplTest {
             assertThat(response.getEquipmentId()).isEqualTo(equipment.getEquipmentId());
             assertThat(response.getQuantity()).isEqualTo(dto.getQuantity());
             assertThat(response.getStatus()).isEqualTo(RentalStatus.PENDING);
+        }
+
+        @Test
+        @DisplayName("성공 - 대여 신청 후 관리자/매니저 알림 발생")
+        void requestRental_successWithNotification() {
+            // given
+            RentalRequestDto dto = RentalRequestDto.builder()
+                    .equipmentId(equipment.getEquipmentId())
+                    .quantity(1)
+                    .rentalReason("촬영")
+                    .startDate(LocalDate.now().plusDays(1))
+                    .endDate(LocalDate.now().plusDays(3))
+                    .build();
+
+            when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+            when(equipmentRepository.findById(equipment.getEquipmentId())).thenReturn(Optional.of(equipment));
+            when(equipmentItemRepository.countAvailableByEquipmentId(equipment.getEquipmentId())).thenReturn(5);
+
+            // when
+            RentalResponseDto response = rentalService.requestRental(dto, member.getMemberId());
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.getEquipmentId()).isEqualTo(equipment.getEquipmentId());
+            assertThat(response.getQuantity()).isEqualTo(dto.getQuantity());
+            assertThat(response.getStatus()).isEqualTo(RentalStatus.PENDING);
+
+            // 알림 발생 확인
+            verify(notificationService).notifyManagersAndAdmins(
+                    eq(equipment.getSubCategory().getCategory()),
+                    eq(NotificationType.RENTAL_REQUEST),
+                    contains("대여 신청"),
+                    isNull()
+            );
         }
 
         @Test
