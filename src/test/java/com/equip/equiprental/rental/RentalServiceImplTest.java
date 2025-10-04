@@ -4,10 +4,7 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
-import com.equip.equiprental.equipment.domain.Equipment;
-import com.equip.equiprental.equipment.domain.EquipmentItem;
-import com.equip.equiprental.equipment.domain.EquipmentStatus;
-import com.equip.equiprental.equipment.domain.SubCategory;
+import com.equip.equiprental.equipment.domain.*;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository;
@@ -421,10 +418,23 @@ public class RentalServiceImplTest {
                     .memberId(1L)
                     .name("TestUser")
                     .build();
+            Category category = Category.builder()
+                    .categoryCode("EL")
+                    .label("ELECTRONICS")
+                    .build();
+
+            SubCategory subCategory = SubCategory.builder()
+                    .subCategoryId(1L)
+                    .subCategoryCode("MON")
+                    .label("Monitor")
+                    .category(category)
+                    .build();
 
             equipment = Equipment.builder()
                     .equipmentId(1L)
+                    .model("MODEL_X")
                     .stock(5)
+                    .subCategory(subCategory) // 여기가 핵심
                     .build();
 
             rental = Rental.builder()
@@ -469,6 +479,37 @@ public class RentalServiceImplTest {
             verify(equipmentItemRepository).approveRental(anyList());
             verify(rentalItemRepository).saveAll(anyList());
             verify(equipmentItemHistoryRepository).saveAll(anyList());
+        }
+
+        @Test
+        @DisplayName("성공 - 승인 알림 및 재고 0 알림 발생")
+        void approvedNotification() {
+            // given
+            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
+            when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
+                    .thenReturn(equipmentItems);
+            when(equipmentItemRepository.approveRental(anyList())).thenReturn(equipmentItems.size());
+            when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
+            when(equipmentItemRepository.countAvailableByEquipmentId(equipment.getEquipmentId())).thenReturn(0);
+
+            // when
+            rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId());
+
+            // then
+            verify(notificationService, times(1)).createNotification(
+                    eq(rental.getMember()),
+                    eq(NotificationType.RENTAL_APPROVED),
+                    argThat(msg -> msg != null && msg.contains("승인")), // 문자열 포함 체크
+                    isNull()
+            );
+
+            verify(notificationService, times(1)).notifyManagersAndAdmins(
+                    eq(equipment.getSubCategory().getCategory()),
+                    eq(NotificationType.EQUIPMENT_OUT_OF_STOCK),
+                    argThat(msg -> msg != null && msg.contains("재고가 0")), // 문자열 포함 체크
+                    isNull()
+            );
         }
 
         @Test
