@@ -257,7 +257,14 @@ function renderEquipmentList(list) {
                             <span class="text-muted">${equip.totalStock}</span>
                         </p>
                         <div class="card-footer p-0 border-0">
-                            <div class="rental-btn w-100 text-center py-2 bg-light"  data-id="${equip.equipmentId}">
+                            <div 
+                                class="rental-btn w-100 text-center py-2 bg-light"
+                                data-id="${equip.equipmentId}"
+                                data-model="${equip.model}"
+                                data-category="${equip.category}"
+                                data-subcategory="${equip.subCategory || '-'}"
+                                data-stock="${equip.availableStock}"
+                                data-image="${equip.imageUrl}">
                                 <i class="bi-pencil-square"></i> 대여 신청
                             </div>
                         </div>
@@ -279,14 +286,32 @@ function renderEquipmentList(list) {
 // 모달 이벤트
 $(document).on("click", ".rental-btn", function() {
     const equipmentId = $(this).data("id");
+    const model = $(this).data("model");
+    const category = $(this).data("category");
+    const subCategory = $(this).data("subcategory");
+    const stock = $(this).data("stock");
+    const image = $(this).data("image");
+
+    // hidden input
     $("#modalEquipmentId").val(equipmentId);
 
+    // 장비 정보 표시
+    $("#selectedEquipmentInfo").show();
+    $("#selectedEquipmentImage").attr("src", image);
+    $("#selectedEquipmentModel").text(model);
+    $("#selectedEquipmentCategory").text(`[${category} / ${subCategory}]`);
+    $("#selectedEquipmentStock")
+        .text(stock)
+        .toggleClass("text-danger", stock === 0)
+        .toggleClass("text-success", stock > 0);
+
+    // 오늘 날짜 기본값
     const now = new Date();
     const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0"); // 0~11
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
     const dd = String(now.getDate()).padStart(2, "0");
-
     const today = `${yyyy}-${mm}-${dd}`;
+
     $("#rentalStartDate").val(today);
     $("#rentalEndDate").val(today);
 
@@ -320,7 +345,10 @@ $("#submitRental").on("click", function() {
     }).fail(handleServerError);
 });
 
+// 모달 닫을 때 초기화
 $("#rentalModal").on("hidden.bs.modal", function () {
     $("#rentalForm")[0].reset();
     $("#modalEquipmentId").val("");
+    $("#selectedEquipmentInfo").hide(); // 요약 카드 숨기기
 });
+
