@@ -14,6 +14,8 @@ import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
+import com.equip.equiprental.notification.domain.NotificationType;
+import com.equip.equiprental.notification.service.iface.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +43,7 @@ public class CommentServiceImplTest {
     @Mock private MemberRepository memberRepository;
     @Mock private BoardRepository boardRepository;
     @Mock private CommentRepository commentRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -60,6 +65,7 @@ public class CommentServiceImplTest {
 
             Board board = Board.builder()
                     .boardId(boardId)
+                    .writer(writer)
                     .build();
 
             CommentCreateRequest dto = CommentCreateRequest.builder()
@@ -89,9 +95,22 @@ public class CommentServiceImplTest {
             Long boardId = 10L;
             Long parentCommentId = 100L;
 
-            Member writer = Member.builder().memberId(writerId).build();
-            Board board = Board.builder().boardId(boardId).build();
-            Comment parentComment = Comment.builder().commentId(parentCommentId).build();
+            Member writer = Member.builder()
+                    .memberId(writerId)
+                    .name("childUser")
+                    .build();
+            Member parentWriter = Member.builder()
+                    .memberId(2L)
+                    .name("parentUser")
+                    .build();
+            Board board = Board.builder()
+                    .boardId(boardId)
+                    .writer(writer)
+                    .build();
+            Comment parentComment = Comment.builder()
+                    .commentId(parentCommentId)
+                    .writer(parentWriter)
+                    .build();
 
             CommentCreateRequest dto = CommentCreateRequest.builder()
                     .boardId(boardId)
@@ -111,6 +130,75 @@ public class CommentServiceImplTest {
             assertThat(response.getBoardId()).isEqualTo(boardId);
             assertThat(response.getWriterId()).isEqualTo(writerId);
             assertThat(response.getContent()).isEqualTo("대댓글");
+        }
+
+        @Test
+        @DisplayName("댓글 작성 시 게시글 작성자에게 알림 전송")
+        void commentNotificationToBoardWriter() {
+            // given
+            Long writerId = 1L;
+            Long boardId = 10L;
+
+            Member writer = Member.builder().memberId(writerId).name("childUser").build();
+            Member boardWriter = Member.builder().memberId(2L).name("boardOwner").build();
+
+            Board board = Board.builder().boardId(boardId).writer(boardWriter).title("게시글 제목").build();
+
+            CommentCreateRequest dto = CommentCreateRequest.builder()
+                    .boardId(boardId)
+                    .content("댓글 내용")
+                    .build();
+
+            when(memberRepository.findById(writerId)).thenReturn(Optional.of(writer));
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+
+            // when
+            commentService.createComment(dto, writerId);
+
+            // then
+            verify(notificationService).createNotification(
+                    eq(boardWriter),
+                    eq(NotificationType.SUGGESTION_ANSWERED),
+                    contains(writer.getName()),
+                    isNull()
+            );
+        }
+
+        @Test
+        @DisplayName("대댓글 작성 시 부모 댓글 작성자에게 알림 전송")
+        void replyNotificationToParentCommentWriter() {
+            // given
+            Long writerId = 1L;
+            Long boardId = 10L;
+            Long parentCommentId = 100L;
+
+            Member writer = Member.builder().memberId(writerId).name("childUser").build();
+            Member parentWriter = Member.builder().memberId(2L).name("parentUser").build();
+
+            Board board = Board.builder().boardId(boardId).writer(writer).title("게시글 제목").build();
+
+            Comment parentComment = Comment.builder().commentId(parentCommentId).writer(parentWriter).build();
+
+            CommentCreateRequest dto = CommentCreateRequest.builder()
+                    .boardId(boardId)
+                    .parentCommentId(parentCommentId)
+                    .content("대댓글")
+                    .build();
+
+            when(memberRepository.findById(writerId)).thenReturn(Optional.of(writer));
+            when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+            when(commentRepository.findById(parentCommentId)).thenReturn(Optional.of(parentComment));
+
+            // when
+            commentService.createComment(dto, writerId);
+
+            // then
+            verify(notificationService).createNotification(
+                    eq(parentWriter),
+                    eq(NotificationType.SUGGESTION_ANSWERED),
+                    contains(writer.getName()),
+                    isNull()
+            );
         }
 
         @Test
