@@ -54,10 +54,21 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <div id="selectedEquipmentInfo" class="border rounded p-2 mb-3 bg-light d-flex align-items-center" style="display:none;">
+                                <img id="selectedEquipmentImage" src="" alt="장비 이미지" class="me-3 rounded" style="width:80px; height:80px; object-fit:cover;">
+                                <div>
+                                    <div class="fw-bold" id="selectedEquipmentModel"></div>
+                                    <div class="small text-muted" id="selectedEquipmentCategory"></div>
+                                    <div class="small">
+                                        남은 수량:
+                                        <span id="selectedEquipmentStock" class="fw-semibold"></span>
+                                    </div>
+                                </div>
+                            </div>
                             <form id="rentalForm">
                                 <input type="hidden" id="modalEquipmentId">
                                 <div class="mb-3">
-                                    <label for="rentalQuantity" class="form-label">수량</label>
+                                    <label for="rentalQuantity" class="form-label">대여 수량</label>
                                     <input type="number" class="form-control" id="rentalQuantity" min="1" value="1" required>
                                 </div>
                                 <div class="mb-3">
