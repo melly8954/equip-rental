@@ -28,7 +28,6 @@ public class SearchParamDto {
     private Long subCategoryId;
     private String model;
 
-    private String equipmentStatus;
     private String rentalStatus;
     private RentalItemStatus rentalItemStatus;
 
@@ -45,15 +44,6 @@ public class SearchParamDto {
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
-    }
-
-    public EquipmentStatus getEquipmentStatusEnum() {
-        if (equipmentStatus == null || equipmentStatus.isBlank()) return null;
-        try {
-            return EquipmentStatus.valueOf(equipmentStatus.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
-        }
     }
 
     public RentalStatus getRentalStatusEnum() {

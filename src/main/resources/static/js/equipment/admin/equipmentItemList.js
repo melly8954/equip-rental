@@ -92,7 +92,7 @@ function fetchEquipmentItems(equipmentId, filters = {}, page = 1) {
         url: `/api/v1/equipments/${equipmentId}/items`,
         method: "GET",
         data: {
-            equipmentStatus: (filters.status === "전체" ? "" : filters.status),
+            status: (filters.status === "전체" ? "" : filters.status),
             page: page
         }
     }).done(function(response) {

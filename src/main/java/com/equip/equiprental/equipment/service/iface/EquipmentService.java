@@ -11,7 +11,7 @@ public interface EquipmentService {
     EquipmentRegisterResponse register(EquipmentRegisterRequest dto, List<MultipartFile> files);
 
     PageResponseDto<EquipmentDto> getEquipment(EquipmentFilter paramDto);
-    EquipmentItemListDto getEquipmentItem(Long equipmentId, SearchParamDto paramDto);
+    EquipmentItemListDto getEquipmentItem(Long equipmentId, EquipmentStatusFilter paramDto);
 
     void increaseStock(Long equipmentId, IncreaseStockRequestDto dto);
 

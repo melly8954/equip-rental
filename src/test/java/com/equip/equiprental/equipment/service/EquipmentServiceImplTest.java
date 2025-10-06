@@ -269,11 +269,11 @@ public class EquipmentServiceImplTest {
     @Nested
     @DisplayName("getEquipmentItem 메서드 테스트")
     class getEquipmentItem {
-        private SearchParamDto createParamDto(String status) {
-            return SearchParamDto.builder()
+        private EquipmentStatusFilter createParamDto() {
+            return EquipmentStatusFilter.builder()
                     .page(1)
                     .size(10)
-                    .equipmentStatus(status)
+                    .status(EquipmentStatus.AVAILABLE)
                     .build();
         }
 
@@ -308,7 +308,7 @@ public class EquipmentServiceImplTest {
         void getEquipmentItem_success() {
             // given
             Long equipmentId = 1L;
-            SearchParamDto paramDto = createParamDto("AVAILABLE");
+            EquipmentStatusFilter paramDto = createParamDto();
             Pageable pageable = paramDto.getPageable();
 
             Equipment equipment = createEquipment(equipmentId, "ELECTRONICS", "Laptop", "LG Gram");
@@ -357,7 +357,7 @@ public class EquipmentServiceImplTest {
         @DisplayName("성공 - 장비는 존재하지만 아이템 없음 (빈 페이지)")
         void getEquipmentItem_emptyItems() {
             Long equipmentId = 1L;
-            SearchParamDto paramDto = createParamDto("AVAILABLE");
+            EquipmentStatusFilter paramDto = createParamDto();
             Pageable pageable = paramDto.getPageable();
 
             Equipment equipment = createEquipment(equipmentId, "ELECTRONICS", "Laptop", "LG Gram");
@@ -388,7 +388,7 @@ public class EquipmentServiceImplTest {
         @DisplayName("예외 - 장비가 존재하지 않음")
         void getEquipmentItem_notFound() {
             Long equipmentId = 1L;
-            SearchParamDto paramDto = SearchParamDto.builder().build();
+            EquipmentStatusFilter paramDto = EquipmentStatusFilter.builder().build();
 
             when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.empty());
 

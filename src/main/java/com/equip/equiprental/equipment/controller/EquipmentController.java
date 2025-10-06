@@ -55,7 +55,7 @@ public class EquipmentController implements ResponseController {
     @GetMapping("/{equipmentId}/items")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<EquipmentItemListDto>> getEquipmentItem(@PathVariable Long equipmentId,
-                                                                              @ModelAttribute SearchParamDto paramDto,
+                                                                              @ModelAttribute EquipmentStatusFilter paramDto,
                                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[장비 아이템 조회 요청 API] TraceId={}", traceId);
