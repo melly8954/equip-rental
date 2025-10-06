@@ -258,7 +258,7 @@ $(document).on("click", ".edit-scope", function() {
     modalBody.empty();
 
     categoryList.forEach(cat => {
-        const checked = member.categories?.includes(String(cat.categoryId)) ? 'checked' : '';
+        const checked = member.categories?.map(String).includes(String(cat.categoryId)) ? 'checked' : '';
         modalBody.append(`
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="${cat.categoryId}" ${checked}>

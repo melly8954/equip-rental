@@ -92,13 +92,12 @@ public class MemberServiceImpl implements MemberService {
         List<MemberDto> content = page.getContent()
                 .stream()
                 .map(member -> {
-                    List<String> categories = null;
+                    List<Long> categories = null;
                     if(member.getRole() == MemberRole.MANAGER) {
                         // 매니저의 카테고리 스코프 찾기
                         categories = managerScopeRepository.findCategoriesByManager(member.getMemberId())
                                 .stream()
                                 .map(Category::getCategoryId) // 또는 getLabel
-                                .map(String::valueOf)
                                 .toList();
                     }
                     return new MemberDto(member, categories);

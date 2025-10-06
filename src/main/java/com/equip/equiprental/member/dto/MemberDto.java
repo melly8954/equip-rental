@@ -20,12 +20,12 @@ public class MemberDto {
     private String email;
     private String status;
     private String role;
-    private List<String> categories;
+    private List<Long> categories;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    public MemberDto(Member member, List<String> categories) {
+    public MemberDto(Member member, List<Long> categories) {
         this.memberId = member.getMemberId();
         this.username = member.getUsername();
         this.name = member.getName();
