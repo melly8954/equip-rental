@@ -253,7 +253,7 @@ public class RentalServiceImpl implements RentalService {
             throw new CustomException(ErrorType.RENTAL_NOT_APPROVED);
         }
 
-        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(paramDto, pageable, rentalId, memberId);
+        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(pageable, rentalId, memberId);
 
         return PageResponseDto.<UserRentalItemDto>builder()
                 .content(dtosPage.getContent())
@@ -284,7 +284,7 @@ public class RentalServiceImpl implements RentalService {
             throw new CustomException(ErrorType.RENTAL_NOT_COMPLETED);
         }
 
-        Page<ReturnedRentalItemDto> dtosPage = rentalItemRepository.findReturnRentalItems(paramDto, pageable, rentalId, memberId);
+        Page<ReturnedRentalItemDto> dtosPage = rentalItemRepository.findReturnRentalItems(pageable, rentalId, memberId);
 
         return PageResponseDto.<ReturnedRentalItemDto>builder()
                 .content(dtosPage.getContent())

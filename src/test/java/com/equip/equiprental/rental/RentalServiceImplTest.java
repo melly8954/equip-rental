@@ -698,7 +698,7 @@ public class RentalServiceImplTest {
             Page<UserRentalItemDto> stubPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
-            when(rentalItemRepository.findUserRentalItems(paramDto, pageable, rental.getRentalId(), member.getMemberId()))
+            when(rentalItemRepository.findUserRentalItems(pageable, rental.getRentalId(), member.getMemberId()))
                     .thenReturn(stubPage);
 
             PageResponseDto<UserRentalItemDto> response = rentalService.getUserRentalItemList(paramDto, rental.getRentalId(), member.getMemberId());

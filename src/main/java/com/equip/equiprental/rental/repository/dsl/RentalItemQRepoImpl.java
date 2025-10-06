@@ -114,7 +114,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     }
 
     @Override
-    public Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
+    public Page<UserRentalItemDto> findUserRentalItems(Pageable pageable, Long rentalId, Long memberId) {
         QRentalItem i = QRentalItem.rentalItem;
         QEquipment e = QEquipment.equipment;
         QSubCategory sc = QSubCategory.subCategory;
@@ -168,7 +168,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     }
 
     @Override
-    public Page<ReturnedRentalItemDto> findReturnRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
+    public Page<ReturnedRentalItemDto> findReturnRentalItems(Pageable pageable, Long rentalId, Long memberId) {
         QRentalItem i = QRentalItem.rentalItem;
         QEquipment e = QEquipment.equipment;
         QSubCategory sc = QSubCategory.subCategory;
