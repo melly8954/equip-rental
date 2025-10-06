@@ -150,7 +150,7 @@ public class MemberServiceImplTest {
     @DisplayName("searchMembers 메서드 테스트")
     class searchMembers {
         Member member;
-        SearchParamDto dto;
+        MemberSearchParamDto dto;
         Department dept;
 
         @BeforeEach
@@ -182,11 +182,11 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status와 role 모두 존재할 때 findByStatusAndRole 호출")
         void whenStatusAndRoleNotNull_thenFindByStatusAndRoleCalled() {
-            dto = SearchParamDto.builder()
-                    .memberStatus("ACTIVE")
-                    .role("ADMIN")
+            dto = MemberSearchParamDto.builder()
                     .page(1)
                     .size(10)
+                    .status(MemberStatus.ACTIVE)
+                    .role(MemberRole.ADMIN)
                     .build();
 
             Page<Member> page = mockPageWithContent(List.of(member));
@@ -203,10 +203,10 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status만 존재할 때 findByStatus 호출")
         void whenStatusNotNullAndRoleNull_thenFindByStatusCalled() {
-            dto = SearchParamDto.builder()
-                    .memberStatus("ACTIVE")
+            dto = MemberSearchParamDto.builder()
                     .page(1)
                     .size(10)
+                    .status(MemberStatus.ACTIVE)
                     .build();
 
             Page<Member> page = mockPageWithContent(List.of(member));
@@ -221,10 +221,10 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - role만 존재할 때 findByRole 호출")
         void whenStatusNullAndRoleNotNull_thenFindByRoleCalled() {
-            dto = SearchParamDto.builder()
-                    .role("ADMIN")
+            dto = MemberSearchParamDto.builder()
                     .page(1)
                     .size(10)
+                    .role(MemberRole.ADMIN)
                     .build();
 
             Page<Member> page = mockPageWithContent(List.of(member));
@@ -239,7 +239,7 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status와 role 모두 null일 때 findAll 호출")
         void whenStatusAndRoleNull_thenFindAllCalled() {
-            dto = SearchParamDto.builder()
+            dto = MemberSearchParamDto.builder()
                     .page(1)
                     .size(10)
                     .build();
@@ -250,28 +250,6 @@ public class MemberServiceImplTest {
             memberService.searchMembers(dto);
 
             verify(memberRepository).findAll(dto.getPageable());
-        }
-
-        @Test
-        @DisplayName("예외 - 잘못된 status 입력 시 CustomException 발생")
-        void invalidStatus_throwsException() {
-            dto = SearchParamDto.builder().memberStatus("INVALID").build();
-
-            assertThatThrownBy(() -> memberService.searchMembers(dto))
-                    .isInstanceOf(CustomException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.INVALID_STATUS_REQUEST);
-        }
-
-        @Test
-        @DisplayName("예외 - 잘못된 role 입력 시 CustomException 발생")
-        void invalidRole_throwsException() {
-            dto = SearchParamDto.builder().role("INVALID").build();
-
-            assertThatThrownBy(() -> memberService.searchMembers(dto))
-                    .isInstanceOf(CustomException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.INVALID_ROLE_REQUEST);
         }
     }
 
