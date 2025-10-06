@@ -44,7 +44,7 @@ function fetchNotifications(page, pageSize, notificationStatus) {
     const params = new URLSearchParams({
         page: page,
         size: pageSize,
-        notificationStatus: notificationStatus
+        status: notificationStatus
     });
 
     $.ajax({
