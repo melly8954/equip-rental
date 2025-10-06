@@ -130,4 +130,22 @@ public class GlobalExceptionHandler implements ResponseController {
         );
     }
 
+    // Enum 요청 매핑 실패 시
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ResponseDto<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+
+        ErrorType errorType = ErrorType.INVALID_ENUM_VALUE; // 적절한 ErrorType 정의
+        log.error("TraceId: {}, 타입 미스매칭 예외 발생 - Parameter: {}, Value: {}, Message: {}",
+                traceId, e.getName(), e.getValue(), e.getMessage());
+
+        return makeResponseEntity(
+                traceId,
+                errorType.getStatus(),
+                errorType.getErrorCode(),
+                errorType.getMessage(),
+                null
+        );
+    }
+
 }

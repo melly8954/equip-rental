@@ -22,7 +22,7 @@ public class MemberDto {
     private String role;
     private List<String> categories;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     public MemberDto(Member member, List<String> categories) {

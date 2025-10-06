@@ -72,11 +72,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<MemberDto> searchMembers(SearchParamDto dto) {
+    public PageResponseDto<MemberDto> searchMembers(MemberSearchParamDto dto) {
         Pageable pageable = dto.getPageable();
 
-        MemberStatus status = dto.getMemberStatusEnum();
-        MemberRole role = dto.getRoleEnum();
+        MemberStatus status = dto.getStatus();
+        MemberRole role = dto.getRole();
 
         Page<Member> page;
 

@@ -4,13 +4,11 @@ import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
-import com.equip.equiprental.member.domain.MemberRole;
-import com.equip.equiprental.member.domain.MemberStatus;
 import com.equip.equiprental.notification.domain.NotificationStatus;
-import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,14 +17,12 @@ import org.springframework.data.domain.Sort;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class SearchParamDto {
     @Builder.Default
     private int page = 1;
     @Builder.Default
     private int size = 10;
-    private String memberStatus;
-    private String role;
 
     private Long categoryId;
     private Long subCategoryId;
@@ -49,24 +45,6 @@ public class SearchParamDto {
 
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
-    }
-
-    public MemberStatus getMemberStatusEnum() {
-        if (memberStatus == null || memberStatus.isBlank()) return null;
-        try {
-            return MemberStatus.valueOf(memberStatus.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
-        }
-    }
-
-    public MemberRole getRoleEnum() {
-        if (role == null || role.isBlank()) return null;
-        try {
-            return MemberRole.valueOf(role.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_ROLE_REQUEST);
-        }
     }
 
     public EquipmentStatus getEquipmentStatusEnum() {

@@ -8,7 +8,7 @@ public interface MemberService {
     // 사용자 가입
     SignUpResponse signUp(SignUpRequest dto);
     // 사용자 목록 조회
-    PageResponseDto<MemberDto> searchMembers(SearchParamDto dto);
+    PageResponseDto<MemberDto> searchMembers(MemberSearchParamDto dto);
 
     UpdateMemberStatusResponse updateMemberStatus(Long memberId, UpdateMemberRequest dto);
     UpdateMemberRoleResponse updateMemberRole(Long memberId, UpdateMemberRequest dto);

@@ -32,7 +32,7 @@ public class MemberController implements ResponseController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseDto<PageResponseDto<MemberDto>>> searchMembers(@ModelAttribute SearchParamDto dto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<MemberDto>>> searchMembers(@ModelAttribute MemberSearchParamDto dto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 목록 조회 요청 API] TraceId={}", traceId);
 
