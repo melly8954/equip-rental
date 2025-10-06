@@ -46,8 +46,7 @@ function signUp(){
             email: email
         })
     }).done(function(response) {
-        console.log(response);
-        showSnackbar(response.message);
+        alert(response.message);
         window.location.href = "/";
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
