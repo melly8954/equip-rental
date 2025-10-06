@@ -22,6 +22,7 @@ public class ManagerScopeController implements ResponseController {
     private final ManagerScopeService managerScopeService;
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDto<Void>> setManagerScope(@RequestBody ManagerScopeRequest dto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[매니저 스코프 변경 요청 API] TraceId={}", traceId);
