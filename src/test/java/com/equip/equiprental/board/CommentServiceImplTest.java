@@ -5,11 +5,11 @@ import com.equip.equiprental.board.domain.Comment;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
 import com.equip.equiprental.board.dto.CommentListResponse;
+import com.equip.equiprental.board.dto.CommentFilter;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.repository.CommentRepository;
 import com.equip.equiprental.board.service.CommentServiceImpl;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
@@ -274,10 +274,10 @@ public class CommentServiceImplTest {
         @DisplayName("성공 - 댓글 목록 조회")
         void getCommentList_Success_WithContent() {
             // given
-            SearchParamDto paramDto = SearchParamDto.builder()
-                    .boardId(10L)
+            CommentFilter paramDto = CommentFilter.builder()
                     .page(1)
                     .size(2)
+                    .boardId(10L)
                     .build();
 
             Long writerId = 1L;
@@ -327,10 +327,10 @@ public class CommentServiceImplTest {
         @DisplayName("성공 - 댓글 목록 빈 페이지")
         void getCommentList_Success_EmptyPage() {
             // given
-            SearchParamDto paramDto = SearchParamDto.builder()
-                    .boardId(10L)
+            CommentFilter paramDto = CommentFilter.builder()
                     .page(1)
                     .size(2)
+                    .boardId(10L)
                     .build();
 
             Long writerId = 1L;

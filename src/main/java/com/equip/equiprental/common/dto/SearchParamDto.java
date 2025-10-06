@@ -24,8 +24,6 @@ public class SearchParamDto {
     @Builder.Default
     private int size = 10;
 
-    private Long boardId;
-
     private NotificationStatus notificationStatus;
 
     public Pageable getPageable() {
