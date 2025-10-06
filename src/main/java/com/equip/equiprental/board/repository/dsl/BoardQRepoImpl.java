@@ -2,8 +2,8 @@ package com.equip.equiprental.board.repository.dsl;
 
 import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.QBoard;
+import com.equip.equiprental.board.dto.BoardFilter;
 import com.equip.equiprental.board.dto.BoardListResponse;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -21,7 +21,7 @@ public class BoardQRepoImpl implements BoardQRepo{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<BoardListResponse> findBoardList(Pageable pageable, SearchParamDto paramDto) {
+    public Page<BoardListResponse> findBoardList(Pageable pageable, BoardFilter paramDto) {
         QBoard b = QBoard.board;
 
         BooleanBuilder builder = new BooleanBuilder();

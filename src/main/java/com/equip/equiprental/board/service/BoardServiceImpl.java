@@ -7,7 +7,6 @@ import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.service.iface.BoardService;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.filestorage.domain.FileMeta;
@@ -138,7 +137,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<BoardListResponse> getBoardList(SearchParamDto paramDto) {
+    public PageResponseDto<BoardListResponse> getBoardList(BoardFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
 
         Page<BoardListResponse> dtosPage = boardRepository.findBoardList(pageable, paramDto);

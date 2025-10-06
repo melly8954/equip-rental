@@ -24,10 +24,6 @@ public class SearchParamDto {
     @Builder.Default
     private int size = 10;
 
-    private BoardType boardType;
-    private String searchType;
-    private String keyword;
-
     private Long boardId;
 
     private NotificationStatus notificationStatus;

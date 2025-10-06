@@ -40,7 +40,7 @@ public class BoardController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute SearchParamDto paramDto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute BoardFilter paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("게시글 조회 요청 API] TraceId={}", traceId);
 
