@@ -7,9 +7,9 @@ import com.equip.equiprental.rental.dto.*;
 public interface RentalService {
     RentalResponseDto requestRental(RentalRequestDto dto, Long memberId);
 
-    PageResponseDto<AdminRentalDto> getAdminRentalList(SearchParamDto paramDto);
+    PageResponseDto<AdminRentalDto> getAdminRentalList(RentalFilter paramDto);
 
-    PageResponseDto<UserRentalDto> getUserRentalList(SearchParamDto paramDto, Long memberId);
+    PageResponseDto<UserRentalDto> getUserRentalList(RentalFilter paramDto, Long memberId);
 
     void updateRentalStatus(UpdateRentalStatusDto dto, Long rentalId, Long memberId);
 

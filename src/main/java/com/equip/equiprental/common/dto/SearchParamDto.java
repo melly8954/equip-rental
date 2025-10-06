@@ -45,13 +45,4 @@ public class SearchParamDto {
     public Pageable getPageable() {
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
     }
-
-    public RentalStatus getRentalStatusEnum() {
-        if (rentalStatus == null || rentalStatus.isBlank()) return null;
-        try {
-            return RentalStatus.valueOf(rentalStatus.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorType.INVALID_STATUS_REQUEST);
-        }
-    }
 }

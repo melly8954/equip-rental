@@ -1,19 +1,15 @@
 package com.equip.equiprental.rental.repository.dsl;
 
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.QCategory;
-import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QSubCategory;
-import com.equip.equiprental.equipment.dto.EquipmentDto;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
-import com.equip.equiprental.member.domain.QMember;
 import com.equip.equiprental.rental.domain.QRental;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import com.equip.equiprental.rental.dto.AdminRentalDto;
+import com.equip.equiprental.rental.dto.RentalFilter;
 import com.equip.equiprental.rental.dto.UserRentalDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +26,7 @@ public class RentalQRepoImpl implements RentalQRepo{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<AdminRentalDto> findAdminRentals(SearchParamDto paramDto, Pageable pageable) {
+    public Page<AdminRentalDto> findAdminRentals(RentalFilter paramDto, Pageable pageable) {
         QRental r = QRental.rental;
         QSubCategory sc = QSubCategory.subCategory;
         QCategory c = QCategory.category;
@@ -98,7 +94,7 @@ public class RentalQRepoImpl implements RentalQRepo{
     }
 
     @Override
-    public Page<UserRentalDto> findUserRentals(SearchParamDto paramDto, Pageable pageable, Long memberId) {
+    public Page<UserRentalDto> findUserRentals(RentalFilter paramDto, Pageable pageable, Long memberId) {
         QRental r = QRental.rental;
         QSubCategory sc = QSubCategory.subCategory;
         QCategory c = QCategory.category;
@@ -115,8 +111,8 @@ public class RentalQRepoImpl implements RentalQRepo{
             builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
-        if (paramDto.getRentalStatus() != null && !paramDto.getRentalStatus().isEmpty()) {
-            builder.and(r.status.eq(paramDto.getRentalStatusEnum()));
+        if (paramDto.getStatus() != null) {
+            builder.and(r.status.eq(paramDto.getStatus()));
         }
 
         List<UserRentalDto> content = queryFactory

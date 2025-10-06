@@ -12,7 +12,6 @@ import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.repository.EquipmentRepository;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.service.iface.NotificationService;
@@ -24,16 +23,13 @@ import com.equip.equiprental.rental.dto.*;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.repository.RentalRepository;
 import com.equip.equiprental.rental.service.iface.RentalService;
-import com.equip.equiprental.scope.repository.ManagerScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -106,7 +102,7 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<AdminRentalDto> getAdminRentalList(SearchParamDto paramDto) {
+    public PageResponseDto<AdminRentalDto> getAdminRentalList(RentalFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
 
         Page<AdminRentalDto> dtosPage = rentalRepository.findAdminRentals(paramDto, pageable);
@@ -127,7 +123,7 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<UserRentalDto> getUserRentalList(SearchParamDto paramDto, Long memberId) {
+    public PageResponseDto<UserRentalDto> getUserRentalList(RentalFilter paramDto, Long memberId) {
         Pageable pageable = paramDto.getPageable();
 
         Page<UserRentalDto> dtosPage = rentalRepository.findUserRentals(paramDto, pageable, memberId);
