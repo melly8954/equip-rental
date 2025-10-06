@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class MemberSearchParamDto extends SearchParamDto {
+public class MemberFilter extends SearchParamDto {
     private MemberStatus status;
     private MemberRole role;
 }

@@ -3,7 +3,6 @@ package com.equip.equiprental.member;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.dto.*;
@@ -150,7 +149,7 @@ public class MemberServiceImplTest {
     @DisplayName("searchMembers 메서드 테스트")
     class searchMembers {
         Member member;
-        MemberSearchParamDto dto;
+        MemberFilter dto;
         Department dept;
 
         @BeforeEach
@@ -182,7 +181,7 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status와 role 모두 존재할 때 findByStatusAndRole 호출")
         void whenStatusAndRoleNotNull_thenFindByStatusAndRoleCalled() {
-            dto = MemberSearchParamDto.builder()
+            dto = MemberFilter.builder()
                     .page(1)
                     .size(10)
                     .status(MemberStatus.ACTIVE)
@@ -203,7 +202,7 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status만 존재할 때 findByStatus 호출")
         void whenStatusNotNullAndRoleNull_thenFindByStatusCalled() {
-            dto = MemberSearchParamDto.builder()
+            dto = MemberFilter.builder()
                     .page(1)
                     .size(10)
                     .status(MemberStatus.ACTIVE)
@@ -221,7 +220,7 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - role만 존재할 때 findByRole 호출")
         void whenStatusNullAndRoleNotNull_thenFindByRoleCalled() {
-            dto = MemberSearchParamDto.builder()
+            dto = MemberFilter.builder()
                     .page(1)
                     .size(10)
                     .role(MemberRole.ADMIN)
@@ -239,7 +238,7 @@ public class MemberServiceImplTest {
         @Test
         @DisplayName("성공 - status와 role 모두 null일 때 findAll 호출")
         void whenStatusAndRoleNull_thenFindAllCalled() {
-            dto = MemberSearchParamDto.builder()
+            dto = MemberFilter.builder()
                     .page(1)
                     .size(10)
                     .build();

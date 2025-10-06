@@ -3,7 +3,6 @@ package com.equip.equiprental.member.service;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.member.domain.Department;
 import com.equip.equiprental.member.domain.Member;
@@ -72,7 +71,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<MemberDto> searchMembers(MemberSearchParamDto dto) {
+    public PageResponseDto<MemberDto> searchMembers(MemberFilter dto) {
         Pageable pageable = dto.getPageable();
 
         MemberStatus status = dto.getStatus();
