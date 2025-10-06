@@ -24,16 +24,6 @@ public class SearchParamDto {
     @Builder.Default
     private int size = 10;
 
-    private Long categoryId;
-    private Long subCategoryId;
-    private String model;
-
-    private String rentalStatus;
-    private RentalItemStatus rentalItemStatus;
-
-    private String memberName;
-    private Long departmentId;
-
     private BoardType boardType;
     private String searchType;
     private String keyword;
