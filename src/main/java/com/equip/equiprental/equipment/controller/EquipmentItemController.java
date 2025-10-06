@@ -1,6 +1,5 @@
 package com.equip.equiprental.equipment.controller;
 
-
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;

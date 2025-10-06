@@ -1,16 +1,15 @@
 package com.equip.equiprental.board.service;
 
 import com.equip.equiprental.board.domain.Board;
-import com.equip.equiprental.board.domain.BoardType;
 import com.equip.equiprental.board.domain.Comment;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
+import com.equip.equiprental.board.dto.CommentFilter;
 import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.repository.CommentRepository;
 import com.equip.equiprental.board.service.iface.CommentService;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
@@ -90,7 +89,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<CommentListResponse> getCommentList(SearchParamDto paramDto, Long writerId) {
+    public PageResponseDto<CommentListResponse> getCommentList(CommentFilter paramDto, Long writerId) {
         Pageable pageable = paramDto.getPageable();
 
         Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId(), writerId);

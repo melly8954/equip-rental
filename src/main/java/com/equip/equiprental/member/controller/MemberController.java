@@ -3,7 +3,6 @@ package com.equip.equiprental.member.controller;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.member.dto.*;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.service.iface.MemberService;
@@ -32,7 +31,7 @@ public class MemberController implements ResponseController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ResponseDto<PageResponseDto<MemberDto>>> searchMembers(@ModelAttribute SearchParamDto dto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<MemberDto>>> searchMembers(@ModelAttribute MemberFilter dto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[사용자 목록 조회 요청 API] TraceId={}", traceId);
 

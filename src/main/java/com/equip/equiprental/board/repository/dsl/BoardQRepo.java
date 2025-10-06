@@ -1,14 +1,13 @@
 package com.equip.equiprental.board.repository.dsl;
 
-import com.equip.equiprental.board.domain.BoardType;
+import com.equip.equiprental.board.dto.BoardFilter;
 import com.equip.equiprental.board.dto.BoardListResponse;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BoardQRepo {
-    Page<BoardListResponse> findBoardList(Pageable pageable, SearchParamDto paramDto);
+    Page<BoardListResponse> findBoardList(Pageable pageable, BoardFilter paramDto);
     List<BoardListResponse>  findLatestNotices(int limit);
 }

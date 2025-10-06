@@ -6,7 +6,6 @@ import com.equip.equiprental.board.service.iface.BoardService;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,7 @@ public class BoardController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute SearchParamDto paramDto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute BoardFilter paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("게시글 조회 요청 API] TraceId={}", traceId);
 

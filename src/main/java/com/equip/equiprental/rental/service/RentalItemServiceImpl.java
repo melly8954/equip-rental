@@ -1,7 +1,6 @@
 package com.equip.equiprental.rental.service;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
@@ -17,6 +16,7 @@ import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
+import com.equip.equiprental.rental.dto.RentalFilter;
 import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.iface.RentalItemService;
@@ -45,7 +45,7 @@ public class RentalItemServiceImpl implements RentalItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<AdminRentalItemDto> getAdminRentalItemLists(SearchParamDto paramDto) {
+    public PageResponseDto<AdminRentalItemDto> getAdminRentalItemLists(RentalFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
 
         Page<AdminRentalItemDto> dtosPage = rentalItemRepository.findAdminRentalItems(paramDto, pageable);

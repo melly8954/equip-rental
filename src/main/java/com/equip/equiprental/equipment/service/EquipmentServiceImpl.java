@@ -140,7 +140,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto) {
+    public PageResponseDto<EquipmentDto> getEquipment(EquipmentFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
         Page<EquipmentDto> equipmentDtosPage  = equipmentRepository.findByFilters(paramDto, pageable);
 
@@ -159,9 +159,9 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public EquipmentItemListDto getEquipmentItem(Long equipmentId, SearchParamDto paramDto) {
+    public EquipmentItemListDto getEquipmentItem(Long equipmentId, EquipmentStatusFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
-        EquipmentStatus status = paramDto.getEquipmentStatusEnum();
+        EquipmentStatus status = paramDto.getStatus();
 
         // 장비 요약 정보는 서비스에서 직접 조회
         Equipment equipment = equipmentRepository.findById(equipmentId)

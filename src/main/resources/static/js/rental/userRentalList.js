@@ -185,7 +185,7 @@ function fetchRentalList(filters={}) {
     const params = {
         categoryId: filterValues.category,
         subCategoryId: filterValues.subCategory,
-        rentalStatus: filterValues.status,
+        status: filterValues.status,
     };
 
     // page가 있으면 추가

@@ -1,6 +1,5 @@
 package com.equip.equiprental.rental.repository.dsl;
 
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.QCategory;
 import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QEquipmentItem;
@@ -10,6 +9,7 @@ import com.equip.equiprental.member.domain.QDepartment;
 import com.equip.equiprental.member.domain.QMember;
 import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
+import com.equip.equiprental.rental.dto.RentalFilter;
 import com.equip.equiprental.rental.dto.ReturnedRentalItemDto;
 import com.equip.equiprental.rental.dto.UserRentalItemDto;
 import com.querydsl.core.BooleanBuilder;
@@ -30,7 +30,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<AdminRentalItemDto> findAdminRentalItems(SearchParamDto paramDto, Pageable pageable) {
+    public Page<AdminRentalItemDto> findAdminRentalItems(RentalFilter paramDto, Pageable pageable) {
         QRentalItem i = QRentalItem.rentalItem;
         QRental r = QRental.rental;
         QEquipmentItem ei = QEquipmentItem.equipmentItem;
@@ -59,8 +59,8 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
             builder.and(sc.subCategoryId.eq(paramDto.getSubCategoryId()));
         }
 
-        if (paramDto.getRentalItemStatus() != null) {
-            builder.and(i.status.eq(paramDto.getRentalItemStatus()));
+        if (paramDto.getItemStatus() != null) {
+            builder.and(i.status.eq(paramDto.getItemStatus()));
         }
 
         List<AdminRentalItemDto> results = queryFactory
@@ -114,7 +114,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     }
 
     @Override
-    public Page<UserRentalItemDto> findUserRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
+    public Page<UserRentalItemDto> findUserRentalItems(Pageable pageable, Long rentalId, Long memberId) {
         QRentalItem i = QRentalItem.rentalItem;
         QEquipment e = QEquipment.equipment;
         QSubCategory sc = QSubCategory.subCategory;
@@ -168,7 +168,7 @@ public class RentalItemQRepoImpl implements RentalItemQRepo{
     }
 
     @Override
-    public Page<ReturnedRentalItemDto> findReturnRentalItems(SearchParamDto paramDto, Pageable pageable, Long rentalId, Long memberId) {
+    public Page<ReturnedRentalItemDto> findReturnRentalItems(Pageable pageable, Long rentalId, Long memberId) {
         QRentalItem i = QRentalItem.rentalItem;
         QEquipment e = QEquipment.equipment;
         QSubCategory sc = QSubCategory.subCategory;

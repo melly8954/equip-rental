@@ -1,8 +1,6 @@
 package com.equip.equiprental.rental;
 
-
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.*;
@@ -14,10 +12,10 @@ import com.equip.equiprental.notification.service.iface.NotificationService;
 import com.equip.equiprental.rental.domain.*;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
+import com.equip.equiprental.rental.dto.RentalFilter;
 import com.equip.equiprental.rental.repository.RentalItemOverdueRepository;
 import com.equip.equiprental.rental.repository.RentalItemRepository;
 import com.equip.equiprental.rental.service.RentalItemServiceImpl;
-import com.equip.equiprental.scope.service.ManagerScopeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,7 +44,6 @@ public class RentalItemServiceImplTest {
     @Mock private RentalItemOverdueRepository rentalItemOverdueRepository;
     @Mock private MemberRepository memberRepository;
     @Mock private NotificationService notificationService;
-    @Mock private ManagerScopeService managerScopeService;
 
     @InjectMocks
     private RentalItemServiceImpl rentalItemService;
@@ -54,7 +51,10 @@ public class RentalItemServiceImplTest {
     @Nested
     @DisplayName("getAdminRentalItemLists 메서드 테스트")
     class getAdminRentalItemLists {
-        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        RentalFilter paramDto = RentalFilter.builder()
+                .page(1)
+                .size(10)
+                .build();
         Pageable pageable = paramDto.getPageable();
 
         @Test

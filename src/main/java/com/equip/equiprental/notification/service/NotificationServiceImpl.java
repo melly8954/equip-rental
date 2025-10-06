@@ -1,7 +1,6 @@
 package com.equip.equiprental.notification.service;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Category;
@@ -12,6 +11,7 @@ import com.equip.equiprental.notification.domain.Notification;
 import com.equip.equiprental.notification.domain.NotificationStatus;
 import com.equip.equiprental.notification.domain.NotificationType;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.NotificationFilter;
 import com.equip.equiprental.notification.dto.ReadRequestDto;
 import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.repository.NotificationRepository;
@@ -77,10 +77,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<NotificationDto> getNotificationList(SearchParamDto paramDto, Long memberId) {
+    public PageResponseDto<NotificationDto> getNotificationList(NotificationFilter paramDto, Long memberId) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<Notification> page = notificationRepository.findNotifications(paramDto.getNotificationStatus(), memberId, pageable);
+        Page<Notification> page = notificationRepository.findNotifications(paramDto.getStatus(), memberId, pageable);
 
         return PageResponseDto.<NotificationDto>builder()
                 .content(page.stream()

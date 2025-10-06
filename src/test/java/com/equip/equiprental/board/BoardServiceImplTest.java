@@ -8,7 +8,6 @@ import com.equip.equiprental.board.dto.*;
 import com.equip.equiprental.board.repository.BoardRepository;
 import com.equip.equiprental.board.service.BoardServiceImpl;
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.filestorage.domain.FileMeta;
@@ -277,7 +276,10 @@ public class BoardServiceImplTest {
     @Nested
     @DisplayName("getBoardList 메서드 테스트")
     class getBoardList {
-        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        BoardFilter paramDto = BoardFilter.builder()
+                .page(1)
+                .size(10)
+                .build();
         Pageable pageable = paramDto.getPageable();
 
         @Test

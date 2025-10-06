@@ -3,12 +3,12 @@ package com.equip.equiprental.board.controller;
 import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.board.dto.CommentCreateRequest;
 import com.equip.equiprental.board.dto.CommentCreateResponse;
+import com.equip.equiprental.board.dto.CommentFilter;
 import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.board.service.iface.CommentService;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class CommentController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute SearchParamDto paramDto,
+    public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute CommentFilter paramDto,
                                                                                             @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("댓글 조회 요청 API] TraceId={}", traceId);

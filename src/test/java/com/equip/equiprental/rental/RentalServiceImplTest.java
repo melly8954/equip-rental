@@ -244,7 +244,10 @@ public class RentalServiceImplTest {
     @Nested
     @DisplayName("getAdminRentalList 메서드 테스트")
     class getAdminRentalList {
-        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        RentalFilter paramDto = RentalFilter.builder()
+                .page(1)
+                .size(10)
+                .build();
         Pageable pageable = paramDto.getPageable();
 
         @Test
@@ -328,7 +331,10 @@ public class RentalServiceImplTest {
     @Nested
     @DisplayName("getUserRentalList 메서드 테스트")
     class getUserRentalList {
-        SearchParamDto paramDto = SearchParamDto.builder().page(1).size(10).build();
+        RentalFilter paramDto = RentalFilter.builder()
+                .page(1)
+                .size(10)
+                .build();
         Pageable pageable = paramDto.getPageable();
         Long memberId = 1L;
 
@@ -692,7 +698,7 @@ public class RentalServiceImplTest {
             Page<UserRentalItemDto> stubPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
-            when(rentalItemRepository.findUserRentalItems(paramDto, pageable, rental.getRentalId(), member.getMemberId()))
+            when(rentalItemRepository.findUserRentalItems(pageable, rental.getRentalId(), member.getMemberId()))
                     .thenReturn(stubPage);
 
             PageResponseDto<UserRentalItemDto> response = rentalService.getUserRentalItemList(paramDto, rental.getRentalId(), member.getMemberId());

@@ -1,5 +1,5 @@
 const filterConfig = {
-    memberStatus: {
+    status: {
         label: "상태",
         type: "radio",
         options: ["전체", "PENDING", "ACTIVE", "DELETED"]
@@ -103,7 +103,7 @@ function renderFilter(containerId, filterConfig, onChangeCallback) {
 
             // 한글 라벨 적용
             let labelText = option; // 기본값
-            if (key === 'memberStatus') {
+            if (key === 'status') {
                 labelText = statusLabelMap[option] || option;
             } else if (key === 'role') {
                 labelText = roleLabelMap[option] || option;

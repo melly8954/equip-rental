@@ -1,10 +1,10 @@
 package com.equip.equiprental.equipment.repository.dsl;
 
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QEquipmentItem;
 import com.equip.equiprental.equipment.dto.EquipmentDto;
+import com.equip.equiprental.equipment.dto.EquipmentFilter;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -25,7 +25,7 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<EquipmentDto> findByFilters(SearchParamDto paramDto, Pageable pageable) {
+    public Page<EquipmentDto> findByFilters(EquipmentFilter paramDto, Pageable pageable) {
         QEquipment e = QEquipment.equipment;
         QEquipmentItem i = QEquipmentItem.equipmentItem;
         QFileMeta f = QFileMeta.fileMeta;

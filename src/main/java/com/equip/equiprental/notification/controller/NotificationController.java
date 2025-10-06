@@ -4,9 +4,9 @@ import com.equip.equiprental.auth.security.PrincipalDetails;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.notification.dto.NotificationDto;
+import com.equip.equiprental.notification.dto.NotificationFilter;
 import com.equip.equiprental.notification.dto.ReadRequestDto;
 import com.equip.equiprental.notification.dto.UnreadCountResponseDto;
 import com.equip.equiprental.notification.service.iface.NotificationService;
@@ -37,7 +37,7 @@ public class NotificationController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<NotificationDto>>> getUnreadNotifications(@ModelAttribute SearchParamDto paramDto,
+    public ResponseEntity<ResponseDto<PageResponseDto<NotificationDto>>> getUnreadNotifications(@ModelAttribute NotificationFilter paramDto,
                                                                                                 @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[알림 조회 요청 API] TraceId={}", traceId);

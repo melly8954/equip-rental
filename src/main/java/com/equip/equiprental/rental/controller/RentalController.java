@@ -44,7 +44,7 @@ public class RentalController implements ResponseController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
-    public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalDto>>> getAdminRentalList(@ModelAttribute SearchParamDto paramDto){
+    public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalDto>>> getAdminRentalList(@ModelAttribute RentalFilter paramDto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("관리자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);
 
@@ -53,7 +53,7 @@ public class RentalController implements ResponseController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ResponseDto<PageResponseDto<UserRentalDto>>> getUserRentalList(@ModelAttribute SearchParamDto paramDto,
+    public ResponseEntity<ResponseDto<PageResponseDto<UserRentalDto>>> getUserRentalList(@ModelAttribute RentalFilter paramDto,
                                                                                          @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("사용자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);

@@ -19,5 +19,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
          AND (:status IS NULL OR n.status = :status)
         ORDER BY n.createdAt DESC
     """)
-    Page<Notification> findNotifications(@Param("status") NotificationStatus notificationStatus, @Param("memberId") Long memberId, Pageable pageable);
+    Page<Notification> findNotifications(@Param("status") NotificationStatus status, @Param("memberId") Long memberId, Pageable pageable);
 }
