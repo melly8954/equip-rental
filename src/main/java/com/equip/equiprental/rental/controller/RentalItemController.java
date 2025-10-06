@@ -11,6 +11,7 @@ import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
 import com.equip.equiprental.member.domain.MemberRole;
 import com.equip.equiprental.rental.dto.AdminRentalItemDto;
 import com.equip.equiprental.rental.dto.ExtendRentalItemDto;
+import com.equip.equiprental.rental.dto.RentalFilter;
 import com.equip.equiprental.rental.service.iface.RentalItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class RentalItemController implements ResponseController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
-    public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalItemDto>>> getAdminRentalItemList(@ModelAttribute SearchParamDto paramDto){
+    public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalItemDto>>> getAdminRentalItemList(@ModelAttribute RentalFilter paramDto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("관리자 장비 대여 물품내역 조회 요청 API] TraceId={}", traceId);
 
@@ -40,7 +41,8 @@ public class RentalItemController implements ResponseController {
     }
 
     @PostMapping("/{rentalItem}")
-    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem, @RequestBody ExtendRentalItemDto dto,
+    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem,
+                                                              @RequestBody ExtendRentalItemDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("장비 대여 연장 요청 API] TraceId={}", traceId);

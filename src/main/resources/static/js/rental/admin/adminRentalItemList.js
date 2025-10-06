@@ -263,7 +263,7 @@ function fetchRentalItemList(filters = {}) {
         categoryId: filters.category,
         subCategoryId: filters.subCategory,
         memberName: memberSearch || filters.memberName || "",
-        rentalItemStatus: filterValues.status
+        itemStatus: filterValues.status
     };
 
     // page가 있으면 추가

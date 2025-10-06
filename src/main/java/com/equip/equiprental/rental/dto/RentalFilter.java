@@ -1,6 +1,7 @@
 package com.equip.equiprental.rental.dto;
 
 import com.equip.equiprental.common.dto.SearchParamDto;
+import com.equip.equiprental.rental.domain.RentalItemStatus;
 import com.equip.equiprental.rental.domain.RentalStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,5 @@ public class RentalFilter extends SearchParamDto {
     private String memberName;
     private Long departmentId;
     private RentalStatus status;
+    private RentalItemStatus itemStatus;
 }
