@@ -140,7 +140,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto) {
+    public PageResponseDto<EquipmentDto> getEquipment(EquipmentFilter paramDto) {
         Pageable pageable = paramDto.getPageable();
         Page<EquipmentDto> equipmentDtosPage  = equipmentRepository.findByFilters(paramDto, pageable);
 

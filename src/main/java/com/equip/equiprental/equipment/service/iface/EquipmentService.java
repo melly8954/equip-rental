@@ -10,7 +10,7 @@ import java.util.List;
 public interface EquipmentService {
     EquipmentRegisterResponse register(EquipmentRegisterRequest dto, List<MultipartFile> files);
 
-    PageResponseDto<EquipmentDto> getEquipment(SearchParamDto paramDto);
+    PageResponseDto<EquipmentDto> getEquipment(EquipmentFilter paramDto);
     EquipmentItemListDto getEquipmentItem(Long equipmentId, SearchParamDto paramDto);
 
     void increaseStock(Long equipmentId, IncreaseStockRequestDto dto);

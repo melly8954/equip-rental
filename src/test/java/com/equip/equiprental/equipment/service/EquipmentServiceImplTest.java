@@ -174,14 +174,13 @@ public class EquipmentServiceImplTest {
     @Nested
     @DisplayName("getEquipment 메서드 테스트")
     class getEquipment {
-        private SearchParamDto createEquipmentParamDto() {
-            return SearchParamDto.builder()
+        private EquipmentFilter createEquipmentParamDto() {
+            return EquipmentFilter.builder()
                     .page(1)
                     .size(10)
                     .categoryId(1L)                // ELECTRONICS 카테고리 id (예시)
                     .subCategoryId(2L)             // Laptop 서브 카테고리 id (예시)
                     .model("LG Gram")              // 특정 모델 검색
-                    .equipmentStatus("AVAILABLE")  // 상태 필터링
                     .build();
         }
 
@@ -202,7 +201,7 @@ public class EquipmentServiceImplTest {
         @DisplayName("성공 - 장비 조회 성공")
         void whenEquipmentExists_thenReturnPagedResult() {
             // given
-            SearchParamDto paramDto = createEquipmentParamDto();
+            EquipmentFilter paramDto = createEquipmentParamDto();
             Pageable pageable = paramDto.getPageable();
 
             EquipmentDto equipment1 = createEquipment(1L, "ELECTRONICS", "Laptop", "LG Gram", 5, 10, "url1");
@@ -240,7 +239,7 @@ public class EquipmentServiceImplTest {
         @DisplayName("성공 - 장비 조회 결과 없음")
         void whenNoEquipmentExists_thenReturnEmptyPage() {
             // given
-            SearchParamDto paramDto = createEquipmentParamDto();
+            EquipmentFilter paramDto = createEquipmentParamDto();
             Pageable pageable = paramDto.getPageable();
 
             when(equipmentRepository.findByFilters(paramDto, pageable))

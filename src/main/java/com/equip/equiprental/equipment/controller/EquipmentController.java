@@ -43,7 +43,7 @@ public class EquipmentController implements ResponseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ResponseDto<PageResponseDto<EquipmentDto>>> getEquipment(@ModelAttribute SearchParamDto paramDto) {
+    public ResponseEntity<ResponseDto<PageResponseDto<EquipmentDto>>> getEquipment(@ModelAttribute EquipmentFilter paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[장비 조회 요청 API] TraceId={}", traceId);
 
