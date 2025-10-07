@@ -1,5 +1,6 @@
 package com.equip.equiprental.equipment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,8 @@ public class EquipmentRegisterResponse {
     private String model;
     private int stock;
     private List<EquipmentImage> images;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     @Getter
     @AllArgsConstructor

@@ -129,12 +129,12 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         return EquipmentRegisterResponse.builder()
                 .equipmentId(equipment.getEquipmentId())
+                .category(equipment.getSubCategory().getCategory().getLabel())
                 .subCategory(equipment.getSubCategory().getLabel())
                 .model(equipment.getModel())
                 .stock(equipment.getStock())
                 .images(lists)
                 .createdAt(equipment.getCreatedAt())
-                .updatedAt(equipment.getUpdatedAt())
                 .build();
     }
 
