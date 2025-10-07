@@ -1,5 +1,6 @@
 package com.equip.equiprental.notification.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class NotificationDto {
     String link;
     Long memberId;
     String memberName;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime createdAt;
 }
 
