@@ -147,12 +147,12 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
 
-        rental.updateStatus(dto.getRentalStatusEnum());
+        rental.updateStatus(dto.getNewStatus());
 
         // 거절(REJECTED) 처리
         Equipment equipment = rental.getEquipment();
 
-        if (dto.getRentalStatusEnum() == RentalStatus.REJECTED) {
+        if (dto.getNewStatus() == RentalStatus.REJECTED) {
             rental.updateRejectReason(dto.getRejectReason());
 
             String msg = equipment.getModel() + " 대여가 거절되었습니다.";
@@ -161,7 +161,7 @@ public class RentalServiceImpl implements RentalService {
             return;
         }
 
-        if (dto.getRentalStatusEnum() == RentalStatus.CANCELLED) {
+        if (dto.getNewStatus() == RentalStatus.CANCELLED) {
             rental.updateStatus(RentalStatus.CANCELLED);
             return;
         }

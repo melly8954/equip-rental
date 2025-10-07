@@ -459,7 +459,7 @@ public class RentalServiceImplTest {
             );
         }
         // 헬퍼 메서드
-        private UpdateRentalStatusDto buildDto(String status, String rejectReason) {
+        private UpdateRentalStatusDto buildDto(RentalStatus status, String rejectReason) {
             return UpdateRentalStatusDto.builder()
                     .equipmentId(equipment.getEquipmentId())
                     .newStatus(status)
@@ -470,7 +470,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("성공 - APPROVED 상태 업데이트")
         void approved() {
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
             when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
@@ -491,7 +491,7 @@ public class RentalServiceImplTest {
         @DisplayName("성공 - 승인 알림 및 재고 0 알림 발생")
         void approvedNotification() {
             // given
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
             when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
             when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
                     .thenReturn(equipmentItems);
@@ -521,7 +521,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("성공 - CANCELLED 상태 업데이트")
         void cancelled() {
-            UpdateRentalStatusDto dto = buildDto("CANCELLED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.CANCELLED, null);
 
             when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
 
@@ -537,7 +537,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("성공 - REJECTED 상태 업데이트")
         void rejected() {
-            UpdateRentalStatusDto dto = buildDto("REJECTED", "재고 없음");
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.REJECTED, "재고 없음");
 
             when(rentalRepository.findById(1L)).thenReturn(Optional.of(rental));
 
@@ -554,7 +554,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("예외 - 존재하지 않는 rentalId")
         void rentalNotFound() {
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -567,7 +567,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("예외 - 존재하지 않는 memberId")
         void userNotFound() {
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
             when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
@@ -595,7 +595,7 @@ public class RentalServiceImplTest {
                     .status(rental.getStatus())
                     .build();
 
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
 
@@ -608,7 +608,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("예외 - 재고 부족")
         void insufficientStock() {
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
             when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
@@ -623,7 +623,7 @@ public class RentalServiceImplTest {
         @Test
         @DisplayName("예외 - 승인 수량 mismatch")
         void partialUpdate() {
-            UpdateRentalStatusDto dto = buildDto("APPROVED", null);
+            UpdateRentalStatusDto dto = buildDto(RentalStatus.APPROVED, null);
 
             when(rentalRepository.findById(rental.getRentalId())).thenReturn(Optional.of(rental));
             when(equipmentItemRepository.findAvailableItemsForUpdate(anyLong(), any(Pageable.class)))
