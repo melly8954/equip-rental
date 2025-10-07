@@ -29,11 +29,11 @@ public class RentalItemController implements ResponseController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalItemDto>>> getAdminRentalItemList(@ModelAttribute RentalFilter paramDto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("관리자 장비 대여 물품내역 조회 요청 API] TraceId={}", traceId);
+        log.info("관리자 대여 물품 내역 조회 요청 API] TraceId={}", traceId);
 
         PageResponseDto<AdminRentalItemDto> result = rentalItemService.getAdminRentalItemLists(paramDto);
         
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 장비 대여 물품내역 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 대여 물품 내역 조회 성공", result);
     }
 
     @PostMapping("/{rentalItem}")
@@ -41,13 +41,13 @@ public class RentalItemController implements ResponseController {
                                                               @RequestBody ExtendRentalItemDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("장비 대여 연장 요청 API] TraceId={}", traceId);
+        log.info("대여 연장 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
         rentalItemService.extendRentalItem(rentalItem, dto, memberId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 연장 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "대여 연장 성공", null);
     }
 
     @PatchMapping("/{rentalItem}")
@@ -55,12 +55,12 @@ public class RentalItemController implements ResponseController {
     public ResponseEntity<ResponseDto<Void>> returnRentalItem(@PathVariable Long rentalItem,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("장비 대여 반납 요청 API] TraceId={}", traceId);
+        log.info("대여 반납 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
         rentalItemService.returnRentalItem(rentalItem, memberId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 반납 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "대여 반납 성공", null);
     }
 }
