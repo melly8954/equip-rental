@@ -269,7 +269,7 @@ public class MemberServiceImplTest {
         @DisplayName("성공 - 사용자 상태 변경")
         void updateStatus_success() {
             // given
-            UpdateMemberRequest dto = new UpdateMemberRequest("ACTIVE",null);
+            UpdateMemberRequest dto = new UpdateMemberRequest(MemberStatus.ACTIVE,null);
 
             when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
 
@@ -286,7 +286,7 @@ public class MemberServiceImplTest {
         @DisplayName("예외 - 존재하지 않는 사용자")
         void updateStatus_userNotFound() {
             // given
-            UpdateMemberRequest dto = new UpdateMemberRequest("ACTIVE",null);
+            UpdateMemberRequest dto = new UpdateMemberRequest(MemberStatus.ACTIVE,null);
 
             when(memberRepository.findByMemberId(1L)).thenReturn(Optional.empty());
 
@@ -295,21 +295,6 @@ public class MemberServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.USER_NOT_FOUND);
-        }
-
-        @Test
-        @DisplayName("예외 - 잘못된 상태 변경 요청")
-        void updateStatus_invalid_request() {
-            // given
-            UpdateMemberRequest dto = new UpdateMemberRequest("INVALID",null);
-
-            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
-
-            // when & then
-            assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
-                    .isInstanceOf(CustomException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.INVALID_STATUS_REQUEST);
         }
     }
 
@@ -330,7 +315,7 @@ public class MemberServiceImplTest {
         @DisplayName("성공 - 사용자 역할 변경")
         void updateRole_success() {
             // given
-            UpdateMemberRequest dto = new UpdateMemberRequest(null,"MANAGER");
+            UpdateMemberRequest dto = new UpdateMemberRequest(null,MemberRole.MANAGER);
 
             when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
 
@@ -347,7 +332,7 @@ public class MemberServiceImplTest {
         @DisplayName("예외 - 존재하지 않는 사용자")
         void updateRole_userNotFound() {
             // given
-            UpdateMemberRequest dto = new UpdateMemberRequest(null,"MANAGER");
+            UpdateMemberRequest dto = new UpdateMemberRequest(null,MemberRole.MANAGER);
 
             when(memberRepository.findByMemberId(1L)).thenReturn(Optional.empty());
 
@@ -356,21 +341,6 @@ public class MemberServiceImplTest {
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.USER_NOT_FOUND);
-        }
-
-        @Test
-        @DisplayName("예외 - 잘못된 역할 변경 요청")
-        void updateRole_invalid_request() {
-            // given
-            UpdateMemberRequest dto = new UpdateMemberRequest(null,"INVALID");
-
-            when(memberRepository.findByMemberId(1L)).thenReturn(Optional.of(member));
-
-            // when & then
-            assertThatThrownBy(() -> memberService.updateMemberRole(1L, dto))
-                    .isInstanceOf(CustomException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.INVALID_ROLE_REQUEST);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.equip.equiprental.common.exception;
 import com.equip.equiprental.common.controller.ResponseController;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
-import com.equip.equiprental.rental.domain.RentalItemStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,9 +10,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import java.util.Arrays;
 
 @Slf4j
 @RestControllerAdvice
@@ -68,53 +68,57 @@ public class GlobalExceptionHandler implements ResponseController {
         );
     }
 
-    // JSON 파싱(역직렬화, 클라이언트가 보낸 JSON → DTO로 바인딩하는 과정) 실패 시
+    // 클라이언트 요청 본문(JSON) 역직렬화 중 발생하는 예외 처리
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ResponseDto<Void>> handleInvalidDateFormat(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ResponseDto<Void>> handleRequestBodyDeserializationError(HttpMessageNotReadableException ex) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
 
         Throwable cause = ex.getCause();
+
+        // 날짜 파싱 실패
         if (cause instanceof java.time.format.DateTimeParseException) {
-            log.error("TraceId: {}, 날짜 파싱 실패: {}", traceId, cause.getMessage());
-
-            // 여기서 ErrorType 사용
             ErrorType errorType = ErrorType.INVALID_DATE_FORMAT;
-
-            return makeResponseEntity(
-                    traceId,
-                    errorType.getStatus(),
-                    errorType.getErrorCode(),
-                    errorType.getMessage(),
-                    null
-            );
+            return makeResponseEntity(traceId, errorType.getStatus(), errorType.getErrorCode(), errorType.getMessage(), null);
         }
 
-        // 기타 HttpMessageNotReadableException 처리
-        log.error("TraceId: {}, 메시지 바인딩 실패: {}", traceId, ex.getMessage());
+        // Enum 변환 실패 (JsonMappingException 내부 cause 확인)
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException invalidFormatException) {
+            Class<?> targetType = invalidFormatException.getTargetType();
+
+            if (targetType.isEnum()) {
+                ErrorType errorType = ErrorType.INVALID_ENUM_VALUE;
+                Object invalidValue = invalidFormatException.getValue();
+                return makeResponseEntity(
+                        traceId,
+                        errorType.getStatus(),
+                        errorType.getErrorCode(),
+                        String.format("'%s'는 잘못된 Enum 값입니다. (허용된 값: %s)",
+                                invalidValue,
+                                Arrays.toString(targetType.getEnumConstants())),
+                        null
+                );
+            }
+        }
+
+        // 그 외 일반 메시지 바인딩 실패
         ErrorType errorType = ErrorType.BAD_REQUEST;
-        return makeResponseEntity(
-                traceId,
-                errorType.getStatus(),
-                errorType.getErrorCode(),
-                errorType.getMessage(),
-                null
-        );
+        return makeResponseEntity(traceId, errorType.getStatus(), errorType.getErrorCode(), ex.getMessage(), null);
     }
 
-    // Enum 요청 매핑 실패 시
+    // 요청 파라미터(@RequestParam, @PathVariable, @ModelAttribute) 변환 실패 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseDto<Void>> handleEnumMismatch(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseDto<Void>> handleRequestParameterBindingError(MethodArgumentNotValidException ex) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            if (fieldError.getCode().equals("typeMismatch")
-                    && RentalItemStatus.class.getSimpleName().equals(fieldError.getField())) {
+            if ("typeMismatch".equals(fieldError.getCode())) {
+                // Enum 변환 실패의 가능성이 높은 경우
                 ErrorType errorType = ErrorType.INVALID_ENUM_VALUE;
                 return makeResponseEntity(
                         traceId,
                         errorType.getStatus(),
                         errorType.getErrorCode(),
-                        errorType.getMessage() + ": " + fieldError.getRejectedValue(),
+                        String.format("'%s' 필드에 잘못된 Enum 값: %s", fieldError.getField(), fieldError.getRejectedValue()),
                         null
                 );
             }
@@ -129,23 +133,4 @@ public class GlobalExceptionHandler implements ResponseController {
                 null
         );
     }
-
-    // Enum 요청 매핑 실패 시
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ResponseDto<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
-        String traceId = RequestTraceIdInterceptor.getTraceId();
-
-        ErrorType errorType = ErrorType.INVALID_ENUM_VALUE; // 적절한 ErrorType 정의
-        log.error("TraceId: {}, 타입 미스매칭 예외 발생 - Parameter: {}, Value: {}, Message: {}",
-                traceId, e.getName(), e.getValue(), e.getMessage());
-
-        return makeResponseEntity(
-                traceId,
-                errorType.getStatus(),
-                errorType.getErrorCode(),
-                errorType.getMessage(),
-                null
-        );
-    }
-
 }

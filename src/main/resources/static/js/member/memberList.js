@@ -232,9 +232,9 @@ function updateMember(memberId, type, value, currentFilters = {}) {
     let body = {};      // 빈 객체 생성
 
     if (type === "status") {
-        body.updateStatus = value; // 서버 필드명에 맞춤
+        body.status = value; // 서버 필드명에 맞춤
     } else if (type === "role") {
-        body.updateRole = value;   // 서버 필드명에 맞춤
+        body.role = value;   // 서버 필드명에 맞춤
     }
 
     $.ajax({
@@ -243,9 +243,9 @@ function updateMember(memberId, type, value, currentFilters = {}) {
         contentType: "application/json",
         data: JSON.stringify(body),
     }).done(function(response) {
-        console.log(response);
         // 변경 후 목록 갱신
         loadMembers(currentFilters);
+        showSnackbar(response.message);
     }).fail(function(jqXHR) {
         handleServerError(jqXHR);
     })

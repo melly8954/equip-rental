@@ -126,7 +126,7 @@ public class MemberServiceImpl implements MemberService {
         // 상태 변경 전
         String oldStatus = member.getStatus().name();
 
-        member.updateStatus(dto.getStatusEnum());
+        member.updateStatus(dto.getStatus());
 
         return UpdateMemberStatusResponse.builder()
                 .memberId(member.getMemberId())
@@ -144,7 +144,7 @@ public class MemberServiceImpl implements MemberService {
         // 상태 변경 전
         String oldRole = member.getRole().name();
 
-        member.updateRole(dto.getRoleEnum());
+        member.updateRole(dto.getRole());
 
         return UpdateMemberRoleResponse.builder()
                 .memberId(member.getMemberId())
