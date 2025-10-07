@@ -28,7 +28,7 @@ public class CommentController implements ResponseController {
     public ResponseEntity<ResponseDto<CommentCreateResponse>> createComment(@RequestBody CommentCreateRequest dto,
                                                                             @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("댓글 등록 요청 API] TraceId={}", traceId);
+        log.info("[댓글 등록 요청 API] TraceId={}", traceId);
 
         Long writerId = principal.getMember().getMemberId();
 
@@ -41,21 +41,21 @@ public class CommentController implements ResponseController {
     public ResponseEntity<ResponseDto<PageResponseDto<CommentListResponse>>> getCommentList(@ModelAttribute CommentFilter paramDto,
                                                                                             @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("댓글 조회 요청 API] TraceId={}", traceId);
+        log.info("[댓글 목록 조회 요청 API] TraceId={}", traceId);
 
         Long writerId = principal.getMember().getMemberId();
 
         PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto, writerId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 목록 조회 성공", result);
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ResponseDto<Void>> softDeleteComment(@PathVariable Long commentId){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("댓글 삭제 요청 API] TraceId={}", traceId);
+        log.info("[댓글 논리 삭제 요청 API] TraceId={}", traceId);
 
         commentService.softDeleteComment(commentId);
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 삭제 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 논리 삭제 성공", null);
     }
 }

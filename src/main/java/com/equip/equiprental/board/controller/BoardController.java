@@ -29,7 +29,7 @@ public class BoardController implements ResponseController {
                                                                         @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                                                         @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 등록 요청 API] TraceId={}", traceId);
+        log.info("[게시글 등록 요청 API] TraceId={}", traceId);
 
         Long writerId = principal.getMember().getMemberId();
 
@@ -41,17 +41,17 @@ public class BoardController implements ResponseController {
     @GetMapping("")
     public ResponseEntity<ResponseDto<PageResponseDto<BoardListResponse>>> getBoardList(@ModelAttribute BoardFilter paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 조회 요청 API] TraceId={}", traceId);
+        log.info("[게시글 목록 조회 요청 API] TraceId={}", traceId);
 
         PageResponseDto<BoardListResponse> result = boardService.getBoardList(paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 목록 조회 성공", result);
     }
 
     @GetMapping("/notices")
     public ResponseEntity<ResponseDto<List<BoardListResponse>>> getNotices() {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("공지글 최신 5개 조회 요청 API] TraceId={}", traceId);
+        log.info("[공지글 최신 5개 조회 요청 API] TraceId={}", traceId);
 
         List<BoardListResponse> result = boardService.getLatestNotices(5);
 
@@ -62,7 +62,7 @@ public class BoardController implements ResponseController {
     public ResponseEntity<ResponseDto<BoardDetailDto>> getBoardDetail(@PathVariable Long boardId,
                                                                       @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 상세 조회 요청 API] TraceId={}", traceId);
+        log.info("[게시글 상세 조회 요청 API] TraceId={}", traceId);
 
         Long currentUserId = principal.getMember().getMemberId();
         BoardDetailDto result = boardService.getBoardDetail(boardId, currentUserId);
@@ -73,7 +73,7 @@ public class BoardController implements ResponseController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ResponseDto<Void>> softDeleteBoard(@PathVariable Long boardId) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 논리 삭제 요청 API] TraceId={}", traceId);
+        log.info("[게시글 논리 삭제 요청 API] TraceId={}", traceId);
 
         boardService.softDeleteBoard(boardId);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 논리 삭제 성공", null);
@@ -84,7 +84,7 @@ public class BoardController implements ResponseController {
                                                                         @RequestPart(value = "data") BoardUpdateRequest boardCreateRequest,
                                                                         @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("게시글 수정 요청 API] TraceId={}", traceId);
+        log.info("[게시글 수정 요청 API] TraceId={}", traceId);
 
         BoardUpdateResponse result = boardService.updateBoard(boardId, boardCreateRequest, files);
 

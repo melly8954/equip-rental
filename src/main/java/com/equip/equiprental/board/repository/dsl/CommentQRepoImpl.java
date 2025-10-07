@@ -40,8 +40,7 @@ public class CommentQRepoImpl implements CommentQRepo {
                         c.content,
                         c.isOfficial,
                         c.writer.memberId.eq(writerId),
-                        c.createdAt,
-                        c.updatedAt
+                        c.createdAt
                 ))
                 .from(c)
                 .where(builder)
@@ -101,7 +100,6 @@ public class CommentQRepoImpl implements CommentQRepo {
                         child.getIsOfficial(),
                         child.getWriter().getMemberId().equals(writerId),
                         child.getCreatedAt(),
-                        child.getUpdatedAt(),
                         fetchChildren(child.getCommentId(), writerId) // 재귀
                 ))
                 .toList();

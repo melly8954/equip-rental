@@ -290,7 +290,6 @@ public class CommentServiceImplTest {
                     .isOfficial(false)
                     .isOwner(false)
                     .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
                     .build();
 
             CommentListResponse comment2 = CommentListResponse.builder()
@@ -301,7 +300,6 @@ public class CommentServiceImplTest {
                     .isOfficial(false)
                     .isOwner(false)
                     .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
                     .build();
 
             Pageable pageable = paramDto.getPageable();

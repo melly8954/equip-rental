@@ -1,5 +1,6 @@
 package com.equip.equiprental.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +20,8 @@ public class CommentListResponse {
     private String content;
     private Boolean isOfficial;
     private Boolean isOwner;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     @Builder.Default
     private List<CommentListResponse> children = new ArrayList<>();
 
@@ -32,8 +33,7 @@ public class CommentListResponse {
                                String content,
                                Boolean isOfficial,
                                Boolean isOwner,
-                               LocalDateTime createdAt,
-                               LocalDateTime updatedAt) {
+                               LocalDateTime createdAt) {
         this.commentId = commentId;
         this.writerId = writerId;
         this.writerName = writerName;
@@ -41,7 +41,6 @@ public class CommentListResponse {
         this.isOfficial = isOfficial;
         this.isOwner = isOwner;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.children = new ArrayList<>();
     }
 }
