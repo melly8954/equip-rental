@@ -49,7 +49,7 @@ public class RentalController implements ResponseController {
         log.info("관리자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);
 
         PageResponseDto<AdminRentalDto> result = rentalService.getAdminRentalList(paramDto);
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 장비 대여 신청내역 조히 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 대여 신청 내역 조회 성공", result);
     }
 
     @GetMapping("/me")
