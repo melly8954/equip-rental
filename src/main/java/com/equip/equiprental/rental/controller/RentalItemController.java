@@ -36,8 +36,8 @@ public class RentalItemController implements ResponseController {
         return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 대여 물품 내역 조회 성공", result);
     }
 
-    @PostMapping("/{rentalItem}")
-    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItem,
+    @PostMapping("/{rentalItemId}")
+    public ResponseEntity<ResponseDto<Void>> extendRentalItem(@PathVariable Long rentalItemId,
                                                               @RequestBody ExtendRentalItemDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
@@ -45,21 +45,21 @@ public class RentalItemController implements ResponseController {
 
         Long memberId = principal.getMember().getMemberId();
 
-        rentalItemService.extendRentalItem(rentalItem, dto, memberId);
+        rentalItemService.extendRentalItem(rentalItemId, dto, memberId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "대여 연장 성공", null);
     }
 
-    @PatchMapping("/{rentalItem}")
+    @PatchMapping("/{rentalItemId}")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
-    public ResponseEntity<ResponseDto<Void>> returnRentalItem(@PathVariable Long rentalItem,
+    public ResponseEntity<ResponseDto<Void>> returnRentalItem(@PathVariable Long rentalItemId,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("대여 반납 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
-        rentalItemService.returnRentalItem(rentalItem, memberId);
+        rentalItemService.returnRentalItem(rentalItemId, memberId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "대여 반납 성공", null);
     }
