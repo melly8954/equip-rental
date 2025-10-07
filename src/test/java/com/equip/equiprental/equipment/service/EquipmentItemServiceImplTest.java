@@ -55,7 +55,7 @@ public class EquipmentItemServiceImplTest {
                     .build();
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
-                    .newStatus("RENTED")
+                    .newStatus(EquipmentStatus.RENTED)
                     .build();
 
             EquipmentItem item = EquipmentItem.builder()
@@ -92,7 +92,7 @@ public class EquipmentItemServiceImplTest {
                     .build();
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
-                    .newStatus("AVAILABLE")
+                    .newStatus(EquipmentStatus.AVAILABLE)
                     .build();
 
             when(equipmentItemRepository.findById(1L)).thenReturn(Optional.of(item));
@@ -111,7 +111,7 @@ public class EquipmentItemServiceImplTest {
         void updateItemStatus_itemNotFound() {
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
-                    .newStatus("RENTED")
+                    .newStatus(EquipmentStatus.RENTED)
                     .build();
 
             when(equipmentItemRepository.findById(dto.getEquipmentItemId())).thenReturn(Optional.empty());
@@ -135,7 +135,7 @@ public class EquipmentItemServiceImplTest {
                     .build();
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
-                    .newStatus("RENTED")
+                    .newStatus(EquipmentStatus.RENTED)
                     .isAdminChange(true)
                     .build();
 
@@ -163,7 +163,7 @@ public class EquipmentItemServiceImplTest {
 
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
-                    .newStatus("AVAILABLE")
+                    .newStatus(EquipmentStatus.AVAILABLE)
                     .isAdminChange(true)
                     .build();
 

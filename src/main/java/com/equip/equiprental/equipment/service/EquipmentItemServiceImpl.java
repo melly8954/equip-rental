@@ -13,7 +13,6 @@ import com.equip.equiprental.equipment.repository.EquipmentItemHistoryRepository
 import com.equip.equiprental.equipment.repository.EquipmentItemRepository;
 import com.equip.equiprental.equipment.service.iface.EquipmentItemService;
 import com.equip.equiprental.member.domain.Member;
-import com.equip.equiprental.rental.repository.RentalItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +29,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
     @Override
     @Transactional
     public void updateItemStatus(UpdateItemStatusDto dto, Member changer) {
-        EquipmentStatus newStatus = dto.getEquipmentItemStatusEnum();
+        EquipmentStatus newStatus = dto.getNewStatus();
 
         EquipmentItem item = equipmentItemRepository.findById(dto.getEquipmentItemId())
                 .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
