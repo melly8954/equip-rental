@@ -46,7 +46,7 @@ public class RentalController implements ResponseController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<PageResponseDto<AdminRentalDto>>> getAdminRentalList(@ModelAttribute RentalFilter paramDto){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("관리자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);
+        log.info("관리자 대여 신청 내역 조회 요청 API] TraceId={}", traceId);
 
         PageResponseDto<AdminRentalDto> result = rentalService.getAdminRentalList(paramDto);
         return makeResponseEntity(traceId, HttpStatus.OK, null, "관리자 대여 신청 내역 조회 성공", result);
@@ -56,13 +56,13 @@ public class RentalController implements ResponseController {
     public ResponseEntity<ResponseDto<PageResponseDto<UserRentalDto>>> getUserRentalList(@ModelAttribute RentalFilter paramDto,
                                                                                          @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("사용자 장비 대여 신청내역 조회 요청 API] TraceId={}", traceId);
+        log.info("사용자 대여 신청 내역 조회 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
         PageResponseDto<UserRentalDto> result = rentalService.getUserRentalList(paramDto, memberId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 장비 대여 신청내역 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 신청 내역 조회 성공", result);
     }
 
     @PatchMapping("/{rentalId}")
@@ -90,13 +90,13 @@ public class RentalController implements ResponseController {
                                                                                                  @ModelAttribute SearchParamDto paramDto,
                                                                                                  @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("사용자 대여 승인 장비 리스트 조회 요청 API] TraceId={}", traceId);
+        log.info("사용자 대여 현황 조회 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
         PageResponseDto<UserRentalItemDto> result = rentalService.getUserRentalItemList(paramDto, rentalId, memberId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 승인 장비 리스트 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 현황 조회 성공", result);
     }
 
     @GetMapping("/{rentalId}/items/returned")
@@ -104,12 +104,12 @@ public class RentalController implements ResponseController {
                                                                                                        @ModelAttribute SearchParamDto paramDto,
                                                                                                        @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("반납 완료 장비 조회 요청 API] TraceId={}", traceId);
+        log.info("사용자 반납 현황 조회 요청 API] TraceId={}", traceId);
 
         Long memberId = principal.getMember().getMemberId();
 
         PageResponseDto<ReturnedRentalItemDto> result = rentalService.getReturnRentalItemList(paramDto, rentalId, memberId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "반납 완료 장비 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 반납 현황 조회 성공", result);
     }
 }
