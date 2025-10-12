@@ -247,6 +247,11 @@ function renderEquipmentList(list) {
                     <div class="card-body p-2">
                         <div class="mb-2 text-center">
                             <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
+                            <button class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-equip-btn" 
+                                    data-id="${equip.equipmentId}" 
+                                    title="장비 삭제">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                         <h6 class="card-title mb-1 text-center fw-bold">${equip.model}</h6>
                         <p class="card-text small text-muted text-center mb-2">
@@ -348,6 +353,25 @@ $("#confirmStockIncrease").on("click", function() {
         showSnackbar(response.message)
         $("#stockIncreaseModal").modal("hide");
 
+        // 현재 필터와 검색어 상태 가져오기
+        const currentFilters = getFilterValues(filterConfig);
+        fetchEquipment(currentFilters);
+    }).fail(function(xhr) {
+        handleServerError(xhr);
+    })
+});
+
+// 장비 제거
+$(document).on("click", ".delete-equip-btn", function() {
+    const equipmentId = $(this).data("id");
+
+    if (!confirm("정말 이 장비를 삭제하시겠습니까?")) return;
+
+    $.ajax({
+        url: `/api/v1/equipments/${equipmentId}`,
+        type: "DELETE"
+    }).done(function (response) {
+        showSnackbar(response.message);
         // 현재 필터와 검색어 상태 가져오기
         const currentFilters = getFilterValues(filterConfig);
         fetchEquipment(currentFilters);

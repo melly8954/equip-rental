@@ -279,7 +279,7 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .allMatch(item -> item.getStatus() == EquipmentStatus.OUT_OF_STOCK);
 
         if (!allOutOfStock) {
-            throw new CustomException(ErrorType.CONFLICT);
+            throw new CustomException(ErrorType.CANNOT_DELETE_EQUIPMENT_IN_USE);
         }
 
         // soft delete 처리

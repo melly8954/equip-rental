@@ -46,6 +46,7 @@ public enum ErrorType {
     // 장비 상태 변경
     CANNOT_MODIFY_WHILE_RENTED("cannot_modify_while_rented","해당 메뉴에서는 변경할 수 없습니다. 대여 관리 메뉴를 이용해주세요.", HttpStatus.CONFLICT),
     CANNOT_DIRECT_RENT_CHANGE("cannot_direct_rent_change","해당 메뉴에서는 변경할 수 없습니다. 대여 관리 메뉴를 이용해주세요.", HttpStatus.CONFLICT),
+    CANNOT_DELETE_EQUIPMENT_IN_USE("cannot_deleted_equipment_in_use","장비가 현재 사용 중이므로 삭제할 수 없습니다.", HttpStatus.CONFLICT),
 
     // 날짜 포맷팅 에러
     INVALID_DATE_FORMAT("invalid_date_format", "날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식으로 입력해주세요.", HttpStatus.BAD_REQUEST),
