@@ -103,3 +103,7 @@ function formatDateTime(isoString) {
         minute: "2-digit"
     });
 }
+
+$(".bell-icon").css("cursor", "pointer").on("click", function() {
+    window.location.href = "/notification";
+});
