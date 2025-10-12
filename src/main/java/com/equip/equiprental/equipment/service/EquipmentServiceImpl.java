@@ -1,8 +1,6 @@
 package com.equip.equiprental.equipment.service;
 
-
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.exception.CustomException;
 import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.equipment.domain.Equipment;
@@ -230,6 +228,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
+    @Transactional
     public void updateEquipmentImage(Long equipmentId, List<MultipartFile> files) {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
@@ -267,6 +266,24 @@ public class EquipmentServiceImpl implements EquipmentService {
             }
             fileRepository.saveAll(savedFiles);
         }
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteEquip(Long equipmentId) {
+        Equipment equipment = equipmentRepository.findByEquipmentIdAndDeletedFalse(equipmentId)
+                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+
+        // 해당 장비의 아이템 상태 모두 OUT_OF_STOCK 확인
+        boolean allOutOfStock = equipment.getItems().stream()
+                .allMatch(item -> item.getStatus() == EquipmentStatus.OUT_OF_STOCK);
+
+        if (!allOutOfStock) {
+            throw new CustomException(ErrorType.CONFLICT);
+        }
+
+        // soft delete 처리
+        equipment.softDelete();
     }
 
     private String generateSerialNumber(String modelCode, long sequence) {

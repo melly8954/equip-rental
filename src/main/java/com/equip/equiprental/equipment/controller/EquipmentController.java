@@ -104,4 +104,21 @@ public class EquipmentController implements ResponseController {
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 이미지 파일 등록 성공", null);
     }
+
+    @DeleteMapping("/{equipmentId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<Void>> softDeleteEquip(@PathVariable Long equipmentId,
+                                                             @AuthenticationPrincipal PrincipalDetails principal) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("[장비 삭제 요청 API] TraceId={}", traceId);
+
+        if (principal.getMember().getRole() == MemberRole.MANAGER &&
+                !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
+            throw new CustomException(ErrorType.FORBIDDEN);
+        }
+
+        equipmentService.softDeleteEquip(equipmentId);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 삭제 성공", null);
+    }
 }

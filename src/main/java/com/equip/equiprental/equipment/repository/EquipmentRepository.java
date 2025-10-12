@@ -2,7 +2,6 @@ package com.equip.equiprental.equipment.repository;
 
 import com.equip.equiprental.equipment.domain.Category;
 import com.equip.equiprental.equipment.domain.Equipment;
-import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.repository.dsl.EquipmentQRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,20 +22,14 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
     @Query("SELECT COALESCE(MAX(e.modelSequence), 0) FROM Equipment e WHERE e.subCategory.subCategoryId = :subCategoryId")
     Optional<Long> findMaxModelSequence(@Param("subCategoryId") Long subCategoryId);
 
-    @Query("""
-        SELECT COUNT(e)
-        FROM EquipmentItem e
-        WHERE e.status IN :statuses
-    """)
-    int countFaultyNow(@Param("statuses") List<EquipmentStatus> statuses);
-
-    // 긴급 관리 현황 API 조회 쿼리 메서드
+    // 재고 부족 현황 API 조회 쿼리 메서드
     @Query(value = """
         SELECT e
         FROM Equipment e
         JOIN e.items ei
         JOIN e.subCategory sc
         JOIN sc.category c
+        WHERE e.deleted = false
         GROUP BY e
         HAVING SUM(CASE WHEN ei.status = 'AVAILABLE' THEN 1 ELSE 0 END) = 0
     """,
@@ -55,6 +48,9 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Equ
         JOIN FETCH e.subCategory sc
         JOIN FETCH sc.category c
         LEFT JOIN FETCH e.items ei
+        WHERE e.deleted = false
     """)
     List<Equipment> findAllWithCategorySubCategoryAndItems();
+
+    Optional<Equipment> findByEquipmentIdAndDeletedFalse(Long equipmentId);
 }

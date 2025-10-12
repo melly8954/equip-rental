@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,6 +38,12 @@ public class Equipment extends BaseEntity {
 
     private Integer stock;
 
+    @Column(name="is_deleted")
+    private boolean deleted;
+
+    @Column(name="deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "equipment")
     private List<EquipmentItem> items;
 
@@ -46,5 +52,10 @@ public class Equipment extends BaseEntity {
             throw new CustomException(ErrorType.AMOUNT_MUST_BE_POSITIVE);
         }
         this.stock += amount; // 기존 객체 직접 변경
+    }
+
+    public void softDelete() {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

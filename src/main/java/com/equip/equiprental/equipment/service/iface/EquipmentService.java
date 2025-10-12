@@ -1,7 +1,6 @@
 package com.equip.equiprental.equipment.service.iface;
 
 import com.equip.equiprental.common.dto.PageResponseDto;
-import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.equipment.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,4 +15,6 @@ public interface EquipmentService {
     void increaseStock(Long equipmentId, IncreaseStockRequestDto dto);
 
     void updateEquipmentImage(Long equipmentId, List<MultipartFile> files);
+
+    void softDeleteEquip(Long equipmentId);
 }

@@ -32,6 +32,9 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
 
         // 동적 조건을 누적할 BooleanBuilder 생성
         BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(e.deleted.eq(false));
+
         if (paramDto.getCategoryId() != null) {
             builder.and(e.subCategory.category.categoryId.eq(paramDto.getCategoryId()));
         }
