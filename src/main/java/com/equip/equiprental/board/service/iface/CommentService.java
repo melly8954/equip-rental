@@ -7,9 +7,9 @@ import com.equip.equiprental.board.dto.CommentListResponse;
 import com.equip.equiprental.common.dto.PageResponseDto;
 
 public interface CommentService {
-    CommentCreateResponse createComment(CommentCreateRequest dto, Long writerId);
+    CommentCreateResponse createComment(CommentCreateRequest dto, Long currentUserId);
 
-    PageResponseDto<CommentListResponse> getCommentList(CommentFilter paramDto, Long writerId);
+    PageResponseDto<CommentListResponse> getCommentList(CommentFilter paramDto, Long currentUserId);
 
     void softDeleteComment(Long commentId);
 }

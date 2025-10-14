@@ -103,7 +103,7 @@ public class MemberServiceImplTest {
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.DUPLICATE_USERNAME);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
 
         @Test
@@ -115,7 +115,7 @@ public class MemberServiceImplTest {
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.DUPLICATE_EMAIL);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
 
         @Test
@@ -128,7 +128,7 @@ public class MemberServiceImplTest {
             assertThatThrownBy(() -> memberService.signUp(dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.PASSWORD_MISMATCH);
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test
@@ -294,7 +294,7 @@ public class MemberServiceImplTest {
             assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -340,7 +340,7 @@ public class MemberServiceImplTest {
             assertThatThrownBy(() -> memberService.updateMemberStatus(1L, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 }

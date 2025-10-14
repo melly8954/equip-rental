@@ -110,7 +110,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void updateNotificationStatus(Long notificationId, ReadRequestDto dto) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "알림 정보를 찾을 수 업습니다."));
 
         notification.markAsRead(dto);
     }

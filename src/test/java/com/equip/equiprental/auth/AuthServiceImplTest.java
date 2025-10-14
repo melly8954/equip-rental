@@ -107,7 +107,7 @@ public class AuthServiceImplTest {
             assertThatThrownBy(() -> authService.login(httpRequest, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.BAD_CREDENTIALS);
+                    .isEqualTo(ErrorType.UNAUTHORIZED);
         }
 
         @Test
@@ -121,7 +121,7 @@ public class AuthServiceImplTest {
             assertThatThrownBy(() -> authService.login(httpRequest, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_DELETED);
+                    .isEqualTo(ErrorType.UNAUTHORIZED);
         }
 
         @Test
@@ -135,7 +135,7 @@ public class AuthServiceImplTest {
             assertThatThrownBy(() -> authService.login(httpRequest, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_PENDING);
+                    .isEqualTo(ErrorType.UNAUTHORIZED);
         }
     }
 

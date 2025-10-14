@@ -31,9 +31,9 @@ public class BoardController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[게시글 등록 요청 API] TraceId={}", traceId);
 
-        Long writerId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        BoardCreateResponse result = boardService.createBoard(boardCreateRequest, files, writerId);
+        BoardCreateResponse result = boardService.createBoard(boardCreateRequest, files, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "게시글 등록 요청 성공", result);
     }

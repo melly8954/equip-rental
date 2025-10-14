@@ -49,28 +49,28 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional
-    public RentalResponseDto requestRental(RentalRequestDto dto, Long memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+    public RentalResponseDto requestRental(RentalRequestDto dto, Long currentUserId) {
+        Member member = memberRepository.findByMemberId(currentUserId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         Equipment equipment = equipmentRepository.findById(dto.getEquipmentId())
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
 
         int availableStock = equipmentItemRepository.countAvailableByEquipmentId(dto.getEquipmentId());
 
         // 대여 날짜 검증
         LocalDate today = LocalDate.now();
         if (dto.getStartDate().isBefore(today)) {
-            throw new CustomException(ErrorType.RENTAL_START_DATE_INVALID);
+            throw new CustomException(ErrorType.BAD_REQUEST, "대여 시작일은 오늘 이후여야 합니다.");
         }
 
         if (dto.getEndDate().isBefore(dto.getStartDate())) {
-            throw new CustomException(ErrorType.RENTAL_END_DATE_INVALID);
+            throw new CustomException(ErrorType.BAD_REQUEST, "대여 종료일은 대여 시작일과 같거나 이후여야 합니다.");
         }
 
         // 수량 검증
         if (dto.getQuantity() <= 0 || dto.getQuantity() > availableStock) {
-            throw new CustomException(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK);
+            throw new CustomException(ErrorType.BAD_REQUEST, "대여 수량이 남은 재고보다 많습니다.");
         }
 
         Rental rental = Rental.builder()
@@ -123,10 +123,10 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<UserRentalDto> getUserRentalList(RentalFilter paramDto, Long memberId) {
+    public PageResponseDto<UserRentalDto> getUserRentalList(RentalFilter paramDto, Long currentUserId) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<UserRentalDto> dtosPage = rentalRepository.findUserRentals(paramDto, pageable, memberId);
+        Page<UserRentalDto> dtosPage = rentalRepository.findUserRentals(paramDto, pageable, currentUserId);
 
         return PageResponseDto.<UserRentalDto>builder()
                 .content(dtosPage.getContent())
@@ -145,7 +145,7 @@ public class RentalServiceImpl implements RentalService {
     @Transactional
     public void updateRentalStatus(UpdateRentalStatusDto dto, Long rentalId, Long memberId) {
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 대여 신청내역이 존재하지 않습니다."));
 
         rental.updateStatus(dto.getNewStatus());
 
@@ -172,11 +172,11 @@ public class RentalServiceImpl implements RentalService {
         List<EquipmentItem> equipmentItems = equipmentItemRepository.findAvailableItemsForUpdate(dto.getEquipmentId(),limit);
 
         if (rental.getRequestStartDate().isBefore(LocalDate.now())) {
-            throw new CustomException(ErrorType.RENTAL_START_DATE_PASSED);
+            throw new CustomException(ErrorType.CONFLICT, "대여 시작일이 이미 지나 승인할 수 없습니다.");
         }
 
         if (equipmentItems.size() < rental.getQuantity()) {
-            throw new CustomException(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK);
+            throw new CustomException(ErrorType.CONFLICT, "해당 장비 모델의 대여 가능 재고가 부족합니다.");
         }
 
         List<Long> itemIds = equipmentItems.stream()
@@ -190,7 +190,7 @@ public class RentalServiceImpl implements RentalService {
 
         int updatedCount = equipmentItemRepository.approveRental(itemIds);
         if (updatedCount != itemIds.size()) {
-            throw new CustomException(ErrorType.PARTIAL_UPDATE);
+            throw new CustomException(ErrorType.CONFLICT, "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.");
         }
 
         List<RentalItem> rentalItems = equipmentItems.stream()
@@ -207,7 +207,7 @@ public class RentalServiceImpl implements RentalService {
         rentalItemRepository.saveAll(rentalItems);
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         List<EquipmentItemHistory> histories = IntStream.range(0, equipmentItems.size())
                 .mapToObj(i -> EquipmentItemHistory.builder()
@@ -239,21 +239,21 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<UserRentalItemDto> getUserRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId) {
+    public PageResponseDto<UserRentalItemDto> getUserRentalItemList(SearchParamDto paramDto, Long rentalId, Long currentUserId) {
         Pageable pageable = paramDto.getPageable();
 
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 대여 신청내역이 존재하지 않습니다."));
 
-        if(!Objects.equals(rental.getMember().getMemberId(), memberId)){
-            throw new CustomException(ErrorType.RENTAL_ACCESS_DENIED);
+        if(!Objects.equals(rental.getMember().getMemberId(), currentUserId)){
+            throw new CustomException(ErrorType.BAD_REQUEST, "해당 대여 내역을 조회할 권한이 없습니다.");
         }
 
         if(rental.getStatus() != RentalStatus.APPROVED){
-            throw new CustomException(ErrorType.RENTAL_NOT_APPROVED);
+            throw new CustomException(ErrorType.CONFLICT, "해당 장비는 아직 대여 승인이 완료되지 않았습니다.");
         }
 
-        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(pageable, rentalId, memberId);
+        Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(pageable, rentalId, currentUserId);
 
         return PageResponseDto.<UserRentalItemDto>builder()
                 .content(dtosPage.getContent())
@@ -270,21 +270,21 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<ReturnedRentalItemDto> getReturnRentalItemList(SearchParamDto paramDto, Long rentalId, Long memberId) {
+    public PageResponseDto<ReturnedRentalItemDto> getReturnRentalItemList(SearchParamDto paramDto, Long rentalId, Long currentUserId) {
         Pageable pageable = paramDto.getPageable();
 
         Rental rental = rentalRepository.findById(rentalId)
-                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 대여 신청내역이 존재하지 않습니다."));
 
-        if(!Objects.equals(rental.getMember().getMemberId(), memberId)){
-            throw new CustomException(ErrorType.RENTAL_ACCESS_DENIED);
+        if(!Objects.equals(rental.getMember().getMemberId(), currentUserId)){
+            throw new CustomException(ErrorType.BAD_REQUEST, "해당 대여 내역을 조회할 권한이 없습니다.");
         }
 
         if(rental.getStatus() != RentalStatus.COMPLETED){
-            throw new CustomException(ErrorType.RENTAL_NOT_COMPLETED);
+            throw new CustomException(ErrorType.CONFLICT, "해당 대여 신청은 아직 반납 완료되지 않았습니다.");
         }
 
-        Page<ReturnedRentalItemDto> dtosPage = rentalItemRepository.findReturnRentalItems(pageable, rentalId, memberId);
+        Page<ReturnedRentalItemDto> dtosPage = rentalItemRepository.findReturnRentalItems(pageable, rentalId, currentUserId);
 
         return PageResponseDto.<ReturnedRentalItemDto>builder()
                 .content(dtosPage.getContent())

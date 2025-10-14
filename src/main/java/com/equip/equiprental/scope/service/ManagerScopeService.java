@@ -29,7 +29,7 @@ public class ManagerScopeService {
     @Transactional
     public void setScope(Long managerId, List<Long> categoryIds) {
         Member manager = memberRepository.findById(managerId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         List<ManagerScope> existingScopes = managerScopeRepository.findAllByManager(manager);
         Set<Long> existingCategoryIds = existingScopes.stream()
@@ -48,7 +48,7 @@ public class ManagerScopeService {
                 .filter(catId -> !existingCategoryIds.contains(catId))
                 .forEach(catId -> {
                     Category category = categoryRepository.findById(catId)
-                            .orElseThrow(() -> new CustomException(ErrorType.INVALID_CATEGORY_REQUEST));
+                            .orElseThrow(() -> new CustomException(ErrorType.BAD_REQUEST, "잘못된 카테고리 요청입니다."));
                     ManagerScope scope = ManagerScope.builder()
                             .manager(manager)
                             .category(category)

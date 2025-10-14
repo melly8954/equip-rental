@@ -40,9 +40,9 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long writerId) {
-        Member writer = memberRepository.findById(writerId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+    public BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long currentUserId) {
+        Member writer = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         BoardType boardType = dto.getBoardType();
         if (!writer.isAdminOrManager() && boardType != BoardType.SUGGESTION) {
@@ -165,7 +165,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional(readOnly = true)
     public BoardDetailDto getBoardDetail(Long boardId, Long currentUserId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
         boolean isOwner = board.getWriter().getMemberId().equals(currentUserId);
 
@@ -195,10 +195,10 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void softDeleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
         if (board.getIsDeleted()) {
-            throw new CustomException(ErrorType.ALREADY_DELETED);
+            throw new CustomException(ErrorType.CONFLICT, "이미 삭제된 게시글입니다.");
         }
 
         board.softDelete();
@@ -208,7 +208,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest request, List<MultipartFile> files) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
         board.updateBoard(request);
 

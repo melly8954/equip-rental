@@ -94,14 +94,14 @@ public class RentalQRepoImpl implements RentalQRepo{
     }
 
     @Override
-    public Page<UserRentalDto> findUserRentals(RentalFilter paramDto, Pageable pageable, Long memberId) {
+    public Page<UserRentalDto> findUserRentals(RentalFilter paramDto, Pageable pageable, Long currentUserId) {
         QRental r = QRental.rental;
         QSubCategory sc = QSubCategory.subCategory;
         QCategory c = QCategory.category;
         QFileMeta f = QFileMeta.fileMeta;
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(r.member.memberId.eq(memberId));
+        builder.and(r.member.memberId.eq(currentUserId));
 
         if (paramDto.getCategoryId() != null) {
             builder.and(c.categoryId.eq(paramDto.getCategoryId()));

@@ -58,7 +58,6 @@ public enum ErrorType {
 
     // 장비 대여 승인
     RENTAL_START_DATE_PASSED("rental_start_date_passed", "대여 시작일이 이미 지나 승인할 수 없습니다.", HttpStatus.CONFLICT),
-    EQUIPMENT_ITEM_INSUFFICIENT_STOCK("equipment_item_insufficient_stock", "해당 장비 모델의 대여 가능 재고가 부족합니다.", HttpStatus.CONFLICT),
     PARTIAL_UPDATE("partial_update", "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.", HttpStatus.CONFLICT),
 
     // 대여 현황

@@ -50,13 +50,13 @@ public class RentalItem extends BaseEntity {
     // 대여 연장
     public void extend(LocalDate newEndDate) {
         if (Boolean.TRUE.equals(this.isExtended)) {
-            throw new CustomException(ErrorType.ALREADY_EXTENDED);
+            throw new CustomException(ErrorType.CONFLICT, "이미 연장된 대여건입니다.");
         }
         if (this.actualReturnDate != null) {
-            throw new CustomException(ErrorType.ALREADY_RETURNED);
+            throw new CustomException(ErrorType.CONFLICT, "이미 반납된 대여건은 연장할 수 없습니다.");
         }
         if (this.endDate.isBefore(LocalDate.now())) {
-            throw new CustomException(ErrorType.CANNOT_EXTEND_OVERDUE);
+            throw new CustomException(ErrorType.CONFLICT, "이미 연체된 대여건은 연장할 수 없습니다.");
         }
         this.endDate = newEndDate;
         this.isExtended = true;

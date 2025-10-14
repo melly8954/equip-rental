@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface BoardService {
-    BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long writerId);
+    BoardCreateResponse createBoard(BoardCreateRequest dto, List<MultipartFile> files, Long currentUserId);
 
     PageResponseDto<BoardListResponse> getBoardList(BoardFilter paramDto);
     List<BoardListResponse> getLatestNotices(int i);

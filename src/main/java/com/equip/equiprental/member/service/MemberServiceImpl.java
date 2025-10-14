@@ -34,19 +34,19 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public SignUpResponse signUp(SignUpRequest dto) {
         if(memberRepository.existsByUsername(dto.getUsername())){
-            throw new CustomException(ErrorType.DUPLICATE_USERNAME);
+            throw new CustomException(ErrorType.CONFLICT, "이미 사용 중인 아이디입니다.");
         }
 
         if(memberRepository.existsByEmail(dto.getEmail())){
-            throw new CustomException(ErrorType.DUPLICATE_EMAIL);
+            throw new CustomException(ErrorType.CONFLICT, "이미 사용 중인 이메일입니다.");
         }
 
         if(!dto.getPassword().equals(dto.getConfirmPassword())){
-            throw new CustomException(ErrorType.PASSWORD_MISMATCH);
+            throw new CustomException(ErrorType.BAD_REQUEST, "비밀번호와 비밀번호 확인이 일치하지 않습니다.");
         }
 
         Department department = departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "부서 정보를 찾을 수 없습니다."));
 
         Member member = Member.builder()
                 .username(dto.getUsername())
@@ -121,7 +121,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public UpdateMemberStatusResponse updateMemberStatus(Long memberId, UpdateMemberRequest dto) {
         Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         // 상태 변경 전
         String oldStatus = member.getStatus().name();
@@ -139,7 +139,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public UpdateMemberRoleResponse updateMemberRole(Long memberId, UpdateMemberRequest dto) {
         Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         // 상태 변경 전
         String oldRole = member.getRole().name();

@@ -20,7 +20,7 @@ public class CommentQRepoImpl implements CommentQRepo {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<CommentListResponse> findCommentList(Pageable pageable, Long boardId, Long writerId) {
+    public Page<CommentListResponse> findCommentList(Pageable pageable, Long boardId, Long currentUserId) {
         QComment c = QComment.comment;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -39,7 +39,7 @@ public class CommentQRepoImpl implements CommentQRepo {
                         c.writer.name,
                         c.content,
                         c.isOfficial,
-                        c.writer.memberId.eq(writerId),
+                        c.writer.memberId.eq(currentUserId),
                         c.createdAt
                 ))
                 .from(c)
@@ -72,7 +72,7 @@ public class CommentQRepoImpl implements CommentQRepo {
 
             // 부모 댓글 DTO에 대댓글 매핑
             contents.forEach(parent -> {
-                parent.getChildren().addAll(fetchChildren(parent.getCommentId(), writerId));
+                parent.getChildren().addAll(fetchChildren(parent.getCommentId(), currentUserId));
             });
         }
 

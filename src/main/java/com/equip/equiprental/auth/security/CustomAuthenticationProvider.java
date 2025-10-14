@@ -1,7 +1,5 @@
 package com.equip.equiprental.auth.security;
 
-import com.equip.equiprental.common.exception.CustomException;
-import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
 import com.equip.equiprental.member.repository.MemberRepository;
 import com.equip.equiprental.member.domain.MemberStatus;

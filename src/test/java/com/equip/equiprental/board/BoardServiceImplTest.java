@@ -250,7 +250,7 @@ public class BoardServiceImplTest {
             assertThatThrownBy(() -> boardService.createBoard(dto, null, writerId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -434,7 +434,7 @@ public class BoardServiceImplTest {
             assertThatThrownBy(() -> boardService.getBoardDetail(boardId, currentUserId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -471,7 +471,7 @@ public class BoardServiceImplTest {
             assertThatThrownBy(() -> boardService.softDeleteBoard(boardId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -490,7 +490,7 @@ public class BoardServiceImplTest {
             assertThatThrownBy(() -> boardService.softDeleteBoard(boardId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.ALREADY_DELETED);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 
@@ -604,7 +604,7 @@ public class BoardServiceImplTest {
             assertThatThrownBy(() -> boardService.updateBoard(boardId, request, List.of()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 }

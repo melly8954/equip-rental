@@ -59,12 +59,12 @@ public class AuthServiceImpl implements AuthService {
                     .status(member.getStatus().name())
                     .build();
         } catch (BadCredentialsException e) {
-            throw new CustomException(ErrorType.BAD_CREDENTIALS);
+            throw new CustomException(ErrorType.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         } catch (DisabledException e) {
             if ("USER_PENDING".equals(e.getMessage())) {
-                throw new CustomException(ErrorType.USER_PENDING);
+                throw new CustomException(ErrorType.UNAUTHORIZED, "미승인 계정입니다.");
             } else if("USER_DELETED".equals(e.getMessage())){
-                throw new CustomException(ErrorType.USER_DELETED);
+                throw new CustomException(ErrorType.UNAUTHORIZED, "탈퇴된 계정입니다.");
             } else{
                 throw e;
             }
