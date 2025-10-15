@@ -170,6 +170,25 @@ public class DashBoardServiceImpl implements DashBoardService {
                 .toList();
     }
 
+    @Override
+    public PageResponseDto<InventoryDetail> getInventoryDetail(Long subCategoryId, SearchParamDto paramDto) {
+        Pageable pageable = paramDto.getPageable();
+
+        Page<InventoryDetail> page = equipmentRepository.findInventoryDetail(subCategoryId, pageable);
+
+        return PageResponseDto.<InventoryDetail>builder()
+                .content(page.getContent())
+                .page(page.getNumber() + 1)
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .empty(page.isEmpty())
+                .build();
+    }
+
     private String calcChangeRate(int current, int previous) {
         if (previous == 0) {
             return current == 0 ? "0%" : "신규 발생";
