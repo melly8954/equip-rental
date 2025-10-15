@@ -22,14 +22,15 @@ public class GlobalExceptionHandler implements ResponseController {
     public ResponseEntity<ResponseDto<Void>> handleCustomException(CustomException e) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         ErrorType errorType = e.getErrorType();
+        String message = e.getMessage();
         log.error("TraceId: {}, 비즈니스 로직 예외 발생 - Code: {}, Message: {}",
-                traceId, errorType.getErrorCode(), errorType.getMessage());
+                traceId, errorType.getErrorCode(), message);
 
         return makeResponseEntity(
                 traceId,
                 errorType.getStatus(),
                 errorType.getErrorCode(),
-                errorType.getMessage(),
+                message,
                 null
         );
     }

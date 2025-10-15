@@ -8,5 +8,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface RentalQRepo {
     Page<AdminRentalDto> findAdminRentals(RentalFilter paramDto, Pageable pageable);
-    Page<UserRentalDto> findUserRentals(RentalFilter paramDto, Pageable pageable, Long memberId);
+    Page<UserRentalDto> findUserRentals(RentalFilter paramDto, Pageable pageable, Long currentUserId);
 }

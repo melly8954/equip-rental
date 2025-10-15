@@ -119,7 +119,7 @@ public class EquipmentItemServiceImplTest {
             assertThatThrownBy(() -> equipmentItemService.updateItemStatus(dto, null))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_ITEM_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -144,7 +144,7 @@ public class EquipmentItemServiceImplTest {
             assertThatThrownBy(() -> equipmentItemService.updateItemStatus(dto, changer))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.CANNOT_DIRECT_RENT_CHANGE);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
 
         @Test
@@ -173,7 +173,7 @@ public class EquipmentItemServiceImplTest {
             assertThatThrownBy(() -> equipmentItemService.updateItemStatus(dto, changer))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 

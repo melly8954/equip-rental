@@ -32,7 +32,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
         EquipmentStatus newStatus = dto.getNewStatus();
 
         EquipmentItem item = equipmentItemRepository.findById(dto.getEquipmentItemId())
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_ITEM_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비 아이템이 존재하지 않습니다."));
 
         EquipmentStatus oldStatus = item.getStatus();
 
@@ -44,10 +44,10 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
         // UI에서 직접 변경일 경우 제한
         if (dto.isAdminChange()) {
             if (oldStatus == EquipmentStatus.RENTED) {
-                throw new CustomException(ErrorType.CANNOT_MODIFY_WHILE_RENTED);
+                throw new CustomException(ErrorType.CONFLICT, "해당 메뉴에서는 변경할 수 없습니다. 대여 관리 메뉴를 이용해주세요.");
             }
             if (newStatus == EquipmentStatus.RENTED) {
-                throw new CustomException(ErrorType.CANNOT_DIRECT_RENT_CHANGE);
+                throw new CustomException(ErrorType.CONFLICT, "해당 메뉴에서는 변경할 수 없습니다. 대여 관리 메뉴를 이용해주세요.");
             }
         }
 

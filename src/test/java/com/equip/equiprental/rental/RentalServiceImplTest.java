@@ -160,7 +160,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, 1L))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -179,7 +179,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -198,7 +198,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_START_DATE_INVALID);
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test
@@ -217,7 +217,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_END_DATE_INVALID);
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test
@@ -237,7 +237,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.requestRental(dto, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_QUANTITY_EXCEEDS_STOCK);
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 
@@ -561,7 +561,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, 999L, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -579,7 +579,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), 999L))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -602,7 +602,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_START_DATE_PASSED);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
 
         @Test
@@ -617,7 +617,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_ITEM_INSUFFICIENT_STOCK);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
 
         @Test
@@ -633,7 +633,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.updateRentalStatus(dto, rental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.PARTIAL_UPDATE);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 
@@ -721,7 +721,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, 999L, member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -738,7 +738,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, otherRental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_ACCESS_DENIED);
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test
@@ -755,7 +755,7 @@ public class RentalServiceImplTest {
             assertThatThrownBy(() -> rentalService.getUserRentalItemList(paramDto, pendingRental.getRentalId(), member.getMemberId()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_NOT_APPROVED);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 }

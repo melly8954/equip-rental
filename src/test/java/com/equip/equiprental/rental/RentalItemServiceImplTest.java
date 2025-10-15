@@ -174,7 +174,7 @@ public class RentalItemServiceImplTest {
             assertThatThrownBy(() -> rentalItemService.extendRentalItem(rentalItemId, dto, memberId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -415,7 +415,7 @@ public class RentalItemServiceImplTest {
             assertThatThrownBy(() -> rentalItemService.returnRentalItem(rentalItemId, memberId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.RENTAL_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -447,7 +447,7 @@ public class RentalItemServiceImplTest {
             assertThatThrownBy(() -> rentalItemService.returnRentalItem(rentalItemId, memberId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 

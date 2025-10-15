@@ -214,7 +214,7 @@ public class CommentServiceImplTest {
             assertThatThrownBy(() -> commentService.createComment(dto, writerId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.USER_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -237,7 +237,7 @@ public class CommentServiceImplTest {
             assertThatThrownBy(() -> commentService.createComment(dto, writerId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.BOARD_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -263,7 +263,7 @@ public class CommentServiceImplTest {
             assertThatThrownBy(() -> commentService.createComment(dto, writerId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.COMMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -385,7 +385,7 @@ public class CommentServiceImplTest {
             assertThatThrownBy(() -> commentService.softDeleteComment(commentId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.COMMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
 
         @Test
@@ -404,7 +404,7 @@ public class CommentServiceImplTest {
             assertThatThrownBy(() -> commentService.softDeleteComment(commentId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.ALREADY_DELETED);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 }

@@ -41,11 +41,11 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional
     public EquipmentRegisterResponse register(EquipmentRegisterRequest dto, List<MultipartFile> files) {
         SubCategory subCategory = subCategoryRepository.findById(dto.getSubCategoryId())
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "서브 카테고리 정보를 찾을 수 없습니다."));
 
         // 모델이 이미 존재하면 예외 던지기
         if (equipmentRepository.findByModel(dto.getModel()).isPresent()) {
-            throw new CustomException(ErrorType.EXIST_EQUIPMENT_MODEL_CODE);
+            throw new CustomException(ErrorType.CONFLICT, "해당 장비는 이미 등록된 장비입니다.");
         }
         // 없으면 새 장비 생성
         String categoryCode = subCategory.getCategory().getCategoryCode().substring(0, 2).toUpperCase();
@@ -163,7 +163,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         // 장비 요약 정보는 서비스에서 직접 조회
         Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
 
         Integer availableStock = equipmentItemRepository.countByEquipment_EquipmentIdAndStatus(equipmentId, EquipmentStatus.AVAILABLE);
         Integer totalStock = equipmentItemRepository.countByEquipment_EquipmentId(equipmentId);
@@ -202,7 +202,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional
     public void increaseStock(Long equipmentId, IncreaseStockRequestDto dto) {
         Equipment equipment = equipmentRepository.findByEquipmentId(equipmentId)
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
 
         // EquipmentItem 추가 (stock 수량만큼)
         long baseSequence = equipmentItemRepository.findMaxSequenceByModel(equipment.getModel())
@@ -231,7 +231,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional
     public void updateEquipmentImage(Long equipmentId, List<MultipartFile> files) {
         Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
 
         if(files != null && !files.isEmpty()) {
             // 기존 이미지 조회
@@ -272,14 +272,14 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Transactional
     public void softDeleteEquip(Long equipmentId) {
         Equipment equipment = equipmentRepository.findByEquipmentIdAndDeletedFalse(equipmentId)
-                .orElseThrow(() -> new CustomException(ErrorType.EQUIPMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
 
         // 해당 장비의 아이템 상태 모두 OUT_OF_STOCK 확인
         boolean allOutOfStock = equipment.getItems().stream()
                 .allMatch(item -> item.getStatus() == EquipmentStatus.OUT_OF_STOCK);
 
         if (!allOutOfStock) {
-            throw new CustomException(ErrorType.CANNOT_DELETE_EQUIPMENT_IN_USE);
+            throw new CustomException(ErrorType.CONFLICT, "장비가 현재 사용 중이므로 삭제할 수 없습니다.");
         }
 
         // soft delete 처리

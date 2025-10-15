@@ -67,7 +67,7 @@ public class RentalItemServiceImpl implements RentalItemService {
     @Transactional
     public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto, Long memberId) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
-                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비 대여 신청내역이 존재하지 않습니다."));
 
         if (!item.getRental().getMember().getMemberId().equals(memberId)) {
             throw new CustomException(ErrorType.UNAUTHORIZED);
@@ -83,10 +83,10 @@ public class RentalItemServiceImpl implements RentalItemService {
     @Transactional
     public void returnRentalItem(Long rentalItem, Long memberId) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
-                .orElseThrow(() -> new CustomException(ErrorType.RENTAL_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 대여 물품이 존재하지 않습니다."));
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         EquipmentItem equipmentItem = item.getEquipmentItem();
         Rental rental = item.getRental();

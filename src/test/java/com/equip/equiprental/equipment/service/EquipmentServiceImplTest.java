@@ -167,7 +167,7 @@ public class EquipmentServiceImplTest {
             assertThatThrownBy(() -> equipmentService.register(request, null))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EXIST_EQUIPMENT_MODEL_CODE);
+                    .isEqualTo(ErrorType.CONFLICT);
         }
     }
 
@@ -395,7 +395,7 @@ public class EquipmentServiceImplTest {
             assertThatThrownBy(() -> equipmentService.getEquipmentItem(equipmentId, paramDto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -460,7 +460,7 @@ public class EquipmentServiceImplTest {
             assertThatThrownBy(() -> equipmentService.increaseStock(equipmentId, dto))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 
@@ -554,7 +554,7 @@ public class EquipmentServiceImplTest {
             assertThatThrownBy(() -> equipmentService.updateEquipmentImage(equipmentId, List.of()))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
-                    .isEqualTo(ErrorType.EQUIPMENT_NOT_FOUND);
+                    .isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 }

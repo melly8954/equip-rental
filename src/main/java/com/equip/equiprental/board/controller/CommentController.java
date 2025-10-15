@@ -30,9 +30,9 @@ public class CommentController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[댓글 등록 요청 API] TraceId={}", traceId);
 
-        Long writerId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        CommentCreateResponse result = commentService.createComment(dto, writerId);
+        CommentCreateResponse result = commentService.createComment(dto, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 등록 성공", result);
     }
@@ -43,9 +43,9 @@ public class CommentController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[댓글 목록 조회 요청 API] TraceId={}", traceId);
 
-        Long writerId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto, writerId);
+        PageResponseDto<CommentListResponse> result = commentService.getCommentList(paramDto, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "댓글 목록 조회 성공", result);
     }

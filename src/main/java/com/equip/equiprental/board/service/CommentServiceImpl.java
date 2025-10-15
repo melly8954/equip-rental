@@ -32,18 +32,18 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentCreateResponse createComment(CommentCreateRequest dto, Long writerId) {
-        Member writer = memberRepository.findById(writerId)
-                .orElseThrow(() -> new CustomException(ErrorType.USER_NOT_FOUND));
+    public CommentCreateResponse createComment(CommentCreateRequest dto, Long currentUserId) {
+        Member writer = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         Board board = boardRepository.findById(dto.getBoardId())
-                .orElseThrow(() -> new CustomException(ErrorType.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
         // parentCommentId가 있으면 찾아오기
         Comment parent = null;
         if (dto.getParentCommentId() != null) {
             parent = commentRepository.findById(dto.getParentCommentId())
-                    .orElseThrow(() -> new CustomException(ErrorType.COMMENT_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 댓글은 존재하지 않습니다."));
         }
 
         boolean isOfficial = writer.isAdminOrManager();
@@ -89,10 +89,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<CommentListResponse> getCommentList(CommentFilter paramDto, Long writerId) {
+    public PageResponseDto<CommentListResponse> getCommentList(CommentFilter paramDto, Long currentUserId) {
         Pageable pageable = paramDto.getPageable();
 
-        Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId(), writerId);
+        Page<CommentListResponse> dtosPage = commentRepository.findCommentList(pageable, paramDto.getBoardId(), currentUserId);
 
         return PageResponseDto.<CommentListResponse>builder()
                 .content(dtosPage.getContent())
@@ -111,10 +111,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void softDeleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorType.COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 댓글은 존재하지 않습니다."));
 
         if (comment.getIsDeleted()) {
-            throw new CustomException(ErrorType.ALREADY_DELETED);
+            throw new CustomException(ErrorType.CONFLICT, "이미 삭제된 댓글입니다.");
         }
 
         comment.softDelete();

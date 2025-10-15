@@ -49,7 +49,7 @@ public class Equipment extends BaseEntity {
 
     public void increaseStock(int amount) {
         if (amount < 0) {
-            throw new CustomException(ErrorType.AMOUNT_MUST_BE_POSITIVE);
+            throw new CustomException(ErrorType.BAD_REQUEST, "추가할 재고 수량은 반드시 양수여야합니다.");
         }
         this.stock += amount; // 기존 객체 직접 변경
     }

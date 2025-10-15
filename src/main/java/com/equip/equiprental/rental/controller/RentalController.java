@@ -35,9 +35,9 @@ public class RentalController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("[장비 대여 신청 요청 API] TraceId={}", traceId);
 
-        Long memberId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        RentalResponseDto result = rentalService.requestRental(dto, memberId);
+        RentalResponseDto result = rentalService.requestRental(dto, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 신청 성공", result);
     }
@@ -58,9 +58,9 @@ public class RentalController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("사용자 대여 신청 내역 조회 요청 API] TraceId={}", traceId);
 
-        Long memberId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        PageResponseDto<UserRentalDto> result = rentalService.getUserRentalList(paramDto, memberId);
+        PageResponseDto<UserRentalDto> result = rentalService.getUserRentalList(paramDto, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 신청 내역 조회 성공", result);
     }
@@ -92,9 +92,9 @@ public class RentalController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("사용자 대여 현황 조회 요청 API] TraceId={}", traceId);
 
-        Long memberId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        PageResponseDto<UserRentalItemDto> result = rentalService.getUserRentalItemList(paramDto, rentalId, memberId);
+        PageResponseDto<UserRentalItemDto> result = rentalService.getUserRentalItemList(paramDto, rentalId, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 대여 현황 조회 성공", result);
     }
@@ -106,9 +106,9 @@ public class RentalController implements ResponseController {
         String traceId = RequestTraceIdInterceptor.getTraceId();
         log.info("사용자 반납 현황 조회 요청 API] TraceId={}", traceId);
 
-        Long memberId = principal.getMember().getMemberId();
+        Long currentUserId = principal.getMember().getMemberId();
 
-        PageResponseDto<ReturnedRentalItemDto> result = rentalService.getReturnRentalItemList(paramDto, rentalId, memberId);
+        PageResponseDto<ReturnedRentalItemDto> result = rentalService.getReturnRentalItemList(paramDto, rentalId, currentUserId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "사용자 반납 현황 조회 성공", result);
     }
