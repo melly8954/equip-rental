@@ -97,7 +97,6 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
         builder.and(e.deleted.eq(false));
         builder.and(e.subCategory.subCategoryId.eq(subCategoryId));
 
-        // ✅ 메인 쿼리
         List<InventoryDetail> contents = queryFactory
                 .select(Projections.constructor(
                         InventoryDetail.class,
@@ -116,6 +115,7 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
                 .groupBy(e.equipmentId, e.model, e.stock)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(e.createdAt.desc(), e.modelSequence.desc())
                 .fetch();
 
         Long total = queryFactory

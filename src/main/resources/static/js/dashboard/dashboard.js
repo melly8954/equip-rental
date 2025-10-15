@@ -307,7 +307,7 @@ function renderSubCategoryTable(data, categoryLabel) {
     table.append(tbody);
 }
 
-// 상세 재고 조회 (페이징 포함)
+// 상세 재고 현황 조회 (페이징 포함)
 function fetchInventoryDetail(subCategoryId, subCategoryLabel, page) {
     $.ajax({
         url: `/api/v1/dashboards/equipments/${subCategoryId}`,
@@ -347,7 +347,7 @@ function renderInventoryDetailTable(data, subCategoryLabel) {
     table.append(tbody);
 }
 
-// 상세 조회 페이징
+// 상세 재고 페이징
 function renderDetailPaginationInDashBoard(containerId, pageInfo, onPageChange) {
     const container = $("#" + containerId);
     container.empty();
