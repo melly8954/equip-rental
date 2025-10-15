@@ -5,10 +5,7 @@ import com.equip.equiprental.common.dto.PageResponseDto;
 import com.equip.equiprental.common.dto.ResponseDto;
 import com.equip.equiprental.common.dto.SearchParamDto;
 import com.equip.equiprental.common.interceptor.RequestTraceIdInterceptor;
-import com.equip.equiprental.dashboard.dto.CategoryInventoryResponse;
-import com.equip.equiprental.dashboard.dto.KpiResponseDto;
-import com.equip.equiprental.dashboard.dto.SubCategoryInventoryResponse;
-import com.equip.equiprental.dashboard.dto.ZeroStockDto;
+import com.equip.equiprental.dashboard.dto.*;
 import com.equip.equiprental.dashboard.service.DashBoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,5 +65,17 @@ public class DashBoardController implements ResponseController {
         List<SubCategoryInventoryResponse> result = dashBoardService.getSubCategoryInventory(categoryId);
 
         return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 장비 보유 현황 조회 성공", result);
+    }
+
+    @GetMapping("/equipments/{subCategoryId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
+    public ResponseEntity<ResponseDto<PageResponseDto<InventoryDetail>>> getInventoryDetail(@PathVariable Long subCategoryId,
+                                                                                            @ModelAttribute SearchParamDto paramDto) {
+        String traceId = RequestTraceIdInterceptor.getTraceId();
+        log.info("서브 카테고리 별 장비 보유 상세 현황 API] TraceId={}", traceId);
+
+        PageResponseDto<InventoryDetail> result = dashBoardService.getInventoryDetail(subCategoryId, paramDto);
+
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 장비 보유 상세 현황 조회 성공", result);
     }
 }

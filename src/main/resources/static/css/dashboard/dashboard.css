@@ -35,3 +35,7 @@
     max-height: 200px; /* 표 영역 최대 높이 */
     overflow-y: auto;  /* 행이 많으면 스크롤 */
 }
+
+#inventory-detail-table {
+    height: 450px;
+}

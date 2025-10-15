@@ -1,5 +1,6 @@
 package com.equip.equiprental.equipment.repository.dsl;
 
+import com.equip.equiprental.dashboard.dto.InventoryDetail;
 import com.equip.equiprental.equipment.domain.EquipmentStatus;
 import com.equip.equiprental.equipment.domain.QEquipment;
 import com.equip.equiprental.equipment.domain.QEquipmentItem;
@@ -8,6 +9,7 @@ import com.equip.equiprental.equipment.dto.EquipmentFilter;
 import com.equip.equiprental.filestorage.domain.QFileMeta;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +84,50 @@ public class EquipmentQRepoImpl implements EquipmentQRepo {
         total = (total != null) ? total : 0L;
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public Page<InventoryDetail> findInventoryDetail(Long subCategoryId, Pageable pageable) {
+        QEquipment e = QEquipment.equipment;
+        QEquipmentItem i = QEquipmentItem.equipmentItem;
+
+        // 동적 조건을 누적할 BooleanBuilder 생성
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(e.deleted.eq(false));
+        builder.and(e.subCategory.subCategoryId.eq(subCategoryId));
+
+        List<InventoryDetail> contents = queryFactory
+                .select(Projections.constructor(
+                        InventoryDetail.class,
+                        e.equipmentId,
+                        e.model,
+                        e.stock,
+                        new CaseBuilder()
+                                .when(i.status.eq(EquipmentStatus.AVAILABLE)).then(1)
+                                .otherwise(0)
+                                .sum()
+                                .as("availableCount")
+                ))
+                .from(e)
+                .leftJoin(e.items, i)
+                .where(builder)
+                .groupBy(e.equipmentId, e.model, e.stock)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(e.createdAt.desc(), e.modelSequence.desc())
+                .fetch();
+
+        Long total = queryFactory
+                .select(e.count())
+                .from(e)
+                .where(
+                        e.subCategory.subCategoryId.eq(subCategoryId),
+                        e.deleted.isFalse()
+                )
+                .fetchOne();
+        total = (total != null) ? total : 0L;
+
+        return new PageImpl<>(contents, pageable, total);
     }
 }

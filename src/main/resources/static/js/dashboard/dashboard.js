@@ -1,7 +1,7 @@
 $(document).ready(function() {
     fetchKpiData();
     fetchZeroStock();
-    fetchCategoryInventory();
+    fetchCategories();
 
     // 이벤트 위임: 카드 내 상세보기 버튼 클릭
     $('#kpi-cards').on('click', '.kpi-detail-label', function() {
@@ -179,21 +179,36 @@ function renderPaginationInDashBoard(containerId, pageInfo, onPageChange) {
     container.append(pagination);
 }
 
-// 카테고리 별 장비 보유 현황 호출
-function fetchCategoryInventory() {
+// 카테고리 목록 호출
+function fetchCategories() {
     $.ajax({
-        url: '/api/v1/dashboards/equipments/category',
+        url: '/api/v1/categories', // 기존 API 엔드포인트
         method: 'GET',
     }).done(function(response) {
-        const categories = response.data;
-        renderCategoryChart(categories);
+        const categories = response.data; // CategoryDto 리스트
+        const select = $('#category-select');
+        select.empty();
 
-        // 디폴트: 첫 번째 카테고리 선택 후 서브 카테고리 차트 렌더링
+        categories.forEach(c => {
+            select.append(`<option value="${c.categoryId}">${c.label}</option>`);
+        });
+
+        // 첫 번째 카테고리 선택 시 서브카테고리 렌더링
         if (categories.length > 0) {
-            fetchSubCategoryInventory(categories[0].categoryId, categories[0].categoryLabel);
+            const first = categories[0];
+            fetchSubCategoryInventory(first.categoryId, first.label);
         }
     }).fail(handleServerError);
 }
+
+// 카테고리 선택 시 이벤트
+$('#category-select').on('change', function() {
+    const selectedOption = $(this).find('option:selected');
+    const categoryId = selectedOption.val();
+    const categoryLabel = selectedOption.text();
+
+    fetchSubCategoryInventory(categoryId, categoryLabel);
+});
 
 // 서브 카테고리 별 장비 보유 현황 호출
 function fetchSubCategoryInventory(categoryId, categoryLabel) {
@@ -203,64 +218,6 @@ function fetchSubCategoryInventory(categoryId, categoryLabel) {
     }).done(function(response) {
         renderSubCategoryChart(response.data, categoryLabel);
     }).fail(handleServerError);
-}
-
-// 카테고리 차트 렌더링
-function renderCategoryChart(data) {
-    const ctx = document.getElementById('category-chart').getContext('2d');
-    if (window.categoryChart) window.categoryChart.destroy();
-
-    window.categoryChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: data.map(d => d.categoryLabel),
-            datasets: [{
-                data: data.map(d => d.totalStock),
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                layout: {
-                    padding: {
-                        top: 20, // 차트와 범례 사이 간격
-                        bottom: 10
-                    }
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: { size: 12 },
-                        color: '#000',
-                        boxWidth: 15,
-                        boxHeight: 15,
-                        padding: 15
-                    }
-                },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 14 },
-                    formatter: (value, context) => {
-                        const label = context.chart.data.labels[context.dataIndex];
-                        return `${label} : ${value}`;
-                    }
-                }
-            },
-            onClick: (evt, elements) => {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    const categoryId = data[index].categoryId;
-                    const label = data[index].categoryLabel;
-                    fetchSubCategoryInventory(categoryId, label);
-                }
-            }
-        },
-        plugins: [ChartDataLabels]
-    });
-    // 테이블 업데이트
-    renderCategoryTable(data);
 }
 
 // 서브 카테고리 차트 렌더링
@@ -305,35 +262,31 @@ function renderSubCategoryChart(data, categoryLabel) {
                         return `${label} : ${value}`;
                     }
                 }
+            },
+            // 클릭 이벤트
+            onClick: (evt, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const subCategoryId = data[index].subCategoryId;
+                    const subCategoryLabel = data[index].subCategoryLabel;
+
+                    // 우측 상세 테이블 호출
+                    fetchInventoryDetail(subCategoryId, subCategoryLabel, 1);
+                }
             }
         },
         plugins: [ChartDataLabels]
     });
     // 테이블 업데이트
     renderSubCategoryTable(data, categoryLabel);
+
+    // 첫 번째 서브카테고리 상세 조회
+    if (data.length > 0) {
+        fetchInventoryDetail(data[0].subCategoryId, data[0].subCategoryLabel, 1);
+    }
 }
 
-// 데이터 표 렌더링
-function renderCategoryTable(data) {
-    const table = $('#category-data-table');
-    table.empty();
-
-    table.append('<thead><tr><th>카테고리</th><th>총 재고</th><th>사용 가능 재고</th></tr></thead>');
-    const tbody = $('<tbody></tbody>');
-
-    data.forEach(d => {
-        tbody.append(`
-            <tr>
-                <td>${d.categoryLabel}</td>
-                <td>${d.totalStock}</td>
-                <td>${d.availableStock}</td>
-            </tr>
-        `);
-    });
-
-    table.append(tbody);
-}
-
+// 서브카테고리 테이블
 function renderSubCategoryTable(data, categoryLabel) {
     const table = $('#sub-category-data-table');
     table.empty();
@@ -352,4 +305,88 @@ function renderSubCategoryTable(data, categoryLabel) {
     });
 
     table.append(tbody);
+}
+
+// 상세 재고 현황 조회 (페이징 포함)
+function fetchInventoryDetail(subCategoryId, subCategoryLabel, page) {
+    $.ajax({
+        url: `/api/v1/dashboards/equipments/${subCategoryId}`,
+        method: 'GET',
+        data: { page: page, size: 10 }
+    }).done(function(response) {
+        const inventoryPage = response.data; // PageResponseDto
+        renderInventoryDetailTable(inventoryPage.content, subCategoryLabel);
+        renderDetailPaginationInDashBoard("inventory-detail-pagination", {
+            page: inventoryPage.page,
+            totalPages: inventoryPage.totalPages
+        }, (newPage) => {
+            fetchInventoryDetail(subCategoryId, subCategoryLabel, newPage);
+        });
+    }).fail(handleServerError);
+}
+
+// 상세 재고 테이블 렌더링
+function renderInventoryDetailTable(data, subCategoryLabel) {
+    $('#inventory-detail-title').text(`서브카테고리 [${subCategoryLabel}] 상세 현황`);
+    const table = $('#inventory-detail-table');
+    table.empty();
+
+    table.append(`<thead><tr><th>모델</th><th>총 재고</th><th>사용 가능 재고</th></tr></thead>`);
+    const tbody = $('<tbody></tbody>');
+
+    data.forEach(d => {
+        tbody.append(`
+            <tr>
+                <td>${d.model}</td>
+                <td>${d.totalStock}</td>
+                <td>${d.availableCount}</td>
+            </tr>
+        `);
+    });
+
+    table.append(tbody);
+}
+
+// 상세 재고 페이징
+function renderDetailPaginationInDashBoard(containerId, pageInfo, onPageChange) {
+    const container = $("#" + containerId);
+    container.empty();
+
+    const pagination = $('<ul class="pagination justify-content-center mb-0"></ul>');
+
+    // 이전 버튼
+    const prevLi = $('<li class="page-item"></li>');
+    const prevLink = $('<a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>');
+    if (pageInfo.page <= 1) prevLi.addClass("disabled");
+    prevLink.on("click", (e) => {
+        e.preventDefault();
+        if (pageInfo.page > 1) onPageChange(pageInfo.page - 1);
+    });
+    prevLi.append(prevLink);
+    pagination.append(prevLi);
+
+    // 페이지 번호
+    for (let i = 1; i <= pageInfo.totalPages; i++) { // 1-based
+        const li = $(`<li class="page-item ${i === pageInfo.page ? 'active' : ''}"></li>`);
+        const link = $(`<a class="page-link" href="#">${i}</a>`);
+        link.on("click", (e) => {
+            e.preventDefault();
+            if (i !== pageInfo.page) onPageChange(i);
+        });
+        li.append(link);
+        pagination.append(li);
+    }
+
+    // 다음 버튼
+    const nextLi = $('<li class="page-item"></li>');
+    const nextLink = $('<a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>');
+    if (pageInfo.page >= pageInfo.totalPages) nextLi.addClass("disabled");
+    nextLink.on("click", (e) => {
+        e.preventDefault();
+        if (pageInfo.page < pageInfo.totalPages) onPageChange(pageInfo.page + 1);
+    });
+    nextLi.append(nextLink);
+    pagination.append(nextLi);
+
+    container.append(pagination);
 }
