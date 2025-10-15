@@ -25,4 +25,6 @@ public class BoardDetailDto {
     private List<BoardFileDto> files;
     @JsonProperty("isOwner")
     private boolean owner;
+    @JsonProperty("isAdmin")
+    private boolean admin;
 }

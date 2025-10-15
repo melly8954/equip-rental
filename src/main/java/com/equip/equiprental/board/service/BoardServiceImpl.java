@@ -167,7 +167,11 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
+        Member writer = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
+
         boolean isOwner = board.getWriter().getMemberId().equals(currentUserId);
+        boolean isAdmin = writer.isAdmin();
 
         String relatedType = "board_" + board.getBoardType().name().toLowerCase();
         List<BoardFileDto> files = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
@@ -188,6 +192,7 @@ public class BoardServiceImpl implements BoardService {
                 .updatedAt(board.getUpdatedAt())
                 .files(files)
                 .owner(isOwner)
+                .admin(isAdmin)
                 .build();
     }
 

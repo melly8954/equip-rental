@@ -51,7 +51,7 @@ function renderBoardDetail(board) {
         : '';
     
     // 삭제 버튼 조건부 생성
-    const deleteBtnHtml = board.isOwner
+    const deleteBtnHtml = board.isOwner || board.isAdmin
         ? `<button id="delete-board-btn" class="btn btn-danger ms-2" data-board-id="${board.boardId}">글 삭제</button>`
         : '';
 

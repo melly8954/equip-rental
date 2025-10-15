@@ -45,4 +45,8 @@ public class Member extends BaseEntity {
     public boolean isAdminOrManager() {
         return this.role == MemberRole.ADMIN || this.role == MemberRole.MANAGER;
     }
+
+    public boolean isAdmin() {
+        return this.role == MemberRole.ADMIN;
+    }
 }
