@@ -19,21 +19,31 @@
             <div class="container-fluid mt-4">
                 <h3 class="mt-5 mb-4 ms-3">장비 재고 현황</h3><hr>
                 <div class="row d-flex align-items-start">
+                    <!-- 좌측: 카테고리 선택 + 서브카테고리 차트/테이블 -->
                     <div class="col-md-6">
-                        <div class="chart-container">
-                            <canvas id="category-chart"></canvas>
+                        <!-- 카테고리 선택 드롭다운 -->
+                        <div class="mb-3">
+                            <label for="category-select" class="form-label">카테고리 선택</label>
+                            <select id="category-select" class="form-select"></select>
                         </div>
-                        <div class="table-responsive mt-4">
-                            <table id="category-data-table" class="table table-sm table-bordered table-striped text-center"></table>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
+
+                        <!-- 서브카테고리 차트 -->
                         <div class="chart-container">
                             <canvas id="sub-category-chart"></canvas>
                         </div>
+
                         <div class="table-responsive mt-4">
                             <table id="sub-category-data-table" class="table table-sm table-bordered table-striped text-center"></table>
                         </div>
+                    </div>
+
+                    <!-- 우측: 선택된 서브카테고리 상세 -->
+                    <div class="col-md-6">
+                        <h5 id="inventory-detail-title" class="mb-3">서브카테고리 상세 현황</h5>
+                        <div class="table-responsive">
+                            <table id="inventory-detail-table" class="table table-sm table-bordered table-striped text-center"></table>
+                        </div>
+                        <div id="inventory-detail-pagination" class="mt-2"></div>
                     </div>
                 </div>
 
