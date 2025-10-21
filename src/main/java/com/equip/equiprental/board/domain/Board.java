@@ -2,6 +2,8 @@ package com.equip.equiprental.board.domain;
 
 import com.equip.equiprental.board.dto.BoardUpdateRequest;
 import com.equip.equiprental.common.domain.BaseEntity;
+import com.equip.equiprental.common.exception.CustomException;
+import com.equip.equiprental.common.exception.ErrorType;
 import com.equip.equiprental.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,9 +50,16 @@ public class Board extends BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-    public void updateBoard(BoardUpdateRequest dto) {
-        this.boardType = dto.getBoardType();
-        this.title = dto.getTitle();
-        this.content = dto.getContent();
+    public void updateBoard(BoardUpdateRequest dto, Long currentUserId) {
+        if(!this.getWriter().getMemberId().equals(currentUserId)) {
+            throw new CustomException(ErrorType.FORBIDDEN, "본인 게시글이 아니면 수정할 수 없습니다.");
+        }
+
+        if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
+            this.title = dto.getTitle();
+        }
+        if (dto.getContent() != null && !dto.getContent().isBlank()) {
+            this.content = dto.getContent();
+        }
     }
 }

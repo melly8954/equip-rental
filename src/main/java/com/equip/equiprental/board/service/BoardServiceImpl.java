@@ -211,17 +211,17 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest request, List<MultipartFile> files) {
+    public BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest dto, List<MultipartFile> files, Long currentUserId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 게시글은 존재하지 않습니다."));
 
-        board.updateBoard(request);
+        board.updateBoard(dto, currentUserId);
 
         // 파일 제거 처리
-        if (request.getDeletedFileIds() != null && !request.getDeletedFileIds().isEmpty()) {
-            List<FileMeta> filesToDelete = fileRepository.findAllById(request.getDeletedFileIds());
+        String typeKey = "board_" + board.getBoardType().name().toLowerCase();
 
-            String typeKey = "board_" + board.getBoardType().name().toLowerCase();
+        if (dto.getDeletedFileIds() != null && !dto.getDeletedFileIds().isEmpty()) {
+            List<FileMeta> filesToDelete = fileRepository.findAllById(dto.getDeletedFileIds());
 
             filesToDelete.forEach(file -> {
                 fileRepository.delete(file); // DB 삭제
@@ -233,7 +233,6 @@ public class BoardServiceImpl implements BoardService {
 
         if(files != null && !files.isEmpty()) {
             int fileOrder = 0;
-            String typeKey = "board_" + request.getBoardType().name().toLowerCase();
             List<String> fileUrls = fileService.saveFiles(files, typeKey);
 
             for (int i = 0; i < files.size(); i++) {
@@ -258,7 +257,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
         String relatedType = "board_" + board.getBoardType().name().toLowerCase();
-        List<BoardFileDto> dto = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
+        List<BoardFileDto> fileDto = fileRepository.findAllByRelatedTypeAndRelatedId(relatedType, boardId)
                 .stream()
                 .map(file -> BoardFileDto.builder()
                         .fileId(file.getFileId())
@@ -272,7 +271,7 @@ public class BoardServiceImpl implements BoardService {
                 .boardType(board.getBoardType())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .files(dto)
+                .files(fileDto)
                 .build();
     }
 }

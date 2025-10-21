@@ -497,14 +497,18 @@ public class BoardServiceImplTest {
     @Nested
     @DisplayName("updateBoard 메서드 테스트")
     class updateBoard {
+        Long currentUserId = 1L;
+        Long writerId = 1L;
         @Test
         @DisplayName("성공 - 게시글 업데이트 (파일 미첨부)")
         void updateBoard_Success_NoFiles() {
             // given
             Long boardId = 1L;
+            Member writer = Member.builder().memberId(writerId).build();
             Board board = Board.builder()
                     .boardId(boardId)
                     .boardType(BoardType.NOTICE)
+                    .writer(writer)
                     .title("old title")
                     .content("old content")
                     .build();
@@ -521,7 +525,7 @@ public class BoardServiceImplTest {
                     .thenReturn(List.of());
 
             // when
-            BoardUpdateResponse result = boardService.updateBoard(boardId, request, List.of());
+            BoardUpdateResponse result = boardService.updateBoard(boardId, request, List.of(), currentUserId);
 
             // then
             assertThat(result.getTitle()).isEqualTo("new title");
@@ -534,9 +538,11 @@ public class BoardServiceImplTest {
         void updateBoard_DeleteFiles() {
             // given
             Long boardId = 1L;
+            Member writer = Member.builder().memberId(writerId).build();
             Board board = Board.builder()
                     .boardId(boardId)
                     .boardType(BoardType.NOTICE)
+                    .writer(writer)
                     .build();
 
             List<Long> deletedIds = List.of(10L);
@@ -554,7 +560,7 @@ public class BoardServiceImplTest {
             when(fileRepository.findAllById(deletedIds)).thenReturn(List.of(fileToDelete));
 
             // when
-            boardService.updateBoard(boardId, request, List.of());
+            boardService.updateBoard(boardId, request, List.of(), currentUserId);
 
             // then
             verify(fileRepository).delete(fileToDelete);
@@ -566,9 +572,11 @@ public class BoardServiceImplTest {
         void updateBoard_SaveFiles() throws IOException {
             // given
             Long boardId = 1L;
+            Member writer = Member.builder().memberId(writerId).build();
             Board board = Board.builder()
                     .boardId(boardId)
                     .boardType(BoardType.NOTICE)
+                    .writer(writer)
                     .build();
 
             BoardUpdateRequest request = BoardUpdateRequest.builder()
@@ -585,7 +593,7 @@ public class BoardServiceImplTest {
             when(fileService.saveFiles(files, "board_notice")).thenReturn(List.of("/upload/file1.png"));
 
             // when
-            boardService.updateBoard(boardId, request, files);
+            boardService.updateBoard(boardId, request, files, currentUserId);
 
             // then
             verify(fileRepository).saveAll(anyList());
@@ -601,7 +609,7 @@ public class BoardServiceImplTest {
             when(boardRepository.findById(boardId)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> boardService.updateBoard(boardId, request, List.of()))
+            assertThatThrownBy(() -> boardService.updateBoard(boardId, request, List.of(), currentUserId))
                     .isInstanceOf(CustomException.class)
                     .extracting("errorType")
                     .isEqualTo(ErrorType.NOT_FOUND);

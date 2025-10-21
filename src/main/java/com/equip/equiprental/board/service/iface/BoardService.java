@@ -16,5 +16,5 @@ public interface BoardService {
 
     void softDeleteBoard(Long boardId);
 
-    BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest boardCreateRequest, List<MultipartFile> files);
+    BoardUpdateResponse updateBoard(Long boardId, BoardUpdateRequest boardCreateRequest, List<MultipartFile> files, Long currentUserId);
 }

@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,15 +38,23 @@ public class FileServiceImpl implements FileService {
     public void deleteFile(String filePath, String typeKey) {
         if (filePath == null || filePath.isBlank()) return;
 
-        // URL에서 파일명만 추출
-        String fileName = Paths.get(URI.create(filePath).getPath()).getFileName().toString();
-
-        // FileProperties를 사용해 실제 저장 경로 계산
-        String fullDir = fileProperties.getFullPath(typeKey);
-        Path path = Paths.get(fullDir, fileName);
-
-        // 실제 파일 삭제
         try {
+            // URL에서 base URL 제거 (예: http://localhost:8080/files/board/ 제거)
+            String relativePath = filePath.replaceFirst("^.*/files/", "");
+
+            // URL 디코딩 (한글/공백 복원)
+            relativePath = java.net.URLDecoder.decode(relativePath, StandardCharsets.UTF_8);
+
+            // typeKey 제거 (중복 방지)
+            if (relativePath.startsWith(typeKey + "/")) {
+                relativePath = relativePath.substring(typeKey.length() + 1); // +1은 '/' 제거
+            }
+
+            // 실제 파일 경로 계산
+            String baseStoragePath = fileProperties.getStoragePath();
+            Path path = Paths.get(baseStoragePath, relativePath);
+
+            // 4. 삭제
             if (Files.exists(path)) {
                 Files.delete(path);
                 System.out.println("삭제 성공: " + path);
@@ -53,7 +62,7 @@ public class FileServiceImpl implements FileService {
                 System.out.println("삭제할 파일 없음: " + path);
             }
         } catch (IOException e) {
-            throw new RuntimeException("파일 삭제 실패: " + path, e);
+            throw new RuntimeException("파일 삭제 실패: " + filePath, e);
         }
     }
 
