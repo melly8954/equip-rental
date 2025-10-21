@@ -127,7 +127,8 @@ public class RentalQRepoImpl implements RentalQRepo{
                         r.requestEndDate,
                         r.quantity,
                         r.status.stringValue(),
-                        r.rejectReason
+                        r.rejectReason,
+                        r.createdAt
                 ))
                 .from(r)
                 .leftJoin(r.equipment.subCategory, sc)

@@ -1,3 +1,10 @@
+.filter-card {
+    background-color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 기존 pill 버튼 기본 스타일 유지 */
 .filter-pill-btn {
     display: inline-block;
     border: 2px solid #b3dafe;
@@ -12,13 +19,30 @@
     transition: background 0.15s, color 0.15s, border 0.15s;
 }
 
-/* checked 스타일: input:checked + label */
-input[type="radio"]:checked + .filter-pill-btn {
+/* 일반 버튼 체크 스타일 */
+input[type="radio"]:checked + .filter-pill-btn:not(.status-filter) {
     background: #e6f3ff;
     color: #2996fd;
     border: 2px solid #2996fd;
 }
 
-input[type="radio"] {
-    display: none;
+/* 상태 버튼 기본 스타일 (체크 여부와 상관없이 색상 적용) */
+.status-filter.status-pending { border-color: #FFA500; color: #FFA500; background: #fff7e6; }
+.status-filter.status-approved { border-color: #0d6efd; color: #0d6efd; background: #e6f0ff; }
+.status-filter.status-rejected { border-color: #dc3545; color: #dc3545; background: #fde6e6; }
+.status-filter.status-completed { border-color: #28a745; color: #28a745; background: #e6f9ea; }
+
+
+/* 상태 버튼 체크 스타일 */
+input[type="radio"]:checked + .status-filter.status-pending {
+    background: #FFE5B4; color: #FFA500; border-color: #FFA500;
+}
+input[type="radio"]:checked + .status-filter.status-approved {
+    background: #cfe2ff; color: #0d6efd; border-color: #0d6efd;
+}
+input[type="radio"]:checked + .status-filter.status-rejected {
+    background: #f8d7da; color: #dc3545; border-color: #dc3545;
+}
+input[type="radio"]:checked + .status-filter.status-completed {
+    background: #d4edda; color: #28a745; border-color: #28a745;
 }

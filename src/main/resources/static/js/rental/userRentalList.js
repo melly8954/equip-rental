@@ -8,6 +8,13 @@ const rentalStatusMap = {
     COMPLETED: { label: "반납 완료", class: "text-success" },
 };
 
+const statusClassMap = {
+    PENDING: "status-pending",
+    APPROVED: "status-approved",
+    REJECTED: "status-rejected",
+    COMPLETED: "status-completed"
+};
+
 $(document).ready(function() {
     // 이름 검색(input)
     $("#member-search").on("input", function() {
@@ -114,8 +121,11 @@ function renderFilter(containerId, config, onChange) {
                 .val(opt.id ?? "")
                 .prop("checked", opt.default === true)
 
+            // 상태 버튼이면 별도 클래스(status-filter) + 상태별 클래스(status-*)
+            const extraClass = key === "status" ? `status-filter ${statusClassMap[opt.id]}` : "";
+
             const button = $("<label>")
-                .addClass("filter-pill-btn")
+                .addClass(`filter-pill-btn ${extraClass}`)
                 .attr("for", inputId)
                 .text(opt.label);
 
@@ -246,6 +256,10 @@ function renderRentalList(data) {
                                             [${rentalStatusMap[r.status]?.label || r.status}]
                                         </span> <br>
                                     신청 수량: ${r.quantity} <br>
+                                    ${r.status === "PENDING"
+                                        ? `<span>대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}<br>신청일: ${r.createdAt || "-"}</span>`
+                                        : ""
+                                    }
                                     ${r.status === "REJECTED"
                                         ? `<span>대여 기간: ${r.requestStartDate || ""} ~ ${r.requestEndDate || ""}<br>거절 사유: ${r.rejectReason || "-"}</span>`
                                         : ""
