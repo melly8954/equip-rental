@@ -135,11 +135,10 @@ function renderRow(board, isNotice) {
     const type = isNotice ? "공지사항" : "건의/문의";
     return $(`
         <div class="d-flex py-2 fw-bold">
-            <div class="col-1 text-center">${board.boardId}</div>
             <div class="col-1 text-center me-3" style="${isNotice ? 'border: 1px solid rgba(255,0,0,0.5); border-radius: 4px; color: red;' : ''}">
                 ${type}
             </div>
-            <div class="col-5" style="${isNotice ? 'color: red;' : ''}">
+            <div class="col-6 text-center" style="${isNotice ? 'color: red;' : ''}">
                 <a href="/board/${board.boardId}" style="${isNotice ? 'color: red;' : ''}">${board.title}</a>
             </div>
             <div class="col-2 text-center">${board.writerName}</div>
