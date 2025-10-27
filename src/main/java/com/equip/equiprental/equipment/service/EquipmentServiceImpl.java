@@ -237,15 +237,19 @@ public class EquipmentServiceImpl implements EquipmentService {
             // 기존 이미지 조회
             List<FileMeta> existingFiles = fileRepository.findByRelatedTypeAndRelatedId("equipment", equipmentId);
 
+            String categoryLabel = equipment.getSubCategory().getCategory().getLabel();
+            String subCategoryLabel = equipment.getSubCategory().getLabel();
+            String typeKey = String.format("equipment_%s_%s", categoryLabel, subCategoryLabel);
+
             // 1. 기존이 있다면 삭제
             if (!existingFiles.isEmpty()) {
                 fileRepository.deleteAll(existingFiles);
-                // (선택) 실제 파일 삭제: fileService.deleteFiles(existingFiles);
+                fileService.deleteFile(existingFiles.get(0).getFilePath(), typeKey);
             }
 
             // 2. 새 이미지 저장
             int fileOrder = 0;
-            List<String> fileUrls = fileService.saveFiles(files, "equipment");
+            List<String> fileUrls = fileService.saveFiles(files, typeKey);
             List<FileMeta> savedFiles = new ArrayList<>();
 
             for (int i = 0; i < files.size(); i++) {
