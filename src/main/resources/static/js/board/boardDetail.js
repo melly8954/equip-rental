@@ -62,7 +62,7 @@ function renderBoardDetail(board) {
                 ${board.title}
             </div>
             <div class="card-body">
-                <p>${board.content}</p>
+                <p style="white-space: pre-line;">${board.content}</p>
                 ${imageHtml}
             </div>
             <div class="card-footer text-muted">
