@@ -2,7 +2,9 @@ $(document).ready(function() {
     // 검색 이벤트
     $("#equipment-search").on("input", function() {
         const currentValues = getFilterValues(filterConfig);
+        currentValues.page = 1;
         fetchEquipment(currentValues);
+        updateUrlWithFilters(currentValues);
     });
     // 필터 초기화
     $('#reset-filters').on('click', function() {

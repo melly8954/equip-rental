@@ -1,7 +1,10 @@
 // 검색 이벤트 등록
 $(document).ready(function() {
     $("#equipment-search").on("input", function() {
-        fetchEquipment(getFilterValues(filterConfig));
+        const currentValues = getFilterValues(filterConfig);
+        currentValues.page = 1;
+        fetchEquipment(currentValues);
+        updateUrlWithFilters(currentValues);
     });
     // 필터 초기화
     $('#reset-filters').on('click', function() {
