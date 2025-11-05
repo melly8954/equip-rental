@@ -171,6 +171,10 @@ public class RentalServiceImpl implements RentalService {
 
         List<EquipmentItem> equipmentItems = equipmentItemRepository.findAvailableItemsForUpdate(dto.getEquipmentId(),limit);
 
+        if (!rental.getRequestStartDate().isEqual(LocalDate.now())) {
+            throw new CustomException(ErrorType.CONFLICT, "대여 승인은 대여 시작일에만 승인할 수 있습니다.");
+        }
+
         if (rental.getRequestStartDate().isBefore(LocalDate.now())) {
             throw new CustomException(ErrorType.CONFLICT, "대여 시작일이 이미 지나 승인할 수 없습니다.");
         }
