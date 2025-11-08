@@ -472,7 +472,12 @@ public class EquipmentServiceImplTest {
         void updateEquipmentImage_success_newFiles() throws Exception {
             // given
             Long equipmentId = 1L;
-            Equipment equipment = Equipment.builder().equipmentId(equipmentId).build();
+            Category category = Category.builder().label("전자기기").build();
+            SubCategory subCategory = SubCategory.builder()
+                    .label("노트북")
+                    .category(category)
+                    .build();
+            Equipment equipment = Equipment.builder().equipmentId(equipmentId).subCategory(subCategory).build();
             when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
             when(fileRepository.findByRelatedTypeAndRelatedId("equipment", equipmentId))
                     .thenReturn(Collections.emptyList());
@@ -489,14 +494,14 @@ public class EquipmentServiceImplTest {
 
             List<MultipartFile> files = List.of(file1, file2);
             List<String> urls = List.of("http://cdn/file1.jpg", "http://cdn/file2.jpg");
-            when(fileService.saveFiles(files, "equipment")).thenReturn(urls);
+            when(fileService.saveFiles(files, "equipment_전자기기_노트북")).thenReturn(urls);
 
             // when
             equipmentService.updateEquipmentImage(equipmentId, files);
 
             // then
             verify(fileRepository, never()).deleteAll(anyList());
-            verify(fileService).saveFiles(files, "equipment");
+            verify(fileService).saveFiles(files, "equipment_전자기기_노트북");
 
             verify(fileRepository).saveAll(fileMetaListCaptor.capture());
 
@@ -513,7 +518,12 @@ public class EquipmentServiceImplTest {
         void updateEquipmentImage_success_existingFiles() throws Exception {
             // given
             Long equipmentId = 1L;
-            Equipment equipment = Equipment.builder().equipmentId(equipmentId).build();
+            Category category = Category.builder().label("전자기기").build();
+            SubCategory subCategory = SubCategory.builder()
+                    .label("노트북")
+                    .category(category)
+                    .build();
+            Equipment equipment = Equipment.builder().equipmentId(equipmentId).subCategory(subCategory).build();
             when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
 
             FileMeta existingFile = mock(FileMeta.class);
@@ -526,14 +536,14 @@ public class EquipmentServiceImplTest {
             when(newFile.getSize()).thenReturn(150L);
 
             List<MultipartFile> files = List.of(newFile);
-            when(fileService.saveFiles(files, "equipment")).thenReturn(List.of("http://cdn/new.jpg"));
+            when(fileService.saveFiles(files, "equipment_전자기기_노트북")).thenReturn(List.of("http://cdn/new.jpg"));
 
             // when
             equipmentService.updateEquipmentImage(equipmentId, files);
 
             // then
             verify(fileRepository).deleteAll(List.of(existingFile));
-            verify(fileService).saveFiles(files, "equipment");
+            verify(fileService).saveFiles(files, "equipment_전자기기_노트북");
 
             verify(fileRepository).saveAll(fileMetaListCaptor.capture());
 

@@ -372,6 +372,7 @@ public class BoardServiceImplTest {
                     .relatedId(boardId)
                     .build();
 
+            when(memberRepository.findById(currentUserId)).thenReturn(Optional.of(writer));
             when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
             when(fileRepository.findAllByRelatedTypeAndRelatedId("board_notice", boardId))
                     .thenReturn(List.of(file));
@@ -409,6 +410,7 @@ public class BoardServiceImplTest {
                     .content("테스트 내용")
                     .build();
 
+            when(memberRepository.findById(currentUserId)).thenReturn(Optional.of(writer));
             when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
             when(fileRepository.findAllByRelatedTypeAndRelatedId("board_notice", boardId))
                     .thenReturn(List.of());

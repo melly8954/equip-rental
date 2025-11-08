@@ -447,7 +447,7 @@ public class RentalServiceImplTest {
                     .rentalId(1L)
                     .member(member)
                     .equipment(equipment)
-                    .requestStartDate(LocalDate.now().plusDays(1))
+                    .requestStartDate(LocalDate.now())
                     .requestEndDate(LocalDate.now().plusDays(3))
                     .quantity(2)
                     .status(RentalStatus.PENDING)
