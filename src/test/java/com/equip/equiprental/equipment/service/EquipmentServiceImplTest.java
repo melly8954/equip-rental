@@ -96,7 +96,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비 등록")
+        @DisplayName("성공 - 기자재 등록")
         void register_success() throws Exception {
             // given
             EquipmentRegisterRequest request = EquipmentRegisterRequest.builder()
@@ -151,7 +151,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 이미 등록된 장비")
+        @DisplayName("예외 - 이미 등록된 기자재")
         void register_existingModel_throwsException() {
             EquipmentRegisterRequest request = EquipmentRegisterRequest.builder()
                     .subCategoryId(1L)
@@ -198,7 +198,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비 조회 성공")
+        @DisplayName("성공 - 기자재 조회 성공")
         void whenEquipmentExists_thenReturnPagedResult() {
             // given
             EquipmentFilter paramDto = createEquipmentParamDto();
@@ -236,7 +236,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비 조회 결과 없음")
+        @DisplayName("성공 - 기자재 조회 결과 없음")
         void whenNoEquipmentExists_thenReturnEmptyPage() {
             // given
             EquipmentFilter paramDto = createEquipmentParamDto();
@@ -304,7 +304,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비와 아이템 조회 성공")
+        @DisplayName("성공 - 기자재와 아이템 조회 성공")
         void getEquipmentItem_success() {
             // given
             Long equipmentId = 1L;
@@ -354,7 +354,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비는 존재하지만 아이템 없음 (빈 페이지)")
+        @DisplayName("성공 - 기자재는 존재하지만 아이템 없음 (빈 페이지)")
         void getEquipmentItem_emptyItems() {
             Long equipmentId = 1L;
             EquipmentStatusFilter paramDto = createParamDto();
@@ -385,7 +385,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비가 존재하지 않음")
+        @DisplayName("예외 - 기자재가 존재하지 않음")
         void getEquipmentItem_notFound() {
             Long equipmentId = 1L;
             EquipmentStatusFilter paramDto = EquipmentStatusFilter.builder().build();
@@ -448,7 +448,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비가 존재하지 않음")
+        @DisplayName("예외 - 기자재가 존재하지 않음")
         void increaseStock_equipmentNotFound() {
             Long equipmentId = 1L;
             IncreaseStockRequestDto dto = IncreaseStockRequestDto.builder()
@@ -544,7 +544,7 @@ public class EquipmentServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비가 존재하지 않음")
+        @DisplayName("예외 - 기자재가 존재하지 않음")
         void updateEquipmentImage_equipmentNotFound() {
             // given
             Long equipmentId = 1L;

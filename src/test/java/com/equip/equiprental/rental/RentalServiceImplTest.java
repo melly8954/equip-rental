@@ -164,7 +164,7 @@ public class RentalServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비가 존재하지 않음")
+        @DisplayName("예외 - 기자재가 존재하지 않음")
         void equipmentNotFound() {
             RentalRequestDto dto = RentalRequestDto.builder()
                     .equipmentId(999L)

@@ -46,7 +46,7 @@ public class EquipmentItemServiceImplTest {
     @DisplayName("updateItemStatus 메서드 테스트")
     class updateItemStatus {
         @Test
-        @DisplayName("성공 - 장비 아이템 상태 변경 및 히스토리 저장")
+        @DisplayName("성공 - 기자재 아이템 상태 변경 및 히스토리 저장")
         void updateItemStatus_success() {
             // given
             Member changer = Member.builder()
@@ -107,7 +107,7 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비 아이템 존재하지 않음")
+        @DisplayName("예외 - 기자재 아이템 존재하지 않음")
         void updateItemStatus_itemNotFound() {
             UpdateItemStatusDto dto = UpdateItemStatusDto.builder()
                     .equipmentItemId(1L)
@@ -123,7 +123,7 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 장비 상태 직접 RENTED 변경 불가")
+        @DisplayName("예외 - 기자재 상태 직접 RENTED 변경 불가")
         void updateItemStatus_adminDirectRentChange() {
             Member changer = Member.builder()
                     .memberId(1L)
@@ -148,7 +148,7 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("예외 - 대여 중인 장비 상태 변경 불가")
+        @DisplayName("예외 - 대여 중인 기자재 상태 변경 불가")
         void updateItemStatus_rentedItem() {
             // given
             Member changer = Member.builder()
@@ -202,7 +202,7 @@ public class EquipmentItemServiceImplTest {
         }
 
         @Test
-        @DisplayName("성공 - 장비 아이템 히스토리 조회 성공")
+        @DisplayName("성공 - 기자재 아이템 히스토리 조회 성공")
         void whenHistoriesExist_thenReturnPagedResult() {
             // given
             Long equipmentItemId = 1L;

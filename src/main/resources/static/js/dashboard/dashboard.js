@@ -116,7 +116,7 @@ function renderZeroStock(items) {
         container.append(`
             <div class="col-12">
                 <div class="alert alert-success text-center mb-0">
-                    모든 장비 재고가 정상입니다 🎉
+                    모든 기자재 재고가 정상입니다 🎉
                 </div>
             </div>
         `);
@@ -210,7 +210,7 @@ $('#category-select').on('change', function() {
     fetchSubCategoryInventory(categoryId, categoryLabel);
 });
 
-// 서브 카테고리 별 장비 보유 현황 호출
+// 서브 카테고리 별 기자재 보유 현황 호출
 function fetchSubCategoryInventory(categoryId, categoryLabel) {
     $.ajax({
         url: `/api/v1/dashboards/equipments/categories/${categoryId}`,

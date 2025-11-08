@@ -54,7 +54,7 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
 
         Equipment equipment = equipmentRepository.findById(dto.getEquipmentId())
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 기자재가 존재하지 않습니다."));
 
         int availableStock = equipmentItemRepository.countAvailableByEquipmentId(dto.getEquipmentId());
 
@@ -88,7 +88,7 @@ public class RentalServiceImpl implements RentalService {
         notificationService.notifyManagersAndAdmins(
                 equipment.getSubCategory().getCategory(),
                 NotificationType.RENTAL_REQUEST,
-                rental.getMember().getName() + "님이 장비 '" + equipment.getModel() + "' 대여 신청",
+                rental.getMember().getName() + "님이 기자재 '" + equipment.getModel() + "' 대여 신청",
                 null
         );
 
@@ -180,7 +180,7 @@ public class RentalServiceImpl implements RentalService {
         }
 
         if (equipmentItems.size() < rental.getQuantity()) {
-            throw new CustomException(ErrorType.CONFLICT, "해당 장비 모델의 대여 가능 재고가 부족합니다.");
+            throw new CustomException(ErrorType.CONFLICT, "해당 기자재 모델의 대여 가능 재고가 부족합니다.");
         }
 
         List<Long> itemIds = equipmentItems.stream()
@@ -194,7 +194,7 @@ public class RentalServiceImpl implements RentalService {
 
         int updatedCount = equipmentItemRepository.approveRental(itemIds);
         if (updatedCount != itemIds.size()) {
-            throw new CustomException(ErrorType.CONFLICT, "요청한 모든 장비 아이템 상태를 업데이트하지 못했습니다.");
+            throw new CustomException(ErrorType.CONFLICT, "요청한 모든 기자재 아이템 상태를 업데이트하지 못했습니다.");
         }
 
         List<RentalItem> rentalItems = equipmentItems.stream()
@@ -230,7 +230,7 @@ public class RentalServiceImpl implements RentalService {
         // 승인 후 재고 체크
         int remainingStock = equipmentItemRepository.countAvailableByEquipmentId(equipment.getEquipmentId());
         if (remainingStock == 0) {
-            String stockMsg = "'" + equipment.getModel() + "'" + " 장비 재고가 0이 되었습니다.";
+            String stockMsg = "'" + equipment.getModel() + "'" + " 기자재 재고가 0이 되었습니다.";
 
             notificationService.notifyManagersAndAdmins(
                     equipment.getSubCategory().getCategory(),
@@ -254,7 +254,7 @@ public class RentalServiceImpl implements RentalService {
         }
 
         if(rental.getStatus() != RentalStatus.APPROVED){
-            throw new CustomException(ErrorType.CONFLICT, "해당 장비는 아직 대여 승인이 완료되지 않았습니다.");
+            throw new CustomException(ErrorType.CONFLICT, "해당 기자재는 아직 대여 승인이 완료되지 않았습니다.");
         }
 
         Page<UserRentalItemDto> dtosPage = rentalItemRepository.findUserRentalItems(pageable, rentalId, currentUserId);

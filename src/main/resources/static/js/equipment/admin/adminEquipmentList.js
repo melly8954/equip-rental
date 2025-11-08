@@ -198,7 +198,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
     });
 }
 
-// 장비 리스트 조회 함수
+// 기자재 리스트 조회 함수
 function fetchEquipment(filters={}) {
     // 필터 통합
     const filterValues = filters || getFilterValues(filterConfig);
@@ -230,13 +230,13 @@ function fetchEquipment(filters={}) {
     }).fail(handleServerError);
 }
 
-// 장비 리스트 렌더링
+// 기자재 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
     container.empty();
 
     if (!list || list.length === 0) {
-        container.append(`<div class="text-center py-3">등록된 장비가 존재하지 않습니다.</div>`);
+        container.append(`<div class="text-center py-3">등록된 기자재가 존재하지 않습니다.</div>`);
         return;
     }
 
@@ -252,7 +252,7 @@ function renderEquipmentList(list) {
                             <img src="${equip.imageUrl}" class="img-fluid rounded" alt="대표 이미지" style="width:100px; height:100px; object-fit:cover;">
                             <button class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-equip-btn" 
                                     data-id="${equip.equipmentId}" 
-                                    title="장비 삭제">
+                                    title="기자재 삭제">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -364,11 +364,11 @@ $("#confirmStockIncrease").on("click", function() {
     })
 });
 
-// 장비 제거
+// 기자재 제거
 $(document).on("click", ".delete-equip-btn", function() {
     const equipmentId = $(this).data("id");
 
-    if (!confirm("정말 이 장비를 삭제하시겠습니까?")) return;
+    if (!confirm("정말 이 기자재를 삭제하시겠습니까?")) return;
 
     $.ajax({
         url: `/api/v1/equipments/${equipmentId}`,

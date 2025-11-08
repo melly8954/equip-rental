@@ -40,7 +40,7 @@ public class RentalItemOverdueScheduler {
             notificationService.createNotification(
                     item.getRental().getMember(),
                     NotificationType.RENTAL_DUE_TOMORROW,
-                    "'" + item.getEquipmentItem().getEquipment().getModel() + "' 장비 반납 예정일이 내일입니다.",
+                    "'" + item.getEquipmentItem().getEquipment().getModel() + "' 기자재 반납 예정일이 내일입니다.",
                     null
             );
         }

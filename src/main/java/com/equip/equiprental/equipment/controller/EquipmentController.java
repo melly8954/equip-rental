@@ -35,20 +35,20 @@ public class EquipmentController implements ResponseController {
     public ResponseEntity<ResponseDto<EquipmentRegisterResponse>> addEquipment(@RequestPart(value = "data") EquipmentRegisterRequest dto,
                                                                                @RequestPart(value = "files") List<MultipartFile> files) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 등록 요청 API] TraceId={}", traceId);
+        log.info("[기자재 등록 요청 API] TraceId={}", traceId);
 
         EquipmentRegisterResponse result = equipmentService.register(dto, files);
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "신규 장비 등록 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "신규 기자재 등록 성공", result);
     }
 
     @GetMapping("")
     public ResponseEntity<ResponseDto<PageResponseDto<EquipmentDto>>> getEquipment(@ModelAttribute EquipmentFilter paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 조회 요청 API] TraceId={}", traceId);
+        log.info("[기자재 조회 요청 API] TraceId={}", traceId);
 
         PageResponseDto<EquipmentDto> result = equipmentService.getEquipment(paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 조회 성공", result);
     }
 
     @GetMapping("/{equipmentId}/items")
@@ -57,7 +57,7 @@ public class EquipmentController implements ResponseController {
                                                                               @ModelAttribute EquipmentStatusFilter paramDto,
                                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 아이템 조회 요청 API] TraceId={}", traceId);
+        log.info("[기자재 아이템 조회 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
@@ -66,7 +66,7 @@ public class EquipmentController implements ResponseController {
 
         EquipmentItemListDto result = equipmentService.getEquipmentItem(equipmentId, paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 아이템 조회 성공", result);
     }
 
     @PostMapping("/{equipmentId}/stock")
@@ -75,7 +75,7 @@ public class EquipmentController implements ResponseController {
                                                               @RequestBody IncreaseStockRequestDto dto,
                                                               @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 재고 수 증가 요청 API] TraceId={}", traceId);
+        log.info("[기자재 재고 수 증가 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
@@ -84,7 +84,7 @@ public class EquipmentController implements ResponseController {
 
         equipmentService.increaseStock(equipmentId, dto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 재고 수량 증가 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 재고 수량 증가 성공", null);
     }
 
     @PostMapping("/{equipmentId}/image")
@@ -93,7 +93,7 @@ public class EquipmentController implements ResponseController {
                                                          @RequestPart List<MultipartFile> files,
                                                          @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 이미지 파일 등록 요청 API] TraceId={}", traceId);
+        log.info("[기자재 이미지 파일 등록 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
@@ -102,7 +102,7 @@ public class EquipmentController implements ResponseController {
 
         equipmentService.updateEquipmentImage(equipmentId, files);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 이미지 파일 등록 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 이미지 파일 등록 성공", null);
     }
 
     @DeleteMapping("/{equipmentId}")
@@ -110,7 +110,7 @@ public class EquipmentController implements ResponseController {
     public ResponseEntity<ResponseDto<Void>> softDeleteEquip(@PathVariable Long equipmentId,
                                                              @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 삭제 요청 API] TraceId={}", traceId);
+        log.info("[기자재 삭제 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipment(equipmentId, principal.getMember().getMemberId())) {
@@ -119,6 +119,6 @@ public class EquipmentController implements ResponseController {
 
         equipmentService.softDeleteEquip(equipmentId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 삭제 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 삭제 성공", null);
     }
 }

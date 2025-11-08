@@ -49,22 +49,22 @@ public class DashBoardController implements ResponseController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<List<CategoryInventoryResponse>>> getCategoryInventory() {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("카테고리 별 장비 보유 현황 API] TraceId={}", traceId);
+        log.info("카테고리 별 기자재 보유 현황 API] TraceId={}", traceId);
 
         List<CategoryInventoryResponse> result = dashBoardService.getCategoryInventory();
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "카테고리 별 장비 보유 현황 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "카테고리 별 기자재 보유 현황 조회 성공", result);
     }
 
     @GetMapping("/equipments/categories/{categoryId}")
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER'))")
     public ResponseEntity<ResponseDto<List<SubCategoryInventoryResponse>>> getCategoryInventory(@PathVariable Long categoryId) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("서브 카테고리 별 장비 보유 현황 API] TraceId={}", traceId);
+        log.info("서브 카테고리 별 기자재 보유 현황 API] TraceId={}", traceId);
 
         List<SubCategoryInventoryResponse> result = dashBoardService.getSubCategoryInventory(categoryId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 장비 보유 현황 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 기자재 보유 현황 조회 성공", result);
     }
 
     @GetMapping("/equipments/{subCategoryId}")
@@ -72,10 +72,10 @@ public class DashBoardController implements ResponseController {
     public ResponseEntity<ResponseDto<PageResponseDto<InventoryDetail>>> getInventoryDetail(@PathVariable Long subCategoryId,
                                                                                             @ModelAttribute SearchParamDto paramDto) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("서브 카테고리 별 장비 보유 상세 현황 API] TraceId={}", traceId);
+        log.info("서브 카테고리 별 기자재 보유 상세 현황 API] TraceId={}", traceId);
 
         PageResponseDto<InventoryDetail> result = dashBoardService.getInventoryDetail(subCategoryId, paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 장비 보유 상세 현황 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "서브 카테고리 별 기자재 보유 상세 현황 조회 성공", result);
     }
 }

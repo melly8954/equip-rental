@@ -33,13 +33,13 @@ public class RentalController implements ResponseController {
     public ResponseEntity<ResponseDto<RentalResponseDto>> createRental(@RequestBody RentalRequestDto dto,
                                                                        @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 대여 신청 요청 API] TraceId={}", traceId);
+        log.info("[기자재 대여 신청 요청 API] TraceId={}", traceId);
 
         Long currentUserId = principal.getMember().getMemberId();
 
         RentalResponseDto result = rentalService.requestRental(dto, currentUserId);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 대여 신청 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 대여 신청 성공", result);
     }
 
     @GetMapping("")

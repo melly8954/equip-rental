@@ -226,7 +226,7 @@ function renderRentalList(data) {
     container.empty();
 
     if (!data || data.length === 0) {
-        container.append(`<div class="text-center py-3">사용자들의 장비 대여 신청 내역이 존재하지 않습니다.</div>`);
+        container.append(`<div class="text-center py-3">사용자들의 기자재 대여 신청 내역이 존재하지 않습니다.</div>`);
         return;
     }
 

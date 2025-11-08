@@ -32,7 +32,7 @@ public class EquipmentItemServiceImpl implements EquipmentItemService {
         EquipmentStatus newStatus = dto.getNewStatus();
 
         EquipmentItem item = equipmentItemRepository.findById(dto.getEquipmentItemId())
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비 아이템이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 기자재 아이템이 존재하지 않습니다."));
 
         EquipmentStatus oldStatus = item.getStatus();
 

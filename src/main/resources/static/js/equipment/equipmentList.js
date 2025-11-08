@@ -195,7 +195,7 @@ async function updateSubCategoryOptions(parentCategoryId) {
     });
 }
 
-// 장비 리스트 조회
+// 기자재 리스트 조회
 function fetchEquipment(filters={}) {
     const filterValues = filters || getFilterValues(filterConfig);
     const modelSearch = $("#equipment-search").val();
@@ -227,13 +227,13 @@ function fetchEquipment(filters={}) {
     }).fail(handleServerError);
 }
 
-// 장비 리스트 렌더링
+// 기자재 리스트 렌더링
 function renderEquipmentList(list) {
     const container = $("#equipment-list");
     container.empty();
 
     if (!list || list.length === 0) {
-        container.append(`<div class="text-center py-3">등록된 장비가 존재하지 않습니다.</div>`);
+        container.append(`<div class="text-center py-3">등록된 기자재가 존재하지 않습니다.</div>`);
         return;
     }
 
@@ -301,7 +301,7 @@ $(document).on("click", ".rental-btn", function() {
     // hidden input
     $("#modalEquipmentId").val(equipmentId);
 
-    // 장비 정보 표시
+    // 기자재 정보 표시
     $("#selectedEquipmentInfo").show();
     $("#selectedEquipmentImage").attr("src", image);
     $("#selectedEquipmentModel").text(model);

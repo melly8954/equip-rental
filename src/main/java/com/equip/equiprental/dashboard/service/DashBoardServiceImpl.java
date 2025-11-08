@@ -56,7 +56,7 @@ public class DashBoardServiceImpl implements DashBoardService {
                 new KpiItemDto("이번 달 신규 대여 신청 수", newRequestsThisMonth, newRequestsChange),
                 new KpiItemDto("이번 달 승인된 대여  신청 수", approvedThisMonth, approvedChange),
                 new KpiItemDto("현재 승인 대기 중인 신청 수", pendingCount, null),
-                new KpiItemDto("현재 대여 연체 중인 장비 수", overdueCount, null)
+                new KpiItemDto("현재 대여 연체 중인 기자재 수", overdueCount, null)
         );
 
         return KpiResponseDto.builder()
@@ -104,7 +104,7 @@ public class DashBoardServiceImpl implements DashBoardService {
         List<Equipment> allEquipment = equipmentRepository.findAllWithCategorySubCategoryAndItems();
 
         return allEquipment.stream()
-                // 카테고리(Category)를 기준으로 장비(Equipment)를 그룹핑
+                // 카테고리(Category)를 기준으로 기자재(Equipment)를 그룹핑
                 .collect(Collectors.groupingBy(e -> e.getSubCategory().getCategory()))
                 .entrySet().stream()    // Map<Category, List<Equipment>> → Stream<Map.Entry<Category, List<Equipment>>>
                 .map(entry -> {
@@ -141,7 +141,7 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         return allEquipment.stream()
                 .filter(e -> e.getSubCategory().getCategory().getCategoryId().equals(categoryId))
-                // 카테고리 기준 장비 그룹핑 → Map<SubCategory, List<Equipment>>
+                // 카테고리 기준 기자재 그룹핑 → Map<SubCategory, List<Equipment>>
                 .collect(Collectors.groupingBy(Equipment::getSubCategory))
                 // Map의 값 스트림으로 변환
                 .entrySet().stream()

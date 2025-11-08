@@ -34,7 +34,7 @@ public class EquipmentItemController implements ResponseController {
     public ResponseEntity<ResponseDto<Void>> updateStatus(@RequestBody UpdateItemStatusDto dto,
                                                           @AuthenticationPrincipal PrincipalDetails principal){
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 아이템 상태 변경 요청 API] TraceId={}", traceId);
+        log.info("[기자재 아이템 상태 변경 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipmentByItem(dto.getEquipmentItemId(), principal.getMember().getMemberId())) {
@@ -43,7 +43,7 @@ public class EquipmentItemController implements ResponseController {
 
         equipmentItemService.updateItemStatus(dto, principal.getMember());
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 상태 변경 성공", null);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 아이템 상태 변경 성공", null);
     }
 
     @GetMapping("/{equipmentItemId}/history")
@@ -52,7 +52,7 @@ public class EquipmentItemController implements ResponseController {
                                                                                                 @ModelAttribute SearchParamDto paramDto,
                                                                                                 @AuthenticationPrincipal PrincipalDetails principal) {
         String traceId = RequestTraceIdInterceptor.getTraceId();
-        log.info("[장비 아이템 히스토리 조회 요청 API] TraceId={}", traceId);
+        log.info("[기자재 아이템 히스토리 조회 요청 API] TraceId={}", traceId);
 
         if (principal.getMember().getRole() == MemberRole.MANAGER &&
                 !managerScopeService.canAccessEquipmentByItem(equipmentItemId, principal.getMember().getMemberId())) {
@@ -61,6 +61,6 @@ public class EquipmentItemController implements ResponseController {
 
         PageResponseDto<EquipmentItemHistoryDto> result = equipmentItemService.getItemHistory(equipmentItemId, paramDto);
 
-        return makeResponseEntity(traceId, HttpStatus.OK, null, "장비 아이템 히스토리 조회 성공", result);
+        return makeResponseEntity(traceId, HttpStatus.OK, null, "기자재 아이템 히스토리 조회 성공", result);
     }
 }

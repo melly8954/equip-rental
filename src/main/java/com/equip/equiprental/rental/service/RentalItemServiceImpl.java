@@ -67,7 +67,7 @@ public class RentalItemServiceImpl implements RentalItemService {
     @Transactional
     public void extendRentalItem(Long rentalItem, ExtendRentalItemDto dto, Long memberId) {
         RentalItem item = rentalItemRepository.findById(rentalItem)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 장비 대여 신청내역이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND, "해당 정보로 등록된 기자재 대여 신청내역이 존재하지 않습니다."));
 
         if (!item.getRental().getMember().getMemberId().equals(memberId)) {
             throw new CustomException(ErrorType.UNAUTHORIZED);
@@ -99,7 +99,7 @@ public class RentalItemServiceImpl implements RentalItemService {
 
         EquipmentStatus oldStatus = equipmentItem.getStatus();
 
-        // 장비 상태 변경(사용 가능) + 실 반납일 저장
+        // 기자재 상태 변경(사용 가능) + 실 반납일 저장
         equipmentItem.updateStatus(EquipmentStatus.AVAILABLE);
         item.returnItem(LocalDate.now());
 
@@ -170,7 +170,7 @@ public class RentalItemServiceImpl implements RentalItemService {
             notificationService.createNotification(
                     renter,
                     NotificationType.RENTAL_OVERDUE,
-                    "'" + equipment.getModel() + "' 장비가 연체되었습니다. 빠른 반납 부탁드립니다.",
+                    "'" + equipment.getModel() + "' 기자재가 연체되었습니다. 빠른 반납 부탁드립니다.",
                     null
             );
 
@@ -178,7 +178,7 @@ public class RentalItemServiceImpl implements RentalItemService {
             notificationService.notifyManagersAndAdmins(
                     equipment.getSubCategory().getCategory(),
                     NotificationType.RENTAL_OVERDUE,
-                    renter.getName() + "님이 '" + equipment.getModel() + "' 장비를 연체 중입니다.",
+                    renter.getName() + "님이 '" + equipment.getModel() + "' 기자재를 연체 중입니다.",
                     null
             );
         }

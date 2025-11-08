@@ -33,7 +33,7 @@ function renderReturnedRentalList(items) {
     container.empty();
 
     if (!items || items.length === 0) {
-        container.append(`<div class="text-center py-3">반납된 장비 내역이 없습니다.</div>`);
+        container.append(`<div class="text-center py-3">반납된 기자재 내역이 없습니다.</div>`);
         return;
     }
 

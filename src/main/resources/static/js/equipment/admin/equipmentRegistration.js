@@ -112,7 +112,7 @@ function registerEquipment() {
     });
 }
 
-// 장비 등록 폼 초기화
+// 기자재 등록 폼 초기화
 function registerReset() {
     // select 초기화
     $('#equipmentCategory').val('');
