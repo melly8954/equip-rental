@@ -3,6 +3,9 @@
 웹 기반 Spring Boot 학교 기자재 대여 시스템 <br>
 [프로젝트 문서 (Notion)](https://www.notion.so/EquipRental-255d351413c0807cbf0ee7b53a666dc9) <br>
 
+## 시연 영상
+https://www.youtube.com/watch?v=JoMWwjXHoOw<br>
+
 ## 프로젝트 실행 방법
 
 **1️⃣ 환경 변수 설정**
