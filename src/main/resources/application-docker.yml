@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    url: jdbc:p6spy:mysql://mysql:3306/${DB_NAME}?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+file:
+  access-url-base: http://localhost:8080/files/
+  storage-path: /app/files/
+  directories:
+    equipment: equipment
+    board: board
