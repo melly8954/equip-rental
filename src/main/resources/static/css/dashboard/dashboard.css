@@ -1,0 +1,41 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2열 */
+    gap: 15px;
+}
+
+.kpi-detail-label {
+    cursor: pointer;
+    display: inline-block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0.25em 0.5em;
+    font-size: 0.85rem;
+    color: blue;
+    align-self: flex-start; /* flex-column 안에서 왼쪽 정렬 */
+
+    margin: 0 auto 0 auto;    /* 좌우 auto로 중앙 정렬 */
+    text-align: center;          /* 글자 중앙 */
+}
+
+.row.d-flex.align-items-start {
+    min-height: 450px; /* 전체 차트 컨테이너의 최소 높이 지정 */
+}
+.col-md-6 canvas {
+    max-height: 400px; /* 차트 캔버스의 최대 높이 지정 */
+}
+
+.chart-container {
+    position: relative;
+    height: 300px; /* 최소 차트 높이 */
+    max-height: 400px; /* 필요하면 최대 높이 */
+}
+
+.table-scrollable {
+    max-height: 200px; /* 표 영역 최대 높이 */
+    overflow-y: auto;  /* 행이 많으면 스크롤 */
+}
+
+#inventory-detail-table {
+    height: 450px;
+}

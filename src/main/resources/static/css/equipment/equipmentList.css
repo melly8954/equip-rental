@@ -1,0 +1,63 @@
+.filter-card {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+#equipment-list {
+    padding-top: 40px;
+    margin-top: 20px;
+}
+
+#equipment-search {
+    padding-left: 35px; /* 텍스트와 아이콘 간격 확보 */
+    background-color: white; /* 배경색 */
+    background-image: url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/search.svg'); /* 돋보기 */
+    background-repeat: no-repeat;
+    background-position: 10px center; /* 좌측 10px, 세로 중앙 */
+    background-size: 16px 16px; /* 아이콘 크기 조정 */
+
+    border-radius: 25px; /* 둥글게 */
+    width: 375px;
+}
+
+.rental-btn {
+    cursor: pointer;
+    border-top: 3px solid #ced4da;
+    transition: background 0.2s;
+}
+
+.rental-btn:hover {
+    background-color: #dee2e6 !important;
+}
+
+.filter-pill-btn {
+    display: inline-block;
+    border: 2px solid #b3dafe;
+    background: white;
+    color: #2996fd;
+    border-radius: 22px;
+    padding: 8px 20px;
+    margin: 7px 7px 7px 0;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+/* checked 스타일: input:checked + label */
+input[type="radio"]:checked + .filter-pill-btn {
+    background: #e6f3ff;
+    color: #2996fd;
+    border: 2px solid #2996fd;
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+.filter-card {
+    background-color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}

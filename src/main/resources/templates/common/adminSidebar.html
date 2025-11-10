@@ -1,0 +1,62 @@
+<nav class="sidebar d-flex flex-column p-3 border-end" style="width: 220px; height: 100%;">
+    <a href="/home" class="logo">EquipRental</a>
+    <ul class="nav nav-pills flex-column mb-auto text-center">
+        <li>
+            <a href="/home" class="nav-link active">
+                대시보드
+            </a>
+        </li>
+        <li>
+            <a class="nav-link active" data-bs-toggle="collapse" href="#equipmentMenu" role="button">
+                기자재 관리
+            </a>
+            <div class="collapse" id="equipmentMenu">
+                <ul class="btn-toggle-nav list-styled fw-normal pb-1 small">
+                    <li><a href="/admin/equipment/list" class="nav-link active mt-3">기자재 조회</a></li>
+                    <li><a href="/admin/equipment/registration" class="nav-link active mt-3">기자재 등록</a></li>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <a class="nav-link active" data-bs-toggle="collapse" href="#rentalMenu" role="button">
+                대여 관리
+            </a>
+            <div class="collapse" id="rentalMenu">
+                <ul class="btn-toggle-nav list-styled fw-normal pb-1 small">
+                    <li><a href="/admin/rental/list" class="nav-link active mt-3">대여 신청내역</a></li>
+                    <li><a href="/admin/rental/item/list" class="nav-link active mt-3">대여 물품내역</a></li>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <a href="/board" class="nav-link active">
+                게시판
+            </a>
+        </li>
+        <li>
+            <a href="/notification" class="nav-link active">
+                알림
+            </a>
+        </li>
+        <li>
+            <a href="/member" class="nav-link active">
+                사용자 관리
+            </a>
+        </li>
+    </ul>
+    <!-- 사용자 + 로그아웃 감싸는 영역 -->
+    <div class="sidebar-footer">
+        <div class="user-info text-center">
+            <!-- 벨 아이콘 + 배지 -->
+            <div class="mt-2 d-inline-block">
+                <i class="bi bi-bell bell-icon" style="font-size: 24px; position: relative;">
+                    <span id="unread-count-badge" class="badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </i>
+            </div>
+            <span>현재 접속 계정<br>[{{member.name}}]</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
+    </div>
+</nav>
