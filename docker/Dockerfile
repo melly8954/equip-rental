@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 # 3. jar 파일 복사
-COPY build/libs/equip-rental-0.0.1-SNAPSHOT.jar app.jar
+COPY ../build/libs/equip-rental-0.0.1-SNAPSHOT.jar app.jar
 
 # 4. 포트 노출 (예: 8080)
 EXPOSE 8080
