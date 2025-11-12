@@ -32,13 +32,13 @@ MYSQL_HOST_PORT=3307
 
 **3️⃣ DB 실행 (Docker Compose)**
 ```bash
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml --env-file .env -p equip-rental up -d
 ```
 
 
 **4️⃣ Docker 이미지 빌드**
 ```bash
-docker build -t equip-rental:latest .
+docker build -f docker/Dockerfile -t equip-rental:latest .
 ```
 
 **5️⃣ 애플리케이션 실행**
