@@ -13,4 +13,4 @@ services:
     ports:
       - "${MYSQL_HOST_PORT}:3306"   # 호스트 포트 : 컨테이너 포트 3306
     volumes:
-      - ./mysql-init/:/docker-entrypoint-initdb.d/
+      - ../mysql-init/:/docker-entrypoint-initdb.d/
